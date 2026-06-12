@@ -155,6 +155,15 @@
   </div></div>
   <div class="tipbar">Tip: click any highlighted text, number, or field below to edit it — then press <b>Save &amp; Publish</b>.</div>
 
+  <div class="wrap" style="padding-top:18px">
+    <div style="display:flex;align-items:center;gap:14px;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:12px 16px;flex-wrap:wrap">
+      <img id="heroImgPreview" alt="" style="width:96px;height:58px;object-fit:cover;border-radius:8px;border:1px solid var(--line);background:var(--bg-2)">
+      <div style="flex:1;min-width:160px"><b style="font-size:14px">Hero background photo</b><div style="font-size:12px;color:var(--muted)">The big luxury property image behind the headline.</div></div>
+      <input type="file" id="hero_file" accept="image/*" style="display:none">
+      <button class="btn btn-gold btn-sm" id="heroImgBtn">⬆ Upload hero photo</button>
+    </div>
+  </div>
+
   <header><div class="wrap hero-grid">
     <div>
       <div class="pill"><span class="dot"></span> <span contenteditable="true" data-ed="hero.eyebrow"></span></div>
@@ -243,7 +252,7 @@
     if(el.tagName==='INPUT')el.value=v; else el.textContent=v;
   });}
 
-  var originalUnitIds=[], portraitUrl=null;
+  var originalUnitIds=[], portraitUrl=null, heroImageUrl=null;
 
   function showLogin(){$('loginView').style.display='flex';$('editView').style.display='none';}
   function showEdit(){$('loginView').style.display='none';$('editView').style.display='block';loadAll();}
@@ -267,6 +276,7 @@
     sb.from('ligemat_settings').select('content,portrait_url').eq('id',1).single().then(function(r){
       var content=(r&&r.data&&r.data.content)?r.data.content:DEF;
       portraitUrl=(r&&r.data&&r.data.portrait_url)||null;
+      heroImageUrl=(content.hero&&content.hero.hero_image)||null;
       sb.from('ligemat_units').select('*').order('sort_order',{ascending:true}).then(function(u){
         var units=(u&&!u.error&&u.data&&u.data.length)?u.data:[];
         originalUnitIds=units.map(function(x){return x.id;}).filter(Boolean);
@@ -277,7 +287,9 @@
 
   function renderAll(c,units){
     setByEd(c);
+    if(!heroImageUrl&&c.hero)heroImageUrl=c.hero.hero_image||null;
     $('portraitImg').src=portraitUrl||'osama.jpg';
+    if(heroImageUrl)$('heroImgPreview').src=heroImageUrl;
     renderStats((c.stats||[]).slice());
     renderAbout(((c.about&&c.about.cards)||[]).slice());
     renderLoc(((c.locations&&c.locations.items)||[]).slice());
@@ -331,6 +343,8 @@
   });});
   $('portraitBtn').addEventListener('click',function(){$('portrait_file').click();});
   $('portrait_file').addEventListener('change',function(e){var f=e.target.files[0];if(!f)return;uploadFile(f,'portrait',function(url){portraitUrl=url;$('portraitImg').src=url;flash('Portrait uploaded ✓');});});
+  $('heroImgBtn').addEventListener('click',function(){$('hero_file').click();});
+  $('hero_file').addEventListener('change',function(e){var f=e.target.files[0];if(!f)return;uploadFile(f,'hero',function(url){heroImageUrl=url;$('heroImgPreview').src=url;flash('Hero photo uploaded ✓');});});
   function uploadFile(file,folder,cb){
     if(!sb){flash('Not configured',true);return;}
     if(file.size>6*1024*1024){flash('Image too large (max 6MB)',true);return;}
@@ -369,6 +383,7 @@
     if(!sb){flash('Not configured',true);return;}
     var btn=$('saveBtn');btn.disabled=true;btn.textContent='Publishing…';
     var content=collect(), units=collectUnits(), tasks=[], keepIds=[];
+    content.hero=content.hero||{}; content.hero.hero_image=heroImageUrl;
     tasks.push(sb.from('ligemat_settings').update({content:content,portrait_url:portraitUrl,updated_at:new Date().toISOString()}).eq('id',1));
     units.forEach(function(u){
       var row={name:u.name,developer:u.developer||null,tag:u.tag||null,price:u.price||null,price_per_m:u.price_per_m||null,area:u.area||null,beds:u.beds||null,delivery:u.delivery||null,image_url:u.image_url||null,visible:u.visible,is_offer:u.is_offer,offer_text:u.offer_text||null,sort_order:u.sort_order};

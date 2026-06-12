@@ -9,7 +9,8 @@ window.LIGEMAT_DEFAULTS = {
     name: "Mohamed A. Osama",
     role: "Founder · Ligemat",
     cta_whatsapp: "Message on WhatsApp",
-    cta_bor: "Visit Bank of Real Estate"
+    cta_bor: "Visit Bank of Real Estate",
+    hero_image: "https://images.unsplash.com/photo-1613490493576-7fde63acd811?auto=format&fit=crop&w=1800&q=80"
   },
   stats: [
     { value: "40+", label: "Developers covered" },

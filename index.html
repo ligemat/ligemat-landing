@@ -61,26 +61,23 @@
   /* reveal on scroll (hide/show handled via inline styles in JS for reliability) */
   .reveal{transition:opacity .8s cubic-bezier(.2,.7,.2,1),transform .8s cubic-bezier(.2,.7,.2,1)}
 
-  header{position:relative;padding:84px 0 96px;overflow:hidden}
-  .hero-grid{position:relative;z-index:2;display:grid;grid-template-columns:1.1fr .9fr;gap:56px;align-items:center}
-  .pill{display:inline-flex;align-items:center;gap:9px;font-size:13px;font-weight:500;color:var(--gold-lt);background:color-mix(in srgb,var(--gold) 9%,transparent);border:1px solid var(--line);padding:8px 18px;border-radius:100px;margin-bottom:28px}
-  .pill .dot{width:7px;height:7px;border-radius:50%;background:var(--teal-lt);box-shadow:0 0 12px var(--teal-lt);animation:pulse 2.2s infinite}
+  /* full-bleed luxury property hero */
+  header{position:relative;min-height:660px;display:flex;align-items:center;overflow:hidden;background:#06100d center/cover no-repeat;background-image:linear-gradient(150deg,#0f6e56,#06100d)}
+  .hero-overlay{position:absolute;inset:0;z-index:1;background:linear-gradient(100deg,rgba(5,10,8,.94),rgba(5,10,8,.62) 46%,rgba(5,10,8,.24))}
+  .hero-in{position:relative;z-index:2;width:100%;padding:64px 0}
+  .pill{display:inline-flex;align-items:center;gap:9px;font-size:13px;font-weight:500;color:#E2B98C;background:rgba(201,149,106,.14);border:1px solid var(--line);padding:8px 18px;border-radius:100px;margin-bottom:26px;backdrop-filter:blur(6px)}
+  .pill .dot{width:7px;height:7px;border-radius:50%;background:#23C39A;box-shadow:0 0 12px #23C39A;animation:pulse 2.2s infinite}
   @keyframes pulse{50%{opacity:.4;transform:scale(.7)}}
-  h1{font-size:60px;line-height:1.04;font-weight:800;letter-spacing:-.04em}
-  h1 .grad{background:linear-gradient(110deg,var(--grad-a),var(--grad-b));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;padding-right:.14em;margin-right:-.06em}
-  h1 .sub-line{display:block;font-size:.42em;font-weight:500;color:var(--muted);margin-top:18px}
-  .lead{font-size:18px;font-weight:300;color:var(--muted);max-width:480px;margin:26px 0 34px;line-height:1.7}
+  h1{font-size:64px;line-height:1.03;font-weight:800;letter-spacing:-.04em;color:#fff;max-width:720px;text-shadow:0 2px 30px rgba(0,0,0,.4)}
+  h1 .grad{background:linear-gradient(110deg,#E2B98C,#23C39A);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;padding-right:.14em;margin-right:-.06em}
+  h1 .sub-line{display:block;font-size:.42em;font-weight:500;color:rgba(255,255,255,.85);margin-top:16px;text-shadow:none}
+  .lead{font-size:18px;font-weight:300;color:rgba(255,255,255,.84);max-width:480px;margin:24px 0 32px;line-height:1.7}
   .hero-cta{display:flex;gap:12px;flex-wrap:wrap}
-  /* portrait with 3D tilt + rotating ring */
-  .portrait-wrap{perspective:900px}
-  .portrait-card{position:relative;border-radius:22px;overflow:hidden;border:1px solid var(--line);aspect-ratio:4/5;background:linear-gradient(150deg,var(--teal),#0a3a2e);box-shadow:0 30px 70px var(--shadow);transform-style:preserve-3d;transition:transform .2s ease-out}
-  .portrait-card img{position:relative;z-index:2;width:100%;height:100%;object-fit:cover;object-position:center 18%;display:block}
-  .portrait-fallback{position:absolute;inset:0;z-index:1;display:flex;align-items:center;justify-content:center;font-size:90px;font-weight:800;color:rgba(255,255,255,.22)}
-  .portrait-ring{position:absolute;inset:-2px;border-radius:24px;background:conic-gradient(from 0deg,transparent,rgba(35,195,154,.45),transparent 30%,rgba(201,149,106,.45),transparent 60%);z-index:0;animation:spin 9s linear infinite;filter:blur(7px)}
-  @keyframes spin{to{transform:rotate(360deg)}}
-  .portrait-badge{position:absolute;left:18px;bottom:18px;right:18px;z-index:3;background:color-mix(in srgb,var(--bg) 80%,transparent);backdrop-filter:blur(8px);border:1px solid var(--line);border-radius:14px;padding:14px 18px;transform:translateZ(40px)}
-  .portrait-badge b{font-size:16px;font-weight:700;display:block}
-  .portrait-badge span{font-size:12px;color:var(--gold-lt)}
+  .founder-tag{display:inline-flex;align-items:center;gap:14px;margin-top:42px;background:rgba(5,10,8,.5);backdrop-filter:blur(12px);border:1px solid var(--line);padding:12px 22px 12px 12px;border-radius:18px}
+  .founder-tag img{width:56px;height:68px;object-fit:cover;object-position:center 15%;border-radius:12px;display:block;background:linear-gradient(150deg,var(--teal),#0a3a2e)}
+  .founder-tag .fb{width:56px;height:68px;border-radius:12px;display:flex;align-items:center;justify-content:center;background:linear-gradient(150deg,var(--teal),#0a3a2e);font-weight:800;color:rgba(255,255,255,.5)}
+  .founder-tag b{display:block;font-size:15px;font-weight:700;color:#fff}
+  .founder-tag span{font-size:12px;color:#E2B98C}
 
   .strip{border-top:1px solid var(--line);border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg-2) 80%,transparent);backdrop-filter:blur(8px)}
   .strip-in{display:grid;grid-template-columns:repeat(4,1fr)}
@@ -182,9 +179,10 @@
   </div>
 </nav>
 
-<header>
-  <div class="wrap hero-grid">
-    <div class="reveal">
+<header id="heroSec">
+  <div class="hero-overlay"></div>
+  <div class="wrap hero-in">
+    <div class="reveal" style="max-width:720px">
       <div class="pill"><span class="dot"></span> <span data-c="hero.eyebrow"></span></div>
       <h1><span data-c="hero.headline_pre"></span> <span class="grad" data-c="hero.headline_accent"></span>.
         <span class="sub-line" data-c="hero.subline"></span></h1>
@@ -193,13 +191,10 @@
         <a class="btn btn-gold magnetic" id="ctaWhatsapp" data-c="hero.cta_whatsapp" href="#"></a>
         <a class="btn btn-line magnetic" id="ctaBor" href="#" target="_blank" rel="noopener"><span data-c="hero.cta_bor"></span> ↗</a>
       </div>
-    </div>
-    <div class="reveal portrait-wrap" id="portraitWrap">
-      <div class="portrait-card" id="portraitTilt">
-        <div class="portrait-ring"></div>
-        <div class="portrait-fallback">MO</div>
-        <img id="portraitImg" src="osama.jpg" alt="Mohamed A. Osama" onerror="this.style.display='none'">
-        <div class="portrait-badge"><b data-c="hero.name"></b><span data-c="hero.role"></span></div>
+      <div class="founder-tag">
+        <div class="fb">MO</div>
+        <img id="portraitImg" src="osama.jpg" alt="Mohamed A. Osama" style="display:none" onload="this.style.display='block';var f=this.previousElementSibling;if(f)f.style.display='none'" onerror="this.style.display='none'">
+        <div><b data-c="hero.name"></b><span data-c="hero.role"></span></div>
       </div>
     </div>
   </div>
@@ -287,6 +282,9 @@
     var ig=(contact.instagram||'').replace(/^@/,'').trim();
     var igUrl=ig?('https://instagram.com/'+ig):'#';
     ['igLink','footIg'].forEach(function(id){var e=document.getElementById(id);if(e)e.href=igUrl;});
+    var hi=(c.hero&&c.hero.hero_image);
+    var hs=document.getElementById('heroSec');
+    if(hs&&hi){hs.style.backgroundImage="url('"+hi+"')";}
 
     document.getElementById('statStrip').innerHTML=(c.stats||[]).map(function(s){
       return '<div class="st"><b data-count>'+esc(s.value)+'</b><span>'+esc(s.label)+'</span></div>';
