@@ -2,7 +2,7 @@
 window.LIGEMAT_DEFAULTS = {
   hero: {
     eyebrow: "Real estate advisory · Cairo & New Capital",
-    headline_pre: "Property, made ",
+    headline_pre: "Property, made",
     headline_accent: "clear",
     subline: "From the airport to your front door.",
     lead: "I'm Mohamed A. Osama. I help expats and investors buy and rent in Egypt with total clarity — every pro, every con, zero pressure.",

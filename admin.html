@@ -46,9 +46,13 @@
   .editbar .right{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
   #saveMsg{font-size:13px}
 
-  [contenteditable]{outline:none;border-radius:6px;transition:box-shadow .15s,background .15s;cursor:text}
-  [contenteditable]:hover{box-shadow:0 0 0 1.5px color-mix(in srgb,var(--gold) 35%,transparent)}
-  [contenteditable]:focus{box-shadow:0 0 0 2px var(--gold);background:color-mix(in srgb,var(--gold) 7%,transparent)}
+  [contenteditable]{outline:none;border-radius:6px;transition:box-shadow .15s,background .15s;cursor:text;box-shadow:0 0 0 1px color-mix(in srgb,var(--gold) 16%,transparent)}
+  [contenteditable]:hover{box-shadow:0 0 0 1.5px color-mix(in srgb,var(--gold) 45%,transparent)}
+  [contenteditable]:focus{box-shadow:0 0 0 2px var(--gold);background:color-mix(in srgb,var(--gold) 8%,transparent)}
+  [contenteditable]:empty::before{content:"Click to edit";color:var(--muted);opacity:.6}
+  h1 [contenteditable]{display:inline-block;padding:0 5px;line-height:1.05}
+  h1 [contenteditable].grad{-webkit-text-fill-color:var(--gold-lt);background:none;color:var(--gold-lt)}
+  .tipbar{background:color-mix(in srgb,var(--teal-lt) 10%,transparent);border-bottom:1px solid var(--line);color:var(--teal-lt);font-size:13px;text-align:center;padding:8px 16px}
   .sec-tools{display:flex;justify-content:center;gap:10px;margin-top:18px}
   .hint{display:block;text-align:center;font-size:12px;color:var(--muted);margin:14px 0 6px}
 
@@ -149,11 +153,12 @@
       <button class="btn btn-gold" id="saveBtn">Save &amp; Publish</button>
     </div>
   </div></div>
+  <div class="tipbar">Tip: click any highlighted text, number, or field below to edit it — then press <b>Save &amp; Publish</b>.</div>
 
   <header><div class="wrap hero-grid">
     <div>
       <div class="pill"><span class="dot"></span> <span contenteditable="true" data-ed="hero.eyebrow"></span></div>
-      <h1><span contenteditable="true" data-ed="hero.headline_pre"></span><span class="grad" contenteditable="true" data-ed="hero.headline_accent"></span>.
+      <h1><span contenteditable="true" data-ed="hero.headline_pre"></span> <span class="grad" contenteditable="true" data-ed="hero.headline_accent"></span>.
         <span class="sub-line" contenteditable="true" data-ed="hero.subline"></span></h1>
       <p class="lead" contenteditable="true" data-ed="hero.lead"></p>
       <div class="hero-cta">
