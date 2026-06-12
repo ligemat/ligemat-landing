@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ligemat — Admin</title>
+<meta name="robots" content="noindex,nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0A0F0D;--bg-2:#0E1714;--panel:#121C18;--line:rgba(201,149,106,.18);
+    --teal:#0F6E56;--teal-lt:#23C39A;--gold:#C9956A;--gold-lt:#E2B98C;
+    --txt:#EDEFEC;--muted:#9BA8A2;--red:#e24b4a;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:'Sora',system-ui,sans-serif;background:var(--bg);color:var(--txt);line-height:1.5;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:1080px;margin:0 auto;padding:0 24px}
+  a{color:var(--gold-lt)}
+  .topbar{border-bottom:1px solid var(--line);background:var(--bg-2)}
+  .topbar-in{display:flex;align-items:center;justify-content:space-between;height:66px}
+  .brand{font-size:19px;font-weight:700;display:flex;align-items:center;gap:10px}
+  .brand i{width:28px;height:28px;border-radius:8px;background:linear-gradient(140deg,var(--gold),#a9763f);color:#1a1206;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;font-style:normal}
+  .brand span{font-size:12px;color:var(--muted);font-weight:400;border-left:1px solid var(--line);padding-left:10px;margin-left:4px}
+  .btn{display:inline-flex;align-items:center;gap:7px;font-size:13px;font-weight:600;padding:10px 18px;border-radius:9px;cursor:pointer;border:none;transition:all .2s;font-family:inherit}
+  .btn-gold{background:linear-gradient(135deg,var(--gold),#b9844f);color:#1a1206}
+  .btn-gold:hover{transform:translateY(-1px)}
+  .btn-line{background:rgba(255,255,255,.03);border:1px solid var(--line);color:var(--txt)}
+  .btn-line:hover{border-color:var(--gold)}
+  .btn-red{background:rgba(226,75,74,.12);border:1px solid rgba(226,75,74,.4);color:#f09595}
+  .btn-red:hover{background:rgba(226,75,74,.2)}
+  .btn-sm{padding:7px 12px;font-size:12px}
+
+  /* config warning */
+  .warn{background:rgba(226,75,74,.1);border:1px solid rgba(226,75,74,.35);color:#f3c0c0;border-radius:12px;padding:16px 20px;margin:24px 0;font-size:14px;line-height:1.6}
+
+  /* login */
+  .login-wrap{min-height:80vh;display:flex;align-items:center;justify-content:center}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:34px;width:100%;max-width:400px}
+  .card h1{font-size:24px;font-weight:700;margin-bottom:6px}
+  .card .muted{color:var(--muted);font-size:14px;margin-bottom:24px}
+  label{display:block;font-size:12px;color:var(--muted);margin:14px 0 6px;letter-spacing:.04em;text-transform:uppercase}
+  input,textarea,select{width:100%;background:var(--bg-2);border:1px solid var(--line);border-radius:10px;padding:12px 14px;color:var(--txt);font-family:inherit;font-size:14px;transition:border-color .2s}
+  input:focus,textarea:focus,select:focus{outline:none;border-color:var(--gold)}
+  textarea{resize:vertical;min-height:64px}
+  .msg{font-size:13px;margin-top:14px;min-height:18px}
+  .msg.err{color:#f09595}.msg.ok{color:var(--teal-lt)}
+
+  /* dashboard */
+  .dash{padding:30px 0 80px;display:none}
+  .dash-head{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px;margin-bottom:26px}
+  .dash-head h1{font-size:26px;font-weight:700}
+  .dash-head .muted{color:var(--muted);font-size:13px}
+  .layout{display:grid;grid-template-columns:1.15fr .85fr;gap:26px;align-items:start}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:22px}
+  .panel h2{font-size:16px;font-weight:600;margin-bottom:4px}
+  .panel .sub{font-size:12px;color:var(--muted);margin-bottom:18px}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .form-actions{display:flex;gap:10px;margin-top:20px}
+  .check{display:flex;align-items:center;gap:10px;margin-top:16px;font-size:14px;color:var(--txt)}
+  .check input{width:auto}
+
+  /* unit list */
+  .ulist{display:flex;flex-direction:column;gap:12px}
+  .urow{border:1px solid var(--line);border-radius:12px;padding:14px 16px;background:var(--bg-2)}
+  .urow.hidden{opacity:.5}
+  .urow-top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+  .urow b{font-size:15px;font-weight:600}
+  .urow .dev{font-size:11px;color:var(--gold);text-transform:uppercase;letter-spacing:.06em}
+  .urow .price{font-size:14px;color:var(--muted);margin-top:4px}
+  .badges{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+  .badge{font-size:10px;font-weight:600;padding:3px 9px;border-radius:20px;letter-spacing:.04em}
+  .b-on{background:rgba(35,195,154,.14);color:var(--teal-lt)}
+  .b-off{background:rgba(155,168,162,.16);color:var(--muted)}
+  .b-offer{background:rgba(226,75,74,.16);color:#f09595}
+  .urow-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+  .empty{color:var(--muted);font-size:14px;text-align:center;padding:28px}
+
+  @media(max-width:820px){.layout{grid-template-columns:1fr}.grid2{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<div class="topbar"><div class="wrap topbar-in">
+  <div class="brand"><i>L</i>Ligemat <span>Admin</span></div>
+  <button class="btn btn-line btn-sm" id="logoutBtn" style="display:none">Log out</button>
+</div></div>
+
+<!-- CONFIG WARNING -->
+<div class="wrap"><div class="warn" id="cfgWarn" style="display:none">
+  ⚠ Supabase isn't configured yet. Open <b>config.js</b> and paste your Project URL and anon key (see the setup guide). Until then, login won't work.
+</div></div>
+
+<!-- LOGIN -->
+<div class="login-wrap" id="loginView">
+  <div class="card">
+    <h1>Sign in</h1>
+    <div class="muted">Manage your units &amp; offers.</div>
+    <label for="email">Email</label>
+    <input id="email" type="email" autocomplete="username" placeholder="you@ligemat.com">
+    <label for="password">Password</label>
+    <input id="password" type="password" autocomplete="current-password" placeholder="••••••••">
+    <div style="margin-top:22px"><button class="btn btn-gold" id="loginBtn" style="width:100%;justify-content:center">Sign in</button></div>
+    <div class="msg" id="loginMsg"></div>
+  </div>
+</div>
+
+<!-- DASHBOARD -->
+<div class="dash" id="dashView"><div class="wrap">
+  <div class="dash-head">
+    <div><h1>Your units</h1><div class="muted" id="signedAs"></div></div>
+    <button class="btn btn-line btn-sm" id="newBtn">+ Add new unit</button>
+  </div>
+
+  <div class="panel" style="margin-bottom:24px">
+    <h2>Main portrait photo</h2>
+    <div class="sub">The large photo in your homepage hero. Upload a new one and it changes instantly — no redeploy needed.</div>
+    <div style="display:flex;align-items:center;gap:18px">
+      <img id="portraitPreview" alt="current portrait" style="width:80px;height:100px;object-fit:cover;border-radius:10px;border:1px solid var(--line);background:var(--bg-2)">
+      <div>
+        <input type="file" id="portrait_file" accept="image/*" style="display:none">
+        <button type="button" class="btn btn-gold btn-sm" id="portrait_upload_btn">⬆ Upload new portrait</button>
+        <div class="msg" id="portrait_msg" style="margin-top:8px"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="layout">
+    <!-- form -->
+    <div class="panel">
+      <h2 id="formTitle">Add a unit</h2>
+      <div class="sub">Fill in the details. Toggle "Show on website" to publish it.</div>
+      <input type="hidden" id="f_id">
+      <label for="f_name">Unit / project name *</label>
+      <input id="f_name" placeholder="Lumia Lagoons">
+      <div class="grid2">
+        <div><label for="f_developer">Developer</label><input id="f_developer" placeholder="Dubai Misr"></div>
+        <div><label for="f_tag">Badge / tag</label><input id="f_tag" placeholder="Lagoon view"></div>
+      </div>
+      <div class="grid2">
+        <div><label for="f_price">Price (display)</label><input id="f_price" placeholder="EGP 8.56M"></div>
+        <div><label for="f_price_per_m">Price / m²</label><input id="f_price_per_m" placeholder="49,474/m²"></div>
+      </div>
+      <div class="grid2">
+        <div><label for="f_area">Area</label><input id="f_area" placeholder="173 m²"></div>
+        <div><label for="f_beds">Bedrooms</label><input id="f_beds" placeholder="3 BR"></div>
+      </div>
+      <div class="grid2">
+        <div><label for="f_delivery">Delivery</label><input id="f_delivery" placeholder="2028"></div>
+        <div><label for="f_sort">Sort order</label><input id="f_sort" type="number" value="0"></div>
+      </div>
+      <label for="f_image">Unit image</label>
+      <input id="f_image" placeholder="https://… or use Upload below (blank = gradient)">
+      <div style="display:flex;align-items:center;gap:10px;margin-top:8px">
+        <input type="file" id="f_image_file" accept="image/*" style="display:none">
+        <button type="button" class="btn btn-line btn-sm" id="f_image_upload_btn">⬆ Upload image</button>
+        <span class="msg" id="f_image_msg" style="margin:0"></span>
+      </div>
+      <div class="check"><input type="checkbox" id="f_offer"><label for="f_offer" style="margin:0;text-transform:none;letter-spacing:0;font-size:14px;color:var(--txt)">Mark as a special offer</label></div>
+      <label for="f_offer_text">Offer text (shown on ribbon)</label>
+      <input id="f_offer_text" placeholder="10% launch discount">
+      <div class="check"><input type="checkbox" id="f_visible" checked><label for="f_visible" style="margin:0;text-transform:none;letter-spacing:0;font-size:14px;color:var(--txt)">Show on website</label></div>
+      <div class="form-actions">
+        <button class="btn btn-gold" id="saveBtn">Save unit</button>
+        <button class="btn btn-line" id="cancelBtn" style="display:none">Cancel</button>
+      </div>
+      <div class="msg" id="formMsg"></div>
+    </div>
+
+    <!-- list -->
+    <div class="panel">
+      <h2>Published &amp; drafts</h2>
+      <div class="sub">Click a unit to edit. Hidden units don't appear on the site.</div>
+      <div class="ulist" id="ulist"><div class="empty">Loading…</div></div>
+    </div>
+  </div>
+</div></div>
+
+<script src="config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+(function(){
+  var C = window.LIGEMAT_CONFIG || {};
+  var configured = C.SUPABASE_URL && C.SUPABASE_URL.indexOf('http')===0 && C.SUPABASE_ANON_KEY && C.SUPABASE_ANON_KEY.indexOf('PASTE')!==0;
+  var $ = function(id){return document.getElementById(id);};
+  if(!configured){ $('cfgWarn').style.display='block'; }
+
+  var sb = configured && window.supabase ? window.supabase.createClient(C.SUPABASE_URL, C.SUPABASE_ANON_KEY) : null;
+
+  function showLogin(){ $('loginView').style.display='flex'; $('dashView').style.display='none'; $('logoutBtn').style.display='none'; }
+  function showDash(email){ $('loginView').style.display='none'; $('dashView').style.display='block'; $('logoutBtn').style.display='inline-flex'; $('signedAs').textContent='Signed in as '+email; loadUnits(); loadSettings(); }
+
+  // ---- auth ----
+  if(sb){
+    sb.auth.getSession().then(function(res){
+      var session = res.data.session;
+      if(session) showDash(session.user.email); else showLogin();
+    });
+  } else { showLogin(); }
+
+  $('loginBtn').addEventListener('click', function(){
+    var m=$('loginMsg'); m.className='msg'; m.textContent='';
+    if(!sb){ m.className='msg err'; m.textContent='Supabase not configured (see config.js).'; return; }
+    var email=$('email').value.trim(), pw=$('password').value;
+    if(!email||!pw){ m.className='msg err'; m.textContent='Enter email and password.'; return; }
+    $('loginBtn').textContent='Signing in…';
+    sb.auth.signInWithPassword({email:email,password:pw}).then(function(res){
+      $('loginBtn').textContent='Sign in';
+      if(res.error){ m.className='msg err'; m.textContent=res.error.message; }
+      else { showDash(res.data.user.email); }
+    });
+  });
+  $('password').addEventListener('keydown',function(e){if(e.key==='Enter')$('loginBtn').click();});
+
+  $('logoutBtn').addEventListener('click', function(){ if(sb) sb.auth.signOut().then(showLogin); });
+
+  // ---- form helpers ----
+  var FIELDS=['name','developer','tag','price','price_per_m','area','beds','delivery','image','offer_text'];
+  function clearForm(){
+    $('f_id').value='';
+    FIELDS.forEach(function(f){ $('f_'+f).value=''; });
+    $('f_sort').value='0'; $('f_offer').checked=false; $('f_visible').checked=true;
+    $('formTitle').textContent='Add a unit'; $('cancelBtn').style.display='none';
+    $('formMsg').textContent=''; $('formMsg').className='msg';
+  }
+  $('newBtn').addEventListener('click',clearForm);
+  $('cancelBtn').addEventListener('click',clearForm);
+
+  function fillForm(u){
+    $('f_id').value=u.id;
+    $('f_name').value=u.name||''; $('f_developer').value=u.developer||''; $('f_tag').value=u.tag||'';
+    $('f_price').value=u.price||''; $('f_price_per_m').value=u.price_per_m||'';
+    $('f_area').value=u.area||''; $('f_beds').value=u.beds||''; $('f_delivery').value=u.delivery||'';
+    $('f_image').value=u.image_url||''; $('f_sort').value=u.sort_order||0;
+    $('f_offer').checked=!!u.is_offer; $('f_offer_text').value=u.offer_text||''; $('f_visible').checked=!!u.visible;
+    $('formTitle').textContent='Edit: '+(u.name||'unit'); $('cancelBtn').style.display='inline-flex';
+    window.scrollTo({top:0,behavior:'smooth'});
+  }
+
+  $('saveBtn').addEventListener('click', function(){
+    var m=$('formMsg'); m.className='msg'; m.textContent='';
+    if(!sb){ m.className='msg err'; m.textContent='Supabase not configured.'; return; }
+    var name=$('f_name').value.trim();
+    if(!name){ m.className='msg err'; m.textContent='Unit name is required.'; return; }
+    var row={
+      name:name, developer:$('f_developer').value.trim()||null, tag:$('f_tag').value.trim()||null,
+      price:$('f_price').value.trim()||null, price_per_m:$('f_price_per_m').value.trim()||null,
+      area:$('f_area').value.trim()||null, beds:$('f_beds').value.trim()||null, delivery:$('f_delivery').value.trim()||null,
+      image_url:$('f_image').value.trim()||null, is_offer:$('f_offer').checked,
+      offer_text:$('f_offer_text').value.trim()||null, visible:$('f_visible').checked,
+      sort_order:parseInt($('f_sort').value,10)||0
+    };
+    var id=$('f_id').value;
+    $('saveBtn').textContent='Saving…';
+    var q = id ? sb.from('ligemat_units').update(row).eq('id',id) : sb.from('ligemat_units').insert(row);
+    q.then(function(res){
+      $('saveBtn').textContent='Save unit';
+      if(res.error){ m.className='msg err'; m.textContent=res.error.message; }
+      else { m.className='msg ok'; m.textContent=id?'Updated.':'Added.'; clearForm(); loadUnits(); }
+    });
+  });
+
+  // ---- list + actions ----
+  function loadUnits(){
+    if(!sb) return;
+    sb.from('ligemat_units').select('*').order('sort_order',{ascending:true}).then(function(res){
+      var box=$('ulist');
+      if(res.error){ box.innerHTML='<div class="empty">'+res.error.message+'</div>'; return; }
+      var units=res.data||[];
+      if(!units.length){ box.innerHTML='<div class="empty">No units yet. Add your first one →</div>'; return; }
+      box.innerHTML='';
+      units.forEach(function(u){
+        var row=document.createElement('div');
+        row.className='urow'+(u.visible?'':' hidden');
+        row.innerHTML =
+          '<div class="urow-top"><div>'+
+            '<b>'+esc(u.name)+'</b>'+(u.developer?' <span class="dev">· '+esc(u.developer)+'</span>':'')+
+            '<div class="price">'+esc(u.price||'')+(u.area?' · '+esc(u.area):'')+'</div>'+
+            '<div class="badges">'+
+              (u.visible?'<span class="badge b-on">On site</span>':'<span class="badge b-off">Hidden</span>')+
+              (u.is_offer?'<span class="badge b-offer">Offer</span>':'')+
+            '</div>'+
+          '</div></div>'+
+          '<div class="urow-actions">'+
+            '<button class="btn btn-line btn-sm" data-act="edit">Edit</button>'+
+            '<button class="btn btn-line btn-sm" data-act="toggle">'+(u.visible?'Hide':'Show')+'</button>'+
+            '<button class="btn btn-red btn-sm" data-act="del">Delete</button>'+
+          '</div>';
+        row.querySelector('[data-act=edit]').addEventListener('click',function(){fillForm(u);});
+        row.querySelector('[data-act=toggle]').addEventListener('click',function(){
+          sb.from('ligemat_units').update({visible:!u.visible}).eq('id',u.id).then(loadUnits);
+        });
+        row.querySelector('[data-act=del]').addEventListener('click',function(){
+          if(confirm('Delete "'+u.name+'"? This cannot be undone.'))
+            sb.from('ligemat_units').delete().eq('id',u.id).then(loadUnits);
+        });
+        box.appendChild(row);
+      });
+    });
+  }
+
+  // ---- image uploads to Supabase Storage (bucket: ligemat-media) ----
+  function uploadFile(file, folder, btn, msgEl, cb){
+    if(!sb){ msgEl.className='msg err'; msgEl.textContent='Not configured.'; return; }
+    if(!file){ return; }
+    if(file.size > 6*1024*1024){ msgEl.className='msg err'; msgEl.textContent='Image too large (max 6 MB).'; return; }
+    var ext=((file.name.split('.').pop()||'jpg').toLowerCase().replace(/[^a-z0-9]/g,''))||'jpg';
+    var path=folder+'/'+Date.now()+'-'+Math.random().toString(36).slice(2,7)+'.'+ext;
+    var label=btn?btn.textContent:''; if(btn){ btn.textContent='Uploading…'; btn.disabled=true; }
+    msgEl.className='msg'; msgEl.textContent='';
+    sb.storage.from('ligemat-media').upload(path, file, {upsert:true, cacheControl:'3600', contentType:file.type||undefined}).then(function(res){
+      if(btn){ btn.textContent=label; btn.disabled=false; }
+      if(res.error){ msgEl.className='msg err'; msgEl.textContent=res.error.message; return; }
+      cb(sb.storage.from('ligemat-media').getPublicUrl(path).data.publicUrl);
+    });
+  }
+
+  $('f_image_upload_btn').addEventListener('click', function(){ $('f_image_file').click(); });
+  $('f_image_file').addEventListener('change', function(e){
+    var f=e.target.files[0]; if(!f) return;
+    uploadFile(f,'units',$('f_image_upload_btn'),$('f_image_msg'),function(url){
+      $('f_image').value=url; var m=$('f_image_msg'); m.className='msg ok'; m.textContent='Uploaded ✓';
+    });
+    e.target.value='';
+  });
+
+  function loadSettings(){
+    if(!sb) return;
+    sb.from('ligemat_settings').select('portrait_url').eq('id',1).single().then(function(r){
+      var url=(r&&r.data&&r.data.portrait_url)?r.data.portrait_url:'osama.jpg';
+      var im=$('portraitPreview'); if(im) im.src=url;
+    });
+  }
+  $('portrait_upload_btn').addEventListener('click', function(){ $('portrait_file').click(); });
+  $('portrait_file').addEventListener('change', function(e){
+    var f=e.target.files[0]; if(!f) return;
+    uploadFile(f,'portrait',$('portrait_upload_btn'),$('portrait_msg'),function(url){
+      sb.from('ligemat_settings').update({portrait_url:url, updated_at:new Date().toISOString()}).eq('id',1).then(function(res){
+        var m=$('portrait_msg');
+        if(res.error){ m.className='msg err'; m.textContent=res.error.message; return; }
+        m.className='msg ok'; m.textContent='Portrait updated ✓ — live on the site now.';
+        $('portraitPreview').src=url;
+      });
+    });
+    e.target.value='';
+  });
+
+  function esc(t){return (t==null?'':String(t)).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+})();
+</script>
+</body>
+</html>
