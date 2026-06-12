@@ -97,9 +97,9 @@
   .head p{font-size:18px;color:var(--muted);margin-top:16px;font-weight:300}
 
   .vals{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
-  .val{background:var(--glass);border:1px solid var(--line);border-radius:18px;padding:34px 30px;backdrop-filter:blur(10px);transition:transform .3s,border-color .3s,box-shadow .3s}
+  .val{background:var(--glass);border:1px solid var(--line);border-radius:18px;padding:34px 30px;backdrop-filter:blur(10px);transition:transform .3s,border-color .3s,box-shadow .3s;text-align:center}
   .val:hover{transform:translateY(-6px);border-color:color-mix(in srgb,var(--gold) 40%,transparent);box-shadow:0 22px 50px rgba(35,195,154,.08)}
-  .val .ic{width:48px;height:48px;border-radius:13px;background:color-mix(in srgb,var(--teal-lt) 12%,transparent);border:1px solid color-mix(in srgb,var(--teal-lt) 28%,transparent);display:flex;align-items:center;justify-content:center;color:var(--teal-lt);font-size:21px;margin-bottom:20px}
+  .val .ic{width:48px;height:48px;border-radius:13px;background:color-mix(in srgb,var(--teal-lt) 12%,transparent);border:1px solid color-mix(in srgb,var(--teal-lt) 28%,transparent);display:flex;align-items:center;justify-content:center;color:var(--teal-lt);font-size:21px;margin:0 auto 20px}
   .val h3{font-size:19px;font-weight:600;margin-bottom:10px}
   .val p{font-size:15px;color:var(--muted);font-weight:300;line-height:1.7}
 
@@ -241,6 +241,7 @@
       <div class="cta-rows">
         <div class="cr"><span>WhatsApp / Phone</span><b data-c="contact.phone"></b></div>
         <div class="cr"><span>Email</span><b data-c="contact.email"></b></div>
+        <div class="cr"><span>Instagram</span><b><a id="igLink" href="#" target="_blank" rel="noopener" data-c="contact.instagram"></a></b></div>
         <div class="cr"><span>Based in</span><b data-c="contact.based"></b></div>
       </div>
     </div>
@@ -249,7 +250,7 @@
 
 <footer><div class="wrap foot">
   <span class="brand"><i>L</i>Ligemat</span>
-  <small>© 2026 Ligemat · Mohamed A. Osama · A <a class="borlink" id="footBor" href="#" target="_blank" rel="noopener">Bank of Real Estate</a> brand</small>
+  <small>© 2026 Ligemat · <a class="borlink" id="footIg" href="#" target="_blank" rel="noopener" data-c="contact.instagram"></a> · A <a class="borlink" id="footBor" href="#" target="_blank" rel="noopener">Bank of Real Estate</a> brand</small>
 </div></footer>
 
 <script src="config.js"></script>
@@ -282,6 +283,9 @@
     var ce=document.getElementById('ctaPhone'); if(ce)ce.href='tel:'+ph;
     var bor=contact.bor_url||C.BOR_URL||'https://bank-re.com';
     ['ctaBor','footBor'].forEach(function(id){var e=document.getElementById(id);if(e)e.href=bor;});
+    var ig=(contact.instagram||'').replace(/^@/,'').trim();
+    var igUrl=ig?('https://instagram.com/'+ig):'#';
+    ['igLink','footIg'].forEach(function(id){var e=document.getElementById(id);if(e)e.href=igUrl;});
 
     document.getElementById('statStrip').innerHTML=(c.stats||[]).map(function(s){
       return '<div class="st"><b data-count>'+esc(s.value)+'</b><span>'+esc(s.label)+'</span></div>';

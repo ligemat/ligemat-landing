@@ -64,7 +64,8 @@ window.LIGEMAT_DEFAULTS = {
     email: "hello@ligemat.com",
     based: "Nasr City, Cairo",
     whatsapp: "201507785755",
-    bor_url: "https://bank-re.com"
+    bor_url: "https://bank-re.com",
+    instagram: "@ligemat"
   },
   units_demo: [
     { name: "Lumia Lagoons", developer: "Dubai Misr", tag: "Lagoon view", price: "EGP 8.56M", price_per_m: "49,474/m²", area: "173 m²", beds: "3 BR", delivery: "2028", is_offer: false },

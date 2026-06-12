@@ -90,8 +90,8 @@
   .head p{font-size:18px;color:var(--muted);margin-top:14px;font-weight:300}
 
   .vals{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
-  .val{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:30px 28px;position:relative}
-  .val .ic{width:48px;height:48px;border-radius:13px;background:color-mix(in srgb,var(--teal-lt) 12%,transparent);border:1px solid color-mix(in srgb,var(--teal-lt) 28%,transparent);display:flex;align-items:center;justify-content:center;color:var(--teal-lt);font-size:21px;margin-bottom:18px}
+  .val{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:30px 28px;position:relative;text-align:center}
+  .val .ic{width:48px;height:48px;border-radius:13px;background:color-mix(in srgb,var(--teal-lt) 12%,transparent);border:1px solid color-mix(in srgb,var(--teal-lt) 28%,transparent);display:flex;align-items:center;justify-content:center;color:var(--teal-lt);font-size:21px;margin:0 auto 18px}
   .val h3{font-size:19px;font-weight:600;margin-bottom:9px}
   .val p{font-size:15px;color:var(--muted);font-weight:300;line-height:1.7}
 
@@ -217,6 +217,7 @@
       <div><label>WhatsApp / Phone (shown)</label><input data-ed="contact.phone"></div>
       <div><label>WhatsApp number (international, no +)</label><input data-ed="contact.whatsapp"></div>
       <div><label>Email</label><input data-ed="contact.email"></div>
+      <div><label>Instagram handle</label><input data-ed="contact.instagram"></div>
       <div><label>Based in</label><input data-ed="contact.based"></div>
       <div style="grid-column:1/-1"><label>Bank of Real Estate URL</label><input data-ed="contact.bor_url"></div>
     </div>
