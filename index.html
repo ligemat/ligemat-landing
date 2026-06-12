@@ -165,101 +165,79 @@
   <div class="glow g1"></div><div class="glow g2"></div>
   <div class="wrap hero-grid">
     <div>
-      <div class="pill"><span class="dot"></span> Real estate advisory · Cairo &amp; New Capital</div>
-      <h1>Property, made <span class="grad">clear</span>.
-        <span class="sub-line">From the airport to your front door.</span></h1>
-      <p class="lead">I'm Mohamed A. Osama. I help expats and investors buy and rent in Egypt with total clarity — every pro, every con, zero pressure.</p>
+      <div class="pill"><span class="dot"></span> <span data-c="hero.eyebrow"></span></div>
+      <h1><span data-c="hero.headline_pre"></span><span class="grad" data-c="hero.headline_accent"></span>.
+        <span class="sub-line" data-c="hero.subline"></span></h1>
+      <p class="lead" data-c="hero.lead"></p>
       <div class="hero-cta">
-        <a class="btn btn-gold" id="ctaWhatsapp" href="#">Message on WhatsApp</a>
-        <a class="btn btn-line" id="ctaBor" href="#" target="_blank" rel="noopener">Visit Bank of Real Estate ↗</a>
+        <a class="btn btn-gold" id="ctaWhatsapp" data-c="hero.cta_whatsapp" href="#"></a>
+        <a class="btn btn-line" id="ctaBor" href="#" target="_blank" rel="noopener"><span data-c="hero.cta_bor"></span> ↗</a>
       </div>
     </div>
     <div class="portrait-card">
       <div class="portrait-fallback">MO</div>
       <img id="portraitImg" src="osama.jpg" alt="Mohamed A. Osama" onerror="this.style.display='none'">
-      <div class="portrait-badge"><b>Mohamed A. Osama</b><span>Founder · Ligemat</span></div>
+      <div class="portrait-badge"><b data-c="hero.name"></b><span data-c="hero.role"></span></div>
     </div>
   </div>
 </header>
 
-<div class="strip"><div class="wrap strip-in">
-  <div class="st"><b>40+</b><span>Developers covered</span></div>
-  <div class="st"><b>7</b><span>Nationalities served</span></div>
-  <div class="st"><b>11</b><span>Madinaty zones mapped</span></div>
-  <div class="st"><b>100%</b><span>Decree-verified</span></div>
-</div></div>
+<div class="strip"><div class="wrap strip-in" id="statStrip"></div></div>
 
 <section id="about"><div class="wrap">
-  <div class="head"><div class="kicker">How I work</div><h2>A guide, not a salesman.</h2>
-    <p>Nationality, lifestyle, budget, exit plan — then the developer. Never the other way around.</p></div>
-  <div class="vals">
-    <div class="val"><div class="ic">◷</div><h3>Clarity first</h3><p>Every option comes with its pros and its cons, written plainly. The decision always stays yours.</p></div>
-    <div class="val"><div class="ic">✓</div><h3>Verified only</h3><p>I work with decree-secured projects from real developers — no off-plan hype, no unverifiable claims.</p></div>
-    <div class="val"><div class="ic">◎</div><h3>No pressure</h3><p>No urgency tactics, no commission-first recommendations. Just honest advice on what fits your plan.</p></div>
-  </div>
+  <div class="head"><div class="kicker" data-c="about.kicker"></div><h2 data-c="about.title"></h2>
+    <p data-c="about.subtitle"></p></div>
+  <div class="vals" id="aboutCards"></div>
 </div></section>
 
 <section id="locations" style="padding-top:0"><div class="wrap">
-  <div class="head"><div class="kicker">Where I work</div><h2>The communities I know best.</h2>
-    <p>From the New Capital to the coast — mapped, verified, and walked in person.</p></div>
-  <div class="loc-grid">
-    <div class="loc" style="--img:url('https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=600&q=70')"><div class="loc-txt"><b>New Capital</b><span>R8 · Diplomatic District</span></div></div>
-    <div class="loc" style="--img:url('https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=600&q=70')"><div class="loc-txt"><b>Madinaty</b><span>11 micro-zones</span></div></div>
-    <div class="loc" style="--img:url('https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=600&q=70')"><div class="loc-txt"><b>Sheikh Zayed</b><span>West Cairo</span></div></div>
-    <div class="loc" style="--img:url('https://images.unsplash.com/photo-1505993597083-3bd19fb75e57?auto=format&fit=crop&w=600&q=70')"><div class="loc-txt"><b>North Coast</b><span>Seasonal &amp; resort</span></div></div>
-  </div>
+  <div class="head"><div class="kicker" data-c="locations.kicker"></div><h2 data-c="locations.title"></h2>
+    <p data-c="locations.subtitle"></p></div>
+  <div class="loc-grid" id="locGrid"></div>
 </div></section>
 
 <section id="developers" class="devs"><div class="wrap">
-  <div class="head"><div class="kicker">Partners</div><h2>Egypt's leading developers.</h2></div>
-  <div class="dev-grid">
-    <div class="dev">Emaar<small>Tier A</small></div><div class="dev">SODIC<small>Tier A</small></div>
-    <div class="dev">Palm Hills<small>Tier A</small></div><div class="dev">ORA<small>Tier A</small></div>
-    <div class="dev">City Edge<small>Tier A</small></div><div class="dev">Qatari Diar<small>Tier A</small></div>
-    <div class="dev">Mountain View<small>Tier B</small></div><div class="dev">Hassan Allam<small>Tier B</small></div>
-    <div class="dev">Misr Italia<small>Tier B</small></div><div class="dev">Al Ahly Sabbour<small>Tier B</small></div>
-    <div class="dev">Marakez<small>Tier B</small></div><div class="dev">LMD<small>Tier B</small></div>
-  </div>
+  <div class="head"><div class="kicker" data-c="developers.kicker"></div><h2 data-c="developers.title"></h2></div>
+  <div class="dev-grid" id="devGrid"></div>
 </div></section>
 
 <section id="units"><div class="wrap">
-  <div class="head"><div class="kicker">Featured</div><h2>Selected units.</h2>
-    <p>Live from my catalogue — updated whenever I add or feature a new unit.</p></div>
-  <div class="unit-grid" id="unitGrid">
-    <div class="units-empty">Loading units…</div>
-  </div>
+  <div class="head"><div class="kicker" data-c="units_head.kicker"></div><h2 data-c="units_head.title"></h2>
+    <p data-c="units_head.subtitle"></p></div>
+  <div class="unit-grid" id="unitGrid"><div class="units-empty">Loading units…</div></div>
 </div></section>
 
 <section id="contact" class="cta-sec"><div class="wrap">
   <div class="cta"><div class="glow cg1"></div><div class="glow cg2"></div>
     <div class="cta-in">
-      <h2>Tell me what you're looking for.</h2>
-      <p>I'll tell you the truth about it — what fits your budget, your timeline, and your plan.</p>
+      <h2 data-c="contact.title"></h2>
+      <p data-c="contact.subtitle"></p>
       <div class="hero-cta" style="justify-content:center">
-        <a class="btn btn-gold" id="ctaWhatsapp2" href="#">WhatsApp me</a>
-        <a class="btn btn-line" id="ctaPhone" href="#">Call directly</a>
+        <a class="btn btn-gold" id="ctaWhatsapp2" data-c="contact.cta_whatsapp" href="#"></a>
+        <a class="btn btn-line" id="ctaPhone" data-c="contact.cta_phone" href="#"></a>
       </div>
       <div class="cta-rows">
-        <div class="cr"><span>WhatsApp / Phone</span><b id="cPhone">0150 778 5755</b></div>
-        <div class="cr"><span>Email</span><b id="cEmail">hello@ligemat.com</b></div>
-        <div class="cr"><span>Based in</span><b>Nasr City, Cairo</b></div>
+        <div class="cr"><span>WhatsApp / Phone</span><b data-c="contact.phone"></b></div>
+        <div class="cr"><span>Email</span><b data-c="contact.email"></b></div>
+        <div class="cr"><span>Based in</span><b data-c="contact.based"></b></div>
       </div>
     </div>
   </div>
 </div></section>
 
 <footer><div class="wrap foot">
-  <a class="brand" href="#"><i>L</i>Ligemat</a>
+  <span class="brand"><i>L</i>Ligemat</span>
   <small>© 2026 Ligemat · Mohamed A. Osama · A <a class="borlink" id="footBor" href="#" target="_blank" rel="noopener">Bank of Real Estate</a> brand</small>
 </div></footer>
 
 <script src="config.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="content-defaults.js"></script>
 <script>
 (function(){
   var C = window.LIGEMAT_CONFIG || {};
+  var DEF = window.LIGEMAT_DEFAULTS;
 
-  // ---- theme toggle ----
   var r=document.documentElement,s=null;try{s=localStorage.getItem('ligemat-theme')}catch(e){}
   if(!s)s=(window.matchMedia&&window.matchMedia('(prefers-color-scheme: light)').matches)?'light':'dark';
   r.setAttribute('data-theme',s);
@@ -267,68 +245,68 @@
     var n=r.getAttribute('data-theme')==='dark'?'light':'dark';r.setAttribute('data-theme',n);
     try{localStorage.setItem('ligemat-theme',n)}catch(e){}});
 
-  // ---- wire contact links from config ----
-  var wa = 'https://wa.me/' + (C.WHATSAPP||'201507785755');
-  ['ctaWhatsapp','ctaWhatsapp2'].forEach(function(id){var el=document.getElementById(id);if(el)el.href=wa;});
-  var bor = C.BOR_URL||'https://bank-re.com';
-  ['ctaBor','footBor'].forEach(function(id){var el=document.getElementById(id);if(el)el.href=bor;});
-  var ph=document.getElementById('ctaPhone'); if(ph) ph.href='tel:'+(C.PHONE_DISPLAY||'').replace(/\s/g,'');
-  if(C.PHONE_DISPLAY) document.getElementById('cPhone').textContent=C.PHONE_DISPLAY;
-  if(C.EMAIL) document.getElementById('cEmail').textContent=C.EMAIL;
-
-  // ---- demo fallback units (used if Supabase not configured) ----
-  var DEMO = [
-    {name:'Lumia Lagoons',developer:'Dubai Misr',tag:'Lagoon view',price:'EGP 8.56M',price_per_m:'49,474/m²',area:'173 m²',beds:'3 BR',delivery:'2028',image_url:'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=600&q=70',is_offer:false},
-    {name:'DeJoya 4',developer:'Taj Misr',tag:'Lowest /mo',price:'EGP 8.27M',price_per_m:'48,930/m²',area:'169 m²',beds:'3 BR',delivery:'2031',image_url:'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?auto=format&fit=crop&w=600&q=70',is_offer:false},
-    {name:'DiploEast',developer:'MBG Developments',tag:'Diplomatic',price:'EGP 8.11M',price_per_m:'47,700/m²',area:'170 m²',beds:'3 BR',delivery:'2029',image_url:'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=600&q=70',is_offer:true,offer_text:'10% launch discount'},
-    {name:'Lumia Duplex',developer:'Dubai Misr',tag:'Trophy',price:'EGP 12.37M',price_per_m:'40,541/m²',area:'305 m²',beds:'3 BR',delivery:'2028',image_url:'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=600&q=70',is_offer:false}
-  ];
-
   function esc(t){return (t==null?'':String(t)).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+  function get(o,path){return path.split('.').reduce(function(a,k){return a==null?null:a[k];},o);}
 
-  function render(units){
-    var grid=document.getElementById('unitGrid');
-    if(!units||!units.length){grid.innerHTML='<div class="units-empty">No units to show yet. Check back soon.</div>';return;}
-    grid.innerHTML = units.map(function(u){
-      var hasPhoto = u.image_url && u.image_url.trim();
-      var bg = hasPhoto
-        ? "background-image:linear-gradient(to top,rgba(6,12,10,.7),transparent 60%),url('"+esc(u.image_url)+"')"
-        : "";
-      var offer = u.is_offer && u.offer_text ? '<div class="unit-offer">'+esc(u.offer_text)+'</div>' : (u.is_offer?'<div class="unit-offer">Special offer</div>':'');
-      return '<div class="unit">'+offer+
-        '<div class="unit-img '+(hasPhoto?'has-photo':'')+'" style="'+bg+'">'+
-          (u.tag?'<span class="tag">'+esc(u.tag)+'</span>':'')+
-          '<b>'+esc(u.name)+'</b></div>'+
-        '<div class="unit-body">'+
-          (u.developer?'<div class="unit-dev">'+esc(u.developer)+'</div>':'')+
-          '<div class="unit-price">'+esc(u.price)+(u.price_per_m?' <small>· '+esc(u.price_per_m)+'</small>':'')+'</div>'+
-          '<div class="unit-meta">'+
-            '<div>Area<b>'+esc(u.area||'—')+'</b></div>'+
-            '<div>Beds<b>'+esc(u.beds||'—')+'</b></div>'+
-            '<div>Delivery<b>'+esc(u.delivery||'—')+'</b></div>'+
-          '</div></div></div>';
+  function renderContent(c){
+    document.querySelectorAll('[data-c]').forEach(function(el){
+      var v=get(c, el.getAttribute('data-c'));
+      if(v!=null) el.textContent=v;
+    });
+    var contact=c.contact||{};
+    var wa='https://wa.me/'+(contact.whatsapp||C.WHATSAPP||'201507785755');
+    ['ctaWhatsapp','ctaWhatsapp2'].forEach(function(id){var e=document.getElementById(id);if(e)e.href=wa;});
+    var ph=(contact.phone||'').replace(/\s/g,'');
+    var ce=document.getElementById('ctaPhone'); if(ce)ce.href='tel:'+ph;
+    var bor=contact.bor_url||C.BOR_URL||'https://bank-re.com';
+    ['ctaBor','footBor'].forEach(function(id){var e=document.getElementById(id);if(e)e.href=bor;});
+
+    document.getElementById('statStrip').innerHTML=(c.stats||[]).map(function(s){
+      return '<div class="st"><b>'+esc(s.value)+'</b><span>'+esc(s.label)+'</span></div>';
+    }).join('');
+    document.getElementById('aboutCards').innerHTML=((c.about&&c.about.cards)||[]).map(function(v){
+      return '<div class="val"><div class="ic">'+esc(v.icon)+'</div><h3>'+esc(v.title)+'</h3><p>'+esc(v.text)+'</p></div>';
+    }).join('');
+    document.getElementById('locGrid').innerHTML=((c.locations&&c.locations.items)||[]).map(function(l){
+      return '<div class="loc" style="--img:url(\''+esc(l.image)+'\')"><div class="loc-txt"><b>'+esc(l.title)+'</b><span>'+esc(l.sub)+'</span></div></div>';
+    }).join('');
+    document.getElementById('devGrid').innerHTML=((c.developers&&c.developers.items)||[]).map(function(d){
+      return '<div class="dev">'+esc(d.name)+(d.tier?'<small>'+esc(d.tier)+'</small>':'')+'</div>';
     }).join('');
   }
 
-  // ---- load from Supabase, else demo ----
-  var configured = C.SUPABASE_URL && C.SUPABASE_URL.indexOf('http')===0 && C.SUPABASE_ANON_KEY && C.SUPABASE_ANON_KEY.indexOf('PASTE')!==0;
-  if(configured && window.supabase){
-    try{
-      var sb = window.supabase.createClient(C.SUPABASE_URL, C.SUPABASE_ANON_KEY);
-      sb.from('ligemat_settings').select('portrait_url').eq('id',1).single().then(function(r){
-        if(r && r.data && r.data.portrait_url){
-          var im=document.getElementById('portraitImg');
-          if(im){ im.style.display='block'; im.src=r.data.portrait_url; }
-        }
-      });
-      sb.from('ligemat_units').select('*').eq('visible',true).order('sort_order',{ascending:true})
-        .then(function(res){
-          if(res.error){ console.warn('Supabase read error',res.error); render(DEMO); }
-          else { render(res.data); }
-        });
-    }catch(e){ console.warn(e); render(DEMO); }
-  } else {
-    render(DEMO);
+  function renderUnits(units){
+    var grid=document.getElementById('unitGrid');
+    if(!units||!units.length){grid.innerHTML='<div class="units-empty">No units to show yet.</div>';return;}
+    grid.innerHTML=units.map(function(u){
+      var hasPhoto=u.image_url&&u.image_url.trim();
+      var bg=hasPhoto?"background-image:linear-gradient(to top,rgba(6,12,10,.7),transparent 60%),url('"+esc(u.image_url)+"')":"";
+      var offer=u.is_offer?('<div class="unit-offer">'+esc(u.offer_text||'Special offer')+'</div>'):'';
+      return '<div class="unit">'+offer+
+        '<div class="unit-img '+(hasPhoto?'has-photo':'')+'" style="'+bg+'">'+
+          (u.tag?'<span class="tag">'+esc(u.tag)+'</span>':'')+'<b>'+esc(u.name)+'</b></div>'+
+        '<div class="unit-body">'+(u.developer?'<div class="unit-dev">'+esc(u.developer)+'</div>':'')+
+          '<div class="unit-price">'+esc(u.price)+(u.price_per_m?' <small>· '+esc(u.price_per_m)+'</small>':'')+'</div>'+
+          '<div class="unit-meta"><div>Area<b>'+esc(u.area||'—')+'</b></div><div>Beds<b>'+esc(u.beds||'—')+'</b></div><div>Delivery<b>'+esc(u.delivery||'—')+'</b></div></div>'+
+        '</div></div>';
+    }).join('');
+  }
+
+  renderContent(DEF);
+  renderUnits(DEF.units_demo);
+
+  var configured=C.SUPABASE_URL&&C.SUPABASE_URL.indexOf('http')===0&&C.SUPABASE_ANON_KEY&&C.SUPABASE_ANON_KEY.indexOf('PASTE')!==0;
+  if(configured&&window.supabase){
+    var sb=window.supabase.createClient(C.SUPABASE_URL,C.SUPABASE_ANON_KEY);
+    sb.from('ligemat_settings').select('content,portrait_url').eq('id',1).single().then(function(res){
+      if(res&&res.data){
+        if(res.data.content) renderContent(res.data.content);
+        if(res.data.portrait_url){var im=document.getElementById('portraitImg');if(im){im.style.display='block';im.src=res.data.portrait_url;}}
+      }
+    });
+    sb.from('ligemat_units').select('*').eq('visible',true).order('sort_order',{ascending:true}).then(function(res){
+      if(res&&!res.error&&res.data) renderUnits(res.data);
+    });
   }
 })();
 </script>

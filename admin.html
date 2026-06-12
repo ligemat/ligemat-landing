@@ -1,352 +1,384 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Ligemat — Admin</title>
+<title>Ligemat — Edit site</title>
 <meta name="robots" content="noindex,nofollow">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
-  :root{
-    --bg:#0A0F0D;--bg-2:#0E1714;--panel:#121C18;--line:rgba(201,149,106,.18);
+  :root[data-theme="dark"]{
+    --bg:#0A0F0D;--bg-2:#0E1714;--panel:#121C18;--line:rgba(201,149,106,.16);
     --teal:#0F6E56;--teal-lt:#23C39A;--gold:#C9956A;--gold-lt:#E2B98C;
-    --txt:#EDEFEC;--muted:#9BA8A2;--red:#e24b4a;
+    --txt:#EDEFEC;--muted:#9BA8A2;--grad-a:#E2B98C;--grad-b:#23C39A;
+    --btn-line-bg:rgba(255,255,255,.03);--red:#e24b4a;
   }
   *{margin:0;padding:0;box-sizing:border-box}
-  body{font-family:'Sora',system-ui,sans-serif;background:var(--bg);color:var(--txt);line-height:1.5;-webkit-font-smoothing:antialiased}
-  .wrap{max-width:1080px;margin:0 auto;padding:0 24px}
-  a{color:var(--gold-lt)}
-  .topbar{border-bottom:1px solid var(--line);background:var(--bg-2)}
-  .topbar-in{display:flex;align-items:center;justify-content:space-between;height:66px}
-  .brand{font-size:19px;font-weight:700;display:flex;align-items:center;gap:10px}
-  .brand i{width:28px;height:28px;border-radius:8px;background:linear-gradient(140deg,var(--gold),#a9763f);color:#1a1206;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;font-style:normal}
-  .brand span{font-size:12px;color:var(--muted);font-weight:400;border-left:1px solid var(--line);padding-left:10px;margin-left:4px}
-  .btn{display:inline-flex;align-items:center;gap:7px;font-size:13px;font-weight:600;padding:10px 18px;border-radius:9px;cursor:pointer;border:none;transition:all .2s;font-family:inherit}
+  body{font-family:'Sora',system-ui,sans-serif;background:var(--bg);color:var(--txt);line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+  .wrap{max-width:1160px;margin:0 auto;padding:0 32px}
+  a{text-decoration:none;color:inherit}
+  .btn{display:inline-flex;align-items:center;gap:8px;font-size:14px;font-weight:600;padding:11px 22px;border-radius:10px;transition:all .2s;cursor:pointer;border:none;font-family:inherit}
   .btn-gold{background:linear-gradient(135deg,var(--gold),#b9844f);color:#1a1206}
   .btn-gold:hover{transform:translateY(-1px)}
-  .btn-line{background:rgba(255,255,255,.03);border:1px solid var(--line);color:var(--txt)}
+  .btn-line{background:var(--btn-line-bg);border:1px solid var(--line);color:var(--txt)}
   .btn-line:hover{border-color:var(--gold)}
+  .btn-sm{padding:7px 13px;font-size:12px}
   .btn-red{background:rgba(226,75,74,.12);border:1px solid rgba(226,75,74,.4);color:#f09595}
-  .btn-red:hover{background:rgba(226,75,74,.2)}
-  .btn-sm{padding:7px 12px;font-size:12px}
 
-  /* config warning */
-  .warn{background:rgba(226,75,74,.1);border:1px solid rgba(226,75,74,.35);color:#f3c0c0;border-radius:12px;padding:16px 20px;margin:24px 0;font-size:14px;line-height:1.6}
-
-  /* login */
-  .login-wrap{min-height:80vh;display:flex;align-items:center;justify-content:center}
+  .login-wrap{min-height:90vh;display:flex;align-items:center;justify-content:center}
   .card{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:34px;width:100%;max-width:400px}
   .card h1{font-size:24px;font-weight:700;margin-bottom:6px}
-  .card .muted{color:var(--muted);font-size:14px;margin-bottom:24px}
+  .card .muted{color:var(--muted);font-size:14px;margin-bottom:22px}
   label{display:block;font-size:12px;color:var(--muted);margin:14px 0 6px;letter-spacing:.04em;text-transform:uppercase}
-  input,textarea,select{width:100%;background:var(--bg-2);border:1px solid var(--line);border-radius:10px;padding:12px 14px;color:var(--txt);font-family:inherit;font-size:14px;transition:border-color .2s}
-  input:focus,textarea:focus,select:focus{outline:none;border-color:var(--gold)}
-  textarea{resize:vertical;min-height:64px}
-  .msg{font-size:13px;margin-top:14px;min-height:18px}
+  input,textarea{width:100%;background:var(--bg-2);border:1px solid var(--line);border-radius:10px;padding:11px 13px;color:var(--txt);font-family:inherit;font-size:14px}
+  input:focus,textarea:focus{outline:none;border-color:var(--gold)}
+  textarea{resize:vertical;min-height:54px;line-height:1.5}
+  .msg{font-size:13px;margin-top:12px;min-height:16px}
   .msg.err{color:#f09595}.msg.ok{color:var(--teal-lt)}
+  .warn{background:rgba(226,75,74,.1);border:1px solid rgba(226,75,74,.35);color:#f3c0c0;border-radius:12px;padding:14px 18px;font-size:14px}
 
-  /* dashboard */
-  .dash{padding:30px 0 80px;display:none}
-  .dash-head{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px;margin-bottom:26px}
-  .dash-head h1{font-size:26px;font-weight:700}
-  .dash-head .muted{color:var(--muted);font-size:13px}
-  .layout{display:grid;grid-template-columns:1.15fr .85fr;gap:26px;align-items:start}
-  .panel{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:22px}
-  .panel h2{font-size:16px;font-weight:600;margin-bottom:4px}
-  .panel .sub{font-size:12px;color:var(--muted);margin-bottom:18px}
-  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-  .form-actions{display:flex;gap:10px;margin-top:20px}
-  .check{display:flex;align-items:center;gap:10px;margin-top:16px;font-size:14px;color:var(--txt)}
-  .check input{width:auto}
+  .editbar{position:sticky;top:0;z-index:100;background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+  .editbar-in{display:flex;align-items:center;justify-content:space-between;gap:14px;min-height:64px;flex-wrap:wrap;padding:8px 0}
+  .editbar .left{display:flex;align-items:center;gap:12px}
+  .editbar .badge{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--gold-lt);background:color-mix(in srgb,var(--gold) 10%,transparent);border:1px solid var(--line);padding:5px 11px;border-radius:20px}
+  .editbar .right{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+  #saveMsg{font-size:13px}
 
-  /* unit list */
-  .ulist{display:flex;flex-direction:column;gap:12px}
-  .urow{border:1px solid var(--line);border-radius:12px;padding:14px 16px;background:var(--bg-2)}
-  .urow.hidden{opacity:.5}
-  .urow-top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
-  .urow b{font-size:15px;font-weight:600}
-  .urow .dev{font-size:11px;color:var(--gold);text-transform:uppercase;letter-spacing:.06em}
-  .urow .price{font-size:14px;color:var(--muted);margin-top:4px}
-  .badges{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
-  .badge{font-size:10px;font-weight:600;padding:3px 9px;border-radius:20px;letter-spacing:.04em}
-  .b-on{background:rgba(35,195,154,.14);color:var(--teal-lt)}
-  .b-off{background:rgba(155,168,162,.16);color:var(--muted)}
-  .b-offer{background:rgba(226,75,74,.16);color:#f09595}
-  .urow-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
-  .empty{color:var(--muted);font-size:14px;text-align:center;padding:28px}
+  [contenteditable]{outline:none;border-radius:6px;transition:box-shadow .15s,background .15s;cursor:text}
+  [contenteditable]:hover{box-shadow:0 0 0 1.5px color-mix(in srgb,var(--gold) 35%,transparent)}
+  [contenteditable]:focus{box-shadow:0 0 0 2px var(--gold);background:color-mix(in srgb,var(--gold) 7%,transparent)}
+  .sec-tools{display:flex;justify-content:center;gap:10px;margin-top:18px}
+  .hint{display:block;text-align:center;font-size:12px;color:var(--muted);margin:14px 0 6px}
 
-  @media(max-width:820px){.layout{grid-template-columns:1fr}.grid2{grid-template-columns:1fr}}
+  .brand{font-size:22px;font-weight:700;display:flex;align-items:center;gap:11px}
+  .brand i{width:32px;height:32px;border-radius:9px;background:linear-gradient(140deg,var(--gold),#a9763f);color:#1a1206;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:800;font-style:normal}
+  header{position:relative;padding:54px 0 72px}
+  .hero-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:56px;align-items:center}
+  .pill{display:inline-flex;align-items:center;gap:9px;font-size:13px;font-weight:500;color:var(--gold-lt);background:color-mix(in srgb,var(--gold) 9%,transparent);border:1px solid var(--line);padding:8px 18px;border-radius:100px;margin-bottom:24px}
+  .pill .dot{width:7px;height:7px;border-radius:50%;background:var(--teal-lt)}
+  h1{font-size:56px;line-height:1.05;font-weight:800;letter-spacing:-.04em}
+  h1 .grad{background:linear-gradient(110deg,var(--grad-a),var(--grad-b));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  h1 .sub-line{display:block;font-size:.44em;font-weight:500;color:var(--muted);margin-top:14px}
+  .lead{font-size:18px;font-weight:300;color:var(--muted);max-width:480px;margin:22px 0 28px;line-height:1.7}
+  .hero-cta{display:flex;gap:12px;flex-wrap:wrap}
+  .portrait-card{position:relative;border-radius:22px;overflow:hidden;border:1px solid var(--line);aspect-ratio:4/5;background:linear-gradient(150deg,var(--teal),#0a3a2e)}
+  .portrait-card img{width:100%;height:100%;object-fit:cover;object-position:center 18%;display:block}
+  .portrait-badge{position:absolute;left:18px;bottom:18px;right:18px;z-index:3;background:color-mix(in srgb,var(--bg) 80%,transparent);backdrop-filter:blur(8px);border:1px solid var(--line);border-radius:14px;padding:14px 18px}
+  .portrait-badge b{font-size:16px;font-weight:700;display:block}
+  .portrait-badge span{font-size:12px;color:var(--gold-lt)}
+  .imgbtn{position:absolute;top:12px;right:12px;z-index:5}
+
+  .strip{border-top:1px solid var(--line);border-bottom:1px solid var(--line);background:var(--bg-2);padding-bottom:18px}
+  .strip-in{display:grid;grid-template-columns:repeat(4,1fr)}
+  .st{padding:22px 14px;text-align:center;border-right:1px solid var(--line);position:relative}
+  .st:last-child{border-right:none}
+  .st .v{font-size:34px;font-weight:800;letter-spacing:-.03em;background:linear-gradient(120deg,var(--grad-a),var(--grad-b));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  .st .l{font-size:13px;color:var(--muted);margin-top:5px}
+  .x{position:absolute;top:6px;right:6px;width:22px;height:22px;border-radius:50%;background:rgba(226,75,74,.18);color:#f09595;border:none;cursor:pointer;font-size:13px;line-height:1;display:none;z-index:6}
+  .st:hover .x,.val:hover .x,.loc:hover .x,.dev:hover .x{display:block}
+
+  section{padding:72px 0}
+  .head{text-align:center;max-width:680px;margin:0 auto 40px}
+  .kicker{font-size:12px;font-weight:600;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);margin-bottom:14px}
+  .head h2{font-size:42px;font-weight:800;letter-spacing:-.03em;line-height:1.1}
+  .head p{font-size:18px;color:var(--muted);margin-top:14px;font-weight:300}
+
+  .vals{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+  .val{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:30px 28px;position:relative}
+  .val .ic{width:48px;height:48px;border-radius:13px;background:color-mix(in srgb,var(--teal-lt) 12%,transparent);border:1px solid color-mix(in srgb,var(--teal-lt) 28%,transparent);display:flex;align-items:center;justify-content:center;color:var(--teal-lt);font-size:21px;margin-bottom:18px}
+  .val h3{font-size:19px;font-weight:600;margin-bottom:9px}
+  .val p{font-size:15px;color:var(--muted);font-weight:300;line-height:1.7}
+
+  .loc-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+  .loc{position:relative;height:240px;border-radius:18px;overflow:hidden;border:1px solid var(--line);display:flex;align-items:flex-end;padding:18px;background-size:cover;background-position:center;background-color:#0a3a2e}
+  .loc::after{content:"";position:absolute;inset:0;background:linear-gradient(to top,rgba(6,12,10,.85),rgba(6,12,10,.15))}
+  .loc-txt{position:relative;z-index:2}
+  .loc-txt b{color:#fff;font-size:18px;font-weight:700;display:block}
+  .loc-txt span{color:rgba(255,255,255,.82);font-size:13px}
+
+  .devs{background:var(--bg-2);border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+  .dev-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:12px}
+  .dev{background:var(--panel);border:1px solid var(--line);border-radius:13px;padding:20px 8px;text-align:center;position:relative}
+  .dev .n{font-size:15px;font-weight:600}
+  .dev .t{font-size:10px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin-top:5px;display:block}
+
+  .unit-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
+  .unit{border:1px solid var(--line);border-radius:18px;overflow:hidden;background:var(--panel);position:relative}
+  .unit-img{height:120px;position:relative;background:linear-gradient(140deg,var(--teal),#0a3a2e);background-size:cover;background-position:center;display:flex;align-items:flex-end;padding:12px}
+  .unit-body{padding:16px}
+  .unit-body input{margin-bottom:7px;font-size:13px;padding:8px 10px}
+  .unit-row{display:flex;gap:7px}
+  .unit-row input{width:50%}
+  .chk{display:flex;align-items:center;gap:7px;font-size:13px;color:var(--muted);margin-top:4px}
+  .chk input{width:auto;margin:0}
+  .unit-actions{display:flex;gap:7px;margin-top:10px}
+
+  footer{padding:40px 0;border-top:1px solid var(--line);margin-top:30px;text-align:center;color:var(--muted);font-size:13px}
+  @media(max-width:880px){
+    .hero-grid{grid-template-columns:1fr;gap:36px}h1{font-size:40px}.head h2{font-size:30px}
+    .strip-in{grid-template-columns:repeat(2,1fr)}.vals,.unit-grid,.loc-grid{grid-template-columns:1fr}
+    .dev-grid{grid-template-columns:repeat(3,1fr)}
+  }
 </style>
 </head>
 <body>
 
-<div class="topbar"><div class="wrap topbar-in">
-  <div class="brand"><i>L</i>Ligemat <span>Admin</span></div>
-  <button class="btn btn-line btn-sm" id="logoutBtn" style="display:none">Log out</button>
-</div></div>
-
-<!-- CONFIG WARNING -->
-<div class="wrap"><div class="warn" id="cfgWarn" style="display:none">
-  ⚠ Supabase isn't configured yet. Open <b>config.js</b> and paste your Project URL and anon key (see the setup guide). Until then, login won't work.
-</div></div>
-
-<!-- LOGIN -->
 <div class="login-wrap" id="loginView">
   <div class="card">
     <h1>Sign in</h1>
-    <div class="muted">Manage your units &amp; offers.</div>
+    <div class="muted">Edit your website.</div>
+    <div class="warn" id="cfgWarn" style="display:none;margin:0 0 14px">⚠ Supabase isn't configured (config.js).</div>
     <label for="email">Email</label>
     <input id="email" type="email" autocomplete="username" placeholder="you@ligemat.com">
     <label for="password">Password</label>
     <input id="password" type="password" autocomplete="current-password" placeholder="••••••••">
-    <div style="margin-top:22px"><button class="btn btn-gold" id="loginBtn" style="width:100%;justify-content:center">Sign in</button></div>
+    <div style="margin-top:20px"><button class="btn btn-gold" id="loginBtn" style="width:100%;justify-content:center">Sign in</button></div>
     <div class="msg" id="loginMsg"></div>
   </div>
 </div>
 
-<!-- DASHBOARD -->
-<div class="dash" id="dashView"><div class="wrap">
-  <div class="dash-head">
-    <div><h1>Your units</h1><div class="muted" id="signedAs"></div></div>
-    <button class="btn btn-line btn-sm" id="newBtn">+ Add new unit</button>
-  </div>
+<div id="editView" style="display:none">
+  <div class="editbar"><div class="wrap editbar-in">
+    <div class="left"><span class="brand"><i>L</i>Ligemat</span><span class="badge">Editing — changes publish live</span></div>
+    <div class="right">
+      <span id="saveMsg"></span>
+      <a class="btn btn-line btn-sm" href="index.html" target="_blank">View site ↗</a>
+      <button class="btn btn-line btn-sm" id="logoutBtn">Log out</button>
+      <button class="btn btn-gold" id="saveBtn">Save &amp; Publish</button>
+    </div>
+  </div></div>
 
-  <div class="panel" style="margin-bottom:24px">
-    <h2>Main portrait photo</h2>
-    <div class="sub">The large photo in your homepage hero. Upload a new one and it changes instantly — no redeploy needed.</div>
-    <div style="display:flex;align-items:center;gap:18px">
-      <img id="portraitPreview" alt="current portrait" style="width:80px;height:100px;object-fit:cover;border-radius:10px;border:1px solid var(--line);background:var(--bg-2)">
-      <div>
-        <input type="file" id="portrait_file" accept="image/*" style="display:none">
-        <button type="button" class="btn btn-gold btn-sm" id="portrait_upload_btn">⬆ Upload new portrait</button>
-        <div class="msg" id="portrait_msg" style="margin-top:8px"></div>
+  <header><div class="wrap hero-grid">
+    <div>
+      <div class="pill"><span class="dot"></span> <span contenteditable="true" data-ed="hero.eyebrow"></span></div>
+      <h1><span contenteditable="true" data-ed="hero.headline_pre"></span><span class="grad" contenteditable="true" data-ed="hero.headline_accent"></span>.
+        <span class="sub-line" contenteditable="true" data-ed="hero.subline"></span></h1>
+      <p class="lead" contenteditable="true" data-ed="hero.lead"></p>
+      <div class="hero-cta">
+        <span class="btn btn-gold" contenteditable="true" data-ed="hero.cta_whatsapp"></span>
+        <span class="btn btn-line"><span contenteditable="true" data-ed="hero.cta_bor"></span> ↗</span>
       </div>
     </div>
-  </div>
-
-  <div class="layout">
-    <!-- form -->
-    <div class="panel">
-      <h2 id="formTitle">Add a unit</h2>
-      <div class="sub">Fill in the details. Toggle "Show on website" to publish it.</div>
-      <input type="hidden" id="f_id">
-      <label for="f_name">Unit / project name *</label>
-      <input id="f_name" placeholder="Lumia Lagoons">
-      <div class="grid2">
-        <div><label for="f_developer">Developer</label><input id="f_developer" placeholder="Dubai Misr"></div>
-        <div><label for="f_tag">Badge / tag</label><input id="f_tag" placeholder="Lagoon view"></div>
-      </div>
-      <div class="grid2">
-        <div><label for="f_price">Price (display)</label><input id="f_price" placeholder="EGP 8.56M"></div>
-        <div><label for="f_price_per_m">Price / m²</label><input id="f_price_per_m" placeholder="49,474/m²"></div>
-      </div>
-      <div class="grid2">
-        <div><label for="f_area">Area</label><input id="f_area" placeholder="173 m²"></div>
-        <div><label for="f_beds">Bedrooms</label><input id="f_beds" placeholder="3 BR"></div>
-      </div>
-      <div class="grid2">
-        <div><label for="f_delivery">Delivery</label><input id="f_delivery" placeholder="2028"></div>
-        <div><label for="f_sort">Sort order</label><input id="f_sort" type="number" value="0"></div>
-      </div>
-      <label for="f_image">Unit image</label>
-      <input id="f_image" placeholder="https://… or use Upload below (blank = gradient)">
-      <div style="display:flex;align-items:center;gap:10px;margin-top:8px">
-        <input type="file" id="f_image_file" accept="image/*" style="display:none">
-        <button type="button" class="btn btn-line btn-sm" id="f_image_upload_btn">⬆ Upload image</button>
-        <span class="msg" id="f_image_msg" style="margin:0"></span>
-      </div>
-      <div class="check"><input type="checkbox" id="f_offer"><label for="f_offer" style="margin:0;text-transform:none;letter-spacing:0;font-size:14px;color:var(--txt)">Mark as a special offer</label></div>
-      <label for="f_offer_text">Offer text (shown on ribbon)</label>
-      <input id="f_offer_text" placeholder="10% launch discount">
-      <div class="check"><input type="checkbox" id="f_visible" checked><label for="f_visible" style="margin:0;text-transform:none;letter-spacing:0;font-size:14px;color:var(--txt)">Show on website</label></div>
-      <div class="form-actions">
-        <button class="btn btn-gold" id="saveBtn">Save unit</button>
-        <button class="btn btn-line" id="cancelBtn" style="display:none">Cancel</button>
-      </div>
-      <div class="msg" id="formMsg"></div>
+    <div class="portrait-card">
+      <img id="portraitImg" alt="portrait">
+      <div class="imgbtn"><input type="file" id="portrait_file" accept="image/*" style="display:none"><button class="btn btn-gold btn-sm" id="portraitBtn">⬆ Photo</button></div>
+      <div class="portrait-badge"><b contenteditable="true" data-ed="hero.name"></b><span contenteditable="true" data-ed="hero.role"></span></div>
     </div>
+  </div></header>
 
-    <!-- list -->
-    <div class="panel">
-      <h2>Published &amp; drafts</h2>
-      <div class="sub">Click a unit to edit. Hidden units don't appear on the site.</div>
-      <div class="ulist" id="ulist"><div class="empty">Loading…</div></div>
+  <div class="strip"><div class="wrap">
+    <span class="hint">Stats — click a number or label to edit</span>
+    <div class="strip-in" id="statStrip"></div>
+    <div class="sec-tools"><button class="btn btn-line btn-sm" data-add="stat">+ Add stat</button></div>
+  </div></div>
+
+  <section><div class="wrap">
+    <div class="head"><div class="kicker" contenteditable="true" data-ed="about.kicker"></div>
+      <h2 contenteditable="true" data-ed="about.title"></h2>
+      <p contenteditable="true" data-ed="about.subtitle"></p></div>
+    <div class="vals" id="aboutCards"></div>
+    <div class="sec-tools"><button class="btn btn-line btn-sm" data-add="about">+ Add card</button></div>
+  </div></section>
+
+  <section><div class="wrap">
+    <div class="head"><div class="kicker" contenteditable="true" data-ed="locations.kicker"></div>
+      <h2 contenteditable="true" data-ed="locations.title"></h2>
+      <p contenteditable="true" data-ed="locations.subtitle"></p></div>
+    <div class="loc-grid" id="locGrid"></div>
+    <div class="sec-tools"><button class="btn btn-line btn-sm" data-add="loc">+ Add location</button></div>
+  </div></section>
+
+  <section class="devs"><div class="wrap">
+    <div class="head"><div class="kicker" contenteditable="true" data-ed="developers.kicker"></div>
+      <h2 contenteditable="true" data-ed="developers.title"></h2></div>
+    <div class="dev-grid" id="devGrid"></div>
+    <div class="sec-tools"><button class="btn btn-line btn-sm" data-add="dev">+ Add developer</button></div>
+  </div></section>
+
+  <section><div class="wrap">
+    <div class="head"><div class="kicker" contenteditable="true" data-ed="units_head.kicker"></div>
+      <h2 contenteditable="true" data-ed="units_head.title"></h2>
+      <p contenteditable="true" data-ed="units_head.subtitle"></p></div>
+    <div class="unit-grid" id="unitGrid"></div>
+    <div class="sec-tools"><button class="btn btn-line btn-sm" data-add="unit">+ Add unit</button></div>
+  </div></section>
+
+  <section><div class="wrap" style="max-width:780px">
+    <div class="head"><h2 contenteditable="true" data-ed="contact.title"></h2>
+      <p contenteditable="true" data-ed="contact.subtitle"></p></div>
+    <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:14px">
+      <div><label>WhatsApp / Phone (shown)</label><input data-ed="contact.phone"></div>
+      <div><label>WhatsApp number (international, no +)</label><input data-ed="contact.whatsapp"></div>
+      <div><label>Email</label><input data-ed="contact.email"></div>
+      <div><label>Based in</label><input data-ed="contact.based"></div>
+      <div style="grid-column:1/-1"><label>Bank of Real Estate URL</label><input data-ed="contact.bor_url"></div>
     </div>
-  </div>
-</div></div>
+  </div></section>
+
+  <footer>© 2026 Ligemat · Edits publish to ligemat.com instantly.</footer>
+</div>
 
 <script src="config.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="content-defaults.js"></script>
 <script>
 (function(){
-  var C = window.LIGEMAT_CONFIG || {};
-  var configured = C.SUPABASE_URL && C.SUPABASE_URL.indexOf('http')===0 && C.SUPABASE_ANON_KEY && C.SUPABASE_ANON_KEY.indexOf('PASTE')!==0;
-  var $ = function(id){return document.getElementById(id);};
-  if(!configured){ $('cfgWarn').style.display='block'; }
+  var C=window.LIGEMAT_CONFIG||{}, DEF=window.LIGEMAT_DEFAULTS, $=function(id){return document.getElementById(id);};
+  var configured=C.SUPABASE_URL&&C.SUPABASE_URL.indexOf('http')===0&&C.SUPABASE_ANON_KEY&&C.SUPABASE_ANON_KEY.indexOf('PASTE')!==0;
+  var sb=configured&&window.supabase?window.supabase.createClient(C.SUPABASE_URL,C.SUPABASE_ANON_KEY):null;
+  if(!configured)$('cfgWarn').style.display='block';
 
-  var sb = configured && window.supabase ? window.supabase.createClient(C.SUPABASE_URL, C.SUPABASE_ANON_KEY) : null;
+  function esc(t){return (t==null?'':String(t)).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+  function setByEd(c){document.querySelectorAll('[data-ed]').forEach(function(el){
+    var v=el.getAttribute('data-ed').split('.').reduce(function(a,k){return a==null?null:a[k];},c);
+    if(v==null)v='';
+    if(el.tagName==='INPUT')el.value=v; else el.textContent=v;
+  });}
 
-  function showLogin(){ $('loginView').style.display='flex'; $('dashView').style.display='none'; $('logoutBtn').style.display='none'; }
-  function showDash(email){ $('loginView').style.display='none'; $('dashView').style.display='block'; $('logoutBtn').style.display='inline-flex'; $('signedAs').textContent='Signed in as '+email; loadUnits(); loadSettings(); }
+  var originalUnitIds=[], portraitUrl=null;
 
-  // ---- auth ----
-  if(sb){
-    sb.auth.getSession().then(function(res){
-      var session = res.data.session;
-      if(session) showDash(session.user.email); else showLogin();
-    });
-  } else { showLogin(); }
-
-  $('loginBtn').addEventListener('click', function(){
-    var m=$('loginMsg'); m.className='msg'; m.textContent='';
-    if(!sb){ m.className='msg err'; m.textContent='Supabase not configured (see config.js).'; return; }
-    var email=$('email').value.trim(), pw=$('password').value;
-    if(!email||!pw){ m.className='msg err'; m.textContent='Enter email and password.'; return; }
+  function showLogin(){$('loginView').style.display='flex';$('editView').style.display='none';}
+  function showEdit(){$('loginView').style.display='none';$('editView').style.display='block';loadAll();}
+  if(sb){sb.auth.getSession().then(function(r){r.data.session?showEdit():showLogin();});}else showLogin();
+  $('loginBtn').addEventListener('click',function(){
+    var m=$('loginMsg');m.className='msg';m.textContent='';
+    if(!sb){m.className='msg err';m.textContent='Supabase not configured.';return;}
+    var e=$('email').value.trim(),p=$('password').value;
+    if(!e||!p){m.className='msg err';m.textContent='Enter email and password.';return;}
     $('loginBtn').textContent='Signing in…';
-    sb.auth.signInWithPassword({email:email,password:pw}).then(function(res){
+    sb.auth.signInWithPassword({email:e,password:p}).then(function(r){
       $('loginBtn').textContent='Sign in';
-      if(res.error){ m.className='msg err'; m.textContent=res.error.message; }
-      else { showDash(res.data.user.email); }
+      if(r.error){m.className='msg err';m.textContent=r.error.message;}else showEdit();
     });
   });
   $('password').addEventListener('keydown',function(e){if(e.key==='Enter')$('loginBtn').click();});
+  $('logoutBtn').addEventListener('click',function(){if(sb)sb.auth.signOut().then(showLogin);});
 
-  $('logoutBtn').addEventListener('click', function(){ if(sb) sb.auth.signOut().then(showLogin); });
-
-  // ---- form helpers ----
-  var FIELDS=['name','developer','tag','price','price_per_m','area','beds','delivery','image','offer_text'];
-  function clearForm(){
-    $('f_id').value='';
-    FIELDS.forEach(function(f){ $('f_'+f).value=''; });
-    $('f_sort').value='0'; $('f_offer').checked=false; $('f_visible').checked=true;
-    $('formTitle').textContent='Add a unit'; $('cancelBtn').style.display='none';
-    $('formMsg').textContent=''; $('formMsg').className='msg';
-  }
-  $('newBtn').addEventListener('click',clearForm);
-  $('cancelBtn').addEventListener('click',clearForm);
-
-  function fillForm(u){
-    $('f_id').value=u.id;
-    $('f_name').value=u.name||''; $('f_developer').value=u.developer||''; $('f_tag').value=u.tag||'';
-    $('f_price').value=u.price||''; $('f_price_per_m').value=u.price_per_m||'';
-    $('f_area').value=u.area||''; $('f_beds').value=u.beds||''; $('f_delivery').value=u.delivery||'';
-    $('f_image').value=u.image_url||''; $('f_sort').value=u.sort_order||0;
-    $('f_offer').checked=!!u.is_offer; $('f_offer_text').value=u.offer_text||''; $('f_visible').checked=!!u.visible;
-    $('formTitle').textContent='Edit: '+(u.name||'unit'); $('cancelBtn').style.display='inline-flex';
-    window.scrollTo({top:0,behavior:'smooth'});
-  }
-
-  $('saveBtn').addEventListener('click', function(){
-    var m=$('formMsg'); m.className='msg'; m.textContent='';
-    if(!sb){ m.className='msg err'; m.textContent='Supabase not configured.'; return; }
-    var name=$('f_name').value.trim();
-    if(!name){ m.className='msg err'; m.textContent='Unit name is required.'; return; }
-    var row={
-      name:name, developer:$('f_developer').value.trim()||null, tag:$('f_tag').value.trim()||null,
-      price:$('f_price').value.trim()||null, price_per_m:$('f_price_per_m').value.trim()||null,
-      area:$('f_area').value.trim()||null, beds:$('f_beds').value.trim()||null, delivery:$('f_delivery').value.trim()||null,
-      image_url:$('f_image').value.trim()||null, is_offer:$('f_offer').checked,
-      offer_text:$('f_offer_text').value.trim()||null, visible:$('f_visible').checked,
-      sort_order:parseInt($('f_sort').value,10)||0
-    };
-    var id=$('f_id').value;
-    $('saveBtn').textContent='Saving…';
-    var q = id ? sb.from('ligemat_units').update(row).eq('id',id) : sb.from('ligemat_units').insert(row);
-    q.then(function(res){
-      $('saveBtn').textContent='Save unit';
-      if(res.error){ m.className='msg err'; m.textContent=res.error.message; }
-      else { m.className='msg ok'; m.textContent=id?'Updated.':'Added.'; clearForm(); loadUnits(); }
-    });
-  });
-
-  // ---- list + actions ----
-  function loadUnits(){
-    if(!sb) return;
-    sb.from('ligemat_units').select('*').order('sort_order',{ascending:true}).then(function(res){
-      var box=$('ulist');
-      if(res.error){ box.innerHTML='<div class="empty">'+res.error.message+'</div>'; return; }
-      var units=res.data||[];
-      if(!units.length){ box.innerHTML='<div class="empty">No units yet. Add your first one →</div>'; return; }
-      box.innerHTML='';
-      units.forEach(function(u){
-        var row=document.createElement('div');
-        row.className='urow'+(u.visible?'':' hidden');
-        row.innerHTML =
-          '<div class="urow-top"><div>'+
-            '<b>'+esc(u.name)+'</b>'+(u.developer?' <span class="dev">· '+esc(u.developer)+'</span>':'')+
-            '<div class="price">'+esc(u.price||'')+(u.area?' · '+esc(u.area):'')+'</div>'+
-            '<div class="badges">'+
-              (u.visible?'<span class="badge b-on">On site</span>':'<span class="badge b-off">Hidden</span>')+
-              (u.is_offer?'<span class="badge b-offer">Offer</span>':'')+
-            '</div>'+
-          '</div></div>'+
-          '<div class="urow-actions">'+
-            '<button class="btn btn-line btn-sm" data-act="edit">Edit</button>'+
-            '<button class="btn btn-line btn-sm" data-act="toggle">'+(u.visible?'Hide':'Show')+'</button>'+
-            '<button class="btn btn-red btn-sm" data-act="del">Delete</button>'+
-          '</div>';
-        row.querySelector('[data-act=edit]').addEventListener('click',function(){fillForm(u);});
-        row.querySelector('[data-act=toggle]').addEventListener('click',function(){
-          sb.from('ligemat_units').update({visible:!u.visible}).eq('id',u.id).then(loadUnits);
-        });
-        row.querySelector('[data-act=del]').addEventListener('click',function(){
-          if(confirm('Delete "'+u.name+'"? This cannot be undone.'))
-            sb.from('ligemat_units').delete().eq('id',u.id).then(loadUnits);
-        });
-        box.appendChild(row);
+  function loadAll(){
+    if(!sb){renderAll(DEF,DEF.units_demo.map(function(u){return Object.assign({visible:true},u);}));return;}
+    sb.from('ligemat_settings').select('content,portrait_url').eq('id',1).single().then(function(r){
+      var content=(r&&r.data&&r.data.content)?r.data.content:DEF;
+      portraitUrl=(r&&r.data&&r.data.portrait_url)||null;
+      sb.from('ligemat_units').select('*').order('sort_order',{ascending:true}).then(function(u){
+        var units=(u&&!u.error&&u.data&&u.data.length)?u.data:[];
+        originalUnitIds=units.map(function(x){return x.id;}).filter(Boolean);
+        renderAll(content,units);
       });
     });
   }
 
-  // ---- image uploads to Supabase Storage (bucket: ligemat-media) ----
-  function uploadFile(file, folder, btn, msgEl, cb){
-    if(!sb){ msgEl.className='msg err'; msgEl.textContent='Not configured.'; return; }
-    if(!file){ return; }
-    if(file.size > 6*1024*1024){ msgEl.className='msg err'; msgEl.textContent='Image too large (max 6 MB).'; return; }
+  function renderAll(c,units){
+    setByEd(c);
+    $('portraitImg').src=portraitUrl||'osama.jpg';
+    renderStats((c.stats||[]).slice());
+    renderAbout(((c.about&&c.about.cards)||[]).slice());
+    renderLoc(((c.locations&&c.locations.items)||[]).slice());
+    renderDev(((c.developers&&c.developers.items)||[]).slice());
+    renderUnits(units);
+  }
+
+  function xb(){return '<button class="x" data-del>×</button>';}
+  function renderStats(a){$('statStrip').innerHTML=a.map(function(s){return '<div class="st">'+xb()+'<div class="v" contenteditable="true" data-f="value">'+esc(s.value)+'</div><div class="l" contenteditable="true" data-f="label">'+esc(s.label)+'</div></div>';}).join('');}
+  function renderAbout(a){$('aboutCards').innerHTML=a.map(function(v){return '<div class="val">'+xb()+'<div class="ic" contenteditable="true" data-f="icon">'+esc(v.icon)+'</div><h3 contenteditable="true" data-f="title">'+esc(v.title)+'</h3><p contenteditable="true" data-f="text">'+esc(v.text)+'</p></div>';}).join('');}
+  function renderLoc(a){$('locGrid').innerHTML=a.map(function(l){return '<div class="loc" style="background-image:url(\''+esc(l.image)+'\')" data-img="'+esc(l.image)+'">'+xb()+'<div class="imgbtn"><button class="btn btn-gold btn-sm" data-locimg>⬆ Image</button></div><div class="loc-txt"><b contenteditable="true" data-f="title">'+esc(l.title)+'</b><span contenteditable="true" data-f="sub">'+esc(l.sub)+'</span></div></div>';}).join('');}
+  function renderDev(a){$('devGrid').innerHTML=a.map(function(d){return '<div class="dev">'+xb()+'<div class="n" contenteditable="true" data-f="name">'+esc(d.name)+'</div><span class="t" contenteditable="true" data-f="tier">'+esc(d.tier)+'</span></div>';}).join('');}
+  function unitHTML(u){u=u||{};return '<div class="unit" data-id="'+esc(u.id||'')+'" data-img="'+esc(u.image_url||'')+'">'+
+      '<div class="unit-img" style="'+(u.image_url?'background-image:linear-gradient(to top,rgba(6,12,10,.6),transparent),url(\''+esc(u.image_url)+'\')':'')+'">'+
+        '<div class="imgbtn"><button class="btn btn-gold btn-sm" data-unitimg>⬆</button></div>'+
+        '<input data-f="tag" placeholder="Badge" value="'+esc(u.tag||'')+'" style="position:relative;z-index:2;width:62%;margin:0"></div>'+
+      '<div class="unit-body">'+
+        '<input data-f="name" placeholder="Unit name *" value="'+esc(u.name||'')+'">'+
+        '<input data-f="developer" placeholder="Developer" value="'+esc(u.developer||'')+'">'+
+        '<div class="unit-row"><input data-f="price" placeholder="Price" value="'+esc(u.price||'')+'"><input data-f="price_per_m" placeholder="/m²" value="'+esc(u.price_per_m||'')+'"></div>'+
+        '<div class="unit-row"><input data-f="area" placeholder="Area" value="'+esc(u.area||'')+'"><input data-f="beds" placeholder="Beds" value="'+esc(u.beds||'')+'"></div>'+
+        '<input data-f="delivery" placeholder="Delivery" value="'+esc(u.delivery||'')+'">'+
+        '<label class="chk"><input type="checkbox" data-f="visible" '+(u.visible!==false?'checked':'')+'> Show on site</label>'+
+        '<label class="chk"><input type="checkbox" data-f="is_offer" '+(u.is_offer?'checked':'')+'> Special offer</label>'+
+        '<input data-f="offer_text" placeholder="Offer text" value="'+esc(u.offer_text||'')+'">'+
+        '<div class="unit-actions"><button class="btn btn-red btn-sm" data-delunit>Delete</button></div>'+
+      '</div></div>';}
+  function renderUnits(a){$('unitGrid').innerHTML=a.map(unitHTML).join('');}
+
+  document.addEventListener('click',function(e){
+    var t=e.target; if(!t.getAttribute) return;
+    var add=t.getAttribute('data-add');
+    if(add==='stat')$('statStrip').insertAdjacentHTML('beforeend','<div class="st">'+xb()+'<div class="v" contenteditable="true" data-f="value">0</div><div class="l" contenteditable="true" data-f="label">New stat</div></div>');
+    else if(add==='about')$('aboutCards').insertAdjacentHTML('beforeend','<div class="val">'+xb()+'<div class="ic" contenteditable="true" data-f="icon">★</div><h3 contenteditable="true" data-f="title">New card</h3><p contenteditable="true" data-f="text">Describe it.</p></div>');
+    else if(add==='loc')$('locGrid').insertAdjacentHTML('beforeend','<div class="loc" data-img="">'+xb()+'<div class="imgbtn"><button class="btn btn-gold btn-sm" data-locimg>⬆ Image</button></div><div class="loc-txt"><b contenteditable="true" data-f="title">New location</b><span contenteditable="true" data-f="sub">Area</span></div></div>');
+    else if(add==='dev')$('devGrid').insertAdjacentHTML('beforeend','<div class="dev">'+xb()+'<div class="n" contenteditable="true" data-f="name">New</div><span class="t" contenteditable="true" data-f="tier">Tier B</span></div>');
+    else if(add==='unit')$('unitGrid').insertAdjacentHTML('beforeend',unitHTML({}));
+    else if(t.hasAttribute('data-del'))t.closest('.st,.val,.loc,.dev').remove();
+    else if(t.hasAttribute('data-delunit'))t.closest('.unit').remove();
+    else if(t.hasAttribute('data-locimg'))pickImage(t.closest('.loc'),'locations');
+    else if(t.hasAttribute('data-unitimg'))pickImage(t.closest('.unit'),'units');
+  });
+
+  var pickTarget=null,pickKind=null,fileInput=document.createElement('input');
+  fileInput.type='file';fileInput.accept='image/*';fileInput.style.display='none';document.body.appendChild(fileInput);
+  function pickImage(el,kind){pickTarget=el;pickKind=kind;fileInput.value='';fileInput.click();}
+  fileInput.addEventListener('change',function(e){var f=e.target.files[0];if(!f||!pickTarget)return;uploadFile(f,pickKind,function(url){
+    if(pickKind==='locations'){pickTarget.setAttribute('data-img',url);pickTarget.style.backgroundImage="url('"+url+"')";}
+    else{pickTarget.setAttribute('data-img',url);pickTarget.querySelector('.unit-img').style.backgroundImage="linear-gradient(to top,rgba(6,12,10,.6),transparent),url('"+url+"')";}
+    flash('Image uploaded ✓');
+  });});
+  $('portraitBtn').addEventListener('click',function(){$('portrait_file').click();});
+  $('portrait_file').addEventListener('change',function(e){var f=e.target.files[0];if(!f)return;uploadFile(f,'portrait',function(url){portraitUrl=url;$('portraitImg').src=url;flash('Portrait uploaded ✓');});});
+  function uploadFile(file,folder,cb){
+    if(!sb){flash('Not configured',true);return;}
+    if(file.size>6*1024*1024){flash('Image too large (max 6MB)',true);return;}
     var ext=((file.name.split('.').pop()||'jpg').toLowerCase().replace(/[^a-z0-9]/g,''))||'jpg';
     var path=folder+'/'+Date.now()+'-'+Math.random().toString(36).slice(2,7)+'.'+ext;
-    var label=btn?btn.textContent:''; if(btn){ btn.textContent='Uploading…'; btn.disabled=true; }
-    msgEl.className='msg'; msgEl.textContent='';
-    sb.storage.from('ligemat-media').upload(path, file, {upsert:true, cacheControl:'3600', contentType:file.type||undefined}).then(function(res){
-      if(btn){ btn.textContent=label; btn.disabled=false; }
-      if(res.error){ msgEl.className='msg err'; msgEl.textContent=res.error.message; return; }
+    flash('Uploading…');
+    sb.storage.from('ligemat-media').upload(path,file,{upsert:true,contentType:file.type||undefined}).then(function(res){
+      if(res.error){flash(res.error.message,true);return;}
       cb(sb.storage.from('ligemat-media').getPublicUrl(path).data.publicUrl);
     });
   }
+  function flash(t,err){var m=$('saveMsg');m.className=err?'msg err':'msg ok';m.textContent=t;}
 
-  $('f_image_upload_btn').addEventListener('click', function(){ $('f_image_file').click(); });
-  $('f_image_file').addEventListener('change', function(e){
-    var f=e.target.files[0]; if(!f) return;
-    uploadFile(f,'units',$('f_image_upload_btn'),$('f_image_msg'),function(url){
-      $('f_image').value=url; var m=$('f_image_msg'); m.className='msg ok'; m.textContent='Uploaded ✓';
+  function gf(p,f){var el=p.querySelector('[data-f="'+f+'"]');if(!el)return '';return (el.tagName==='INPUT'||el.tagName==='TEXTAREA')?(el.type==='checkbox'?el.checked:el.value.trim()):el.textContent.trim();}
+  function collect(){
+    var c={};
+    document.querySelectorAll('[data-ed]').forEach(function(el){
+      var val=el.tagName==='INPUT'?el.value.trim():el.textContent.trim();
+      el.getAttribute('data-ed').split('.').reduce(function(a,k,i,ks){if(i===ks.length-1)a[k]=val; else a[k]=a[k]||{};return a[k];},c);
     });
-    e.target.value='';
-  });
-
-  function loadSettings(){
-    if(!sb) return;
-    sb.from('ligemat_settings').select('portrait_url').eq('id',1).single().then(function(r){
-      var url=(r&&r.data&&r.data.portrait_url)?r.data.portrait_url:'osama.jpg';
-      var im=$('portraitPreview'); if(im) im.src=url;
-    });
+    c.stats=[].map.call($('statStrip').children,function(el){return {value:gf(el,'value'),label:gf(el,'label')};});
+    c.about=c.about||{};c.about.cards=[].map.call($('aboutCards').children,function(el){return {icon:gf(el,'icon'),title:gf(el,'title'),text:gf(el,'text')};});
+    c.locations=c.locations||{};c.locations.items=[].map.call($('locGrid').children,function(el){return {title:gf(el,'title'),sub:gf(el,'sub'),image:el.getAttribute('data-img')||''};});
+    c.developers=c.developers||{};c.developers.items=[].map.call($('devGrid').children,function(el){return {name:gf(el,'name'),tier:gf(el,'tier')};});
+    return c;
   }
-  $('portrait_upload_btn').addEventListener('click', function(){ $('portrait_file').click(); });
-  $('portrait_file').addEventListener('change', function(e){
-    var f=e.target.files[0]; if(!f) return;
-    uploadFile(f,'portrait',$('portrait_upload_btn'),$('portrait_msg'),function(url){
-      sb.from('ligemat_settings').update({portrait_url:url, updated_at:new Date().toISOString()}).eq('id',1).then(function(res){
-        var m=$('portrait_msg');
-        if(res.error){ m.className='msg err'; m.textContent=res.error.message; return; }
-        m.className='msg ok'; m.textContent='Portrait updated ✓ — live on the site now.';
-        $('portraitPreview').src=url;
-      });
-    });
-    e.target.value='';
-  });
+  function collectUnits(){
+    return [].map.call($('unitGrid').children,function(el,i){return {
+      _id:el.getAttribute('data-id')||null,name:gf(el,'name'),developer:gf(el,'developer'),tag:gf(el,'tag'),
+      price:gf(el,'price'),price_per_m:gf(el,'price_per_m'),area:gf(el,'area'),beds:gf(el,'beds'),delivery:gf(el,'delivery'),
+      image_url:el.getAttribute('data-img')||null,visible:gf(el,'visible'),is_offer:gf(el,'is_offer'),offer_text:gf(el,'offer_text'),sort_order:i+1
+    };}).filter(function(u){return u.name;});
+  }
 
-  function esc(t){return (t==null?'':String(t)).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+  $('saveBtn').addEventListener('click',function(){
+    if(!sb){flash('Not configured',true);return;}
+    var btn=$('saveBtn');btn.disabled=true;btn.textContent='Publishing…';
+    var content=collect(), units=collectUnits(), tasks=[], keepIds=[];
+    tasks.push(sb.from('ligemat_settings').update({content:content,portrait_url:portraitUrl,updated_at:new Date().toISOString()}).eq('id',1));
+    units.forEach(function(u){
+      var row={name:u.name,developer:u.developer||null,tag:u.tag||null,price:u.price||null,price_per_m:u.price_per_m||null,area:u.area||null,beds:u.beds||null,delivery:u.delivery||null,image_url:u.image_url||null,visible:u.visible,is_offer:u.is_offer,offer_text:u.offer_text||null,sort_order:u.sort_order};
+      if(u._id){keepIds.push(u._id);tasks.push(sb.from('ligemat_units').update(row).eq('id',u._id));}
+      else tasks.push(sb.from('ligemat_units').insert(row));
+    });
+    var toDelete=originalUnitIds.filter(function(id){return keepIds.indexOf(id)<0;});
+    if(toDelete.length)tasks.push(sb.from('ligemat_units').delete().in('id',toDelete));
+    Promise.all(tasks).then(function(results){
+      btn.disabled=false;btn.textContent='Save & Publish';
+      var err=results.filter(function(r){return r&&r.error;})[0];
+      if(err){flash(err.error.message,true);return;}
+      flash('Published ✓ — live on ligemat.com');
+      loadAll();
+    }).catch(function(e){btn.disabled=false;btn.textContent='Save & Publish';flash(String(e),true);});
+  });
 })();
 </script>
 </body>
