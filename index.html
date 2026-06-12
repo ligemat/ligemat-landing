@@ -58,9 +58,8 @@
   :root[data-theme="light"] .i-moon{display:none}
   :root[data-theme="dark"] .i-sun{display:none}
 
-  /* reveal on scroll */
-  .reveal{opacity:0;transform:translateY(28px);transition:opacity .85s cubic-bezier(.2,.7,.2,1),transform .85s cubic-bezier(.2,.7,.2,1)}
-  .reveal.in{opacity:1;transform:none}
+  /* reveal on scroll (hide/show handled via inline styles in JS for reliability) */
+  .reveal{transition:opacity .8s cubic-bezier(.2,.7,.2,1),transform .8s cubic-bezier(.2,.7,.2,1)}
 
   header{position:relative;padding:84px 0 96px;overflow:hidden}
   .hero-grid{position:relative;z-index:2;display:grid;grid-template-columns:1.1fr .9fr;gap:56px;align-items:center}
@@ -158,7 +157,7 @@
     .nav-links{display:none}
     .st{border-right:none;border-bottom:1px solid var(--line)}
   }
-  @media(prefers-reduced-motion:reduce){.blob,.portrait-ring,.pill .dot{animation:none}.reveal{opacity:1;transform:none}}
+  @media(prefers-reduced-motion:reduce){.blob,.portrait-ring,.pill .dot{animation:none}}
 </style>
 </head>
 <body>
@@ -362,9 +361,14 @@
     b.addEventListener('mousemove',function(e){var rc=b.getBoundingClientRect();b.style.transform='translate('+((e.clientX-rc.left-rc.width/2)*.22)+'px,'+((e.clientY-rc.top-rc.height/2)*.35)+'px)';});
     b.addEventListener('mouseleave',function(){b.style.transform='translate(0,0)';});
   });
-  // scroll reveal
-  var revObs=new IntersectionObserver(function(es){es.forEach(function(en){if(en.isIntersecting){en.target.classList.add('in');revObs.unobserve(en.target);}});},{threshold:.12});
-  document.querySelectorAll('.reveal').forEach(function(el){revObs.observe(el);});
+  // scroll reveal — hide + show via INLINE styles (reliable; content stays visible if JS fails)
+  var reveals=document.querySelectorAll('.reveal');
+  var reduce=window.matchMedia('(prefers-reduced-motion:reduce)').matches;
+  if(!reduce){reveals.forEach(function(el){el.style.opacity='0';el.style.transform='translateY(28px)';});}
+  var revObs=new IntersectionObserver(function(es){es.forEach(function(en){if(en.isIntersecting){en.target.style.opacity='1';en.target.style.transform='none';revObs.unobserve(en.target);}});},{threshold:.12});
+  reveals.forEach(function(el){revObs.observe(el);});
+  // safety net: ensure everything is visible after 1.6s no matter what
+  setTimeout(function(){reveals.forEach(function(el){el.style.opacity='1';el.style.transform='none';});},1600);
 
   // ===== data =====
   renderContent(DEF);
