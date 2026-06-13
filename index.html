@@ -16,16 +16,16 @@
     --shadow:rgba(0,0,0,.5);--glass:rgba(255,255,255,.04);--blob-blend:screen;--blob-op:.68;
   }
   :root[data-theme="light"]{
-    --bg:#F6F3EC;--bg-2:#EFEBE1;--panel:#FFFFFF;--line:rgba(8,80,65,.14);
-    --teal:#0F6E56;--teal-lt:#0F6E56;--gold:#B9844F;--gold-lt:#A9763F;
-    --txt:#15201C;--muted:#5C6B64;--grad-a:#B9844F;--grad-b:#0F6E56;
-    --shadow:rgba(8,80,65,.14);--glass:rgba(255,255,255,.5);--blob-blend:normal;--blob-op:.45;
+    --bg:#13201A;--bg-2:#182A21;--panel:#1B2D24;--line:rgba(201,149,106,.18);
+    --teal:#0F6E56;--teal-lt:#23C39A;--gold:#C9956A;--gold-lt:#E2B98C;
+    --txt:#EDEFEC;--muted:#A7B5AE;--grad-a:#E2B98C;--grad-b:#23C39A;
+    --shadow:rgba(0,0,0,.45);--glass:rgba(255,255,255,.05);--blob-blend:screen;--blob-op:.8;
   }
   *{margin:0;padding:0;box-sizing:border-box}
   html{scroll-behavior:smooth}
   body{font-family:'Sora',system-ui,sans-serif;background:var(--bg);color:var(--txt);line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden;transition:background .4s,color .4s}
   :root[data-theme="dark"] body{background:linear-gradient(160deg,#0A0F0D 0%,#0D1613 45%,#0A1110 100%) fixed}
-  :root[data-theme="light"] body{background:linear-gradient(160deg,#F6F1E4 0%,#E8F1EA 38%,#F7EDDC 72%,#EAF0E7 100%) fixed}
+  :root[data-theme="light"] body{background:linear-gradient(160deg,#13211A 0%,#1A2E25 45%,#142219 100%) fixed}
   .wrap{max-width:1160px;margin:0 auto;padding:0 32px;position:relative;z-index:2}
   a{text-decoration:none;color:inherit}
 
@@ -203,9 +203,42 @@
     .fmodal-photo{min-height:0;height:300px}
   }
   @media(prefers-reduced-motion:reduce){.blob,.portrait-ring,.pill .dot{animation:none}}
+
+  /* ===== intro screen ===== */
+  #intro{position:fixed;inset:0;z-index:500;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:20px;pointer-events:none}
+  #intro::before{content:"";position:absolute;inset:0;background:var(--bg);transition:opacity .55s ease .9s}
+  #intro.done::before{opacity:0}
+  #intro.gone{display:none}
+  .intro-logo{display:flex;flex-direction:column;align-items:center;gap:14px;animation:ilogoIn .7s cubic-bezier(.2,.7,.2,1) both}
+  @keyframes ilogoIn{from{opacity:0;transform:translateY(18px) scale(.94)}}
+  .intro-mark{width:72px;height:72px;border-radius:20px;background:linear-gradient(140deg,var(--gold),#a9763f);color:#1a1206;display:flex;align-items:center;justify-content:center;font-size:36px;font-weight:800;font-style:normal;box-shadow:0 0 0 1px rgba(201,149,106,.3),0 24px 60px rgba(201,149,106,.22);animation:markPulse 1.6s ease-in-out infinite alternate}
+  @keyframes markPulse{to{box-shadow:0 0 0 1px rgba(201,149,106,.5),0 28px 80px rgba(201,149,106,.38)}}
+  .intro-word{font-size:26px;font-weight:700;letter-spacing:.06em;color:var(--txt);opacity:0;animation:iwordIn .5s ease .35s forwards}
+  @keyframes iwordIn{to{opacity:1}}
+  .intro-bar{width:48px;height:2px;border-radius:2px;background:linear-gradient(90deg,var(--gold),var(--teal-lt));opacity:0;animation:ibarIn .5s ease .6s forwards,ibarGrow .9s ease .6s forwards}
+  @keyframes ibarIn{to{opacity:.7}}
+  @keyframes ibarGrow{from{width:12px}to{width:48px}}
+  /* curtain panels split and slide away */
+  .intro-top,.intro-bot{position:absolute;left:0;right:0;height:50%;background:var(--bg);transition:transform .6s cubic-bezier(.77,0,.18,1) .85s}
+  .intro-top{top:0}
+  .intro-bot{bottom:0}
+  #intro.done .intro-top{transform:translateY(-100%)}
+  #intro.done .intro-bot{transform:translateY(100%)}
+  #intro.done .intro-logo{animation:ilogoOut .4s ease .75s forwards}
+  @keyframes ilogoOut{to{opacity:0;transform:scale(.88)}}
 </style>
 </head>
 <body>
+
+<div id="intro" aria-hidden="true">
+  <div class="intro-top"></div>
+  <div class="intro-bot"></div>
+  <div class="intro-logo">
+    <i class="intro-mark">L</i>
+    <span class="intro-word">Ligemat</span>
+    <div class="intro-bar"></div>
+  </div>
+</div>
 
 <div class="aurora"><div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div><div class="blob b4"></div></div>
 <div class="cursor-glow" id="glow"></div>
@@ -420,6 +453,18 @@
       requestAnimationFrame(tick);
     });
   }
+
+  // ===== intro ======
+  (function(){
+    var el=document.getElementById('intro');
+    if(!el) return;
+    if(window.matchMedia('(prefers-reduced-motion:reduce)').matches){el.classList.add('gone');return;}
+    var done=false;
+    function dismiss(){if(done)return;done=true;el.classList.add('done');setTimeout(function(){el.classList.add('gone');},1600);}
+    setTimeout(dismiss, 1800);
+    window.addEventListener('click',dismiss,{once:true});
+    window.addEventListener('keydown',dismiss,{once:true});
+  })();
 
   // ===== interactions =====
   // nav: transparent over hero, solid after scrolling
