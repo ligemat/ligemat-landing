@@ -660,12 +660,13 @@
       var desc='Intro call with Mohamed A. Osama (Ligemat).'+(note?' Topic: '+note:'');
       return ['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//Ligemat//Booking//EN','CALSCALE:GREGORIAN','METHOD:PUBLISH','BEGIN:VEVENT','UID:'+Date.now()+Math.floor(Math.random()*1e6)+'@ligemat.com','DTSTAMP:'+z(new Date()),'DTSTART:'+z(st),'DTEND:'+z(en),'SUMMARY:'+icsEsc('Call with Mohamed A. Osama — Ligemat'),'DESCRIPTION:'+icsEsc(desc),'LOCATION:Phone / WhatsApp','END:VEVENT','END:VCALENDAR'].join('\r\n');
     }
-    function success(synced,demo){
+    function success(synced,demo,invited){
       showStep(3);
       var when='<b>'+fmtDay(selDay)+' at '+selSlot.label+' ('+tzShort()+')</b><br>';
       var msg=document.getElementById('bkDoneMsg');
       if(demo){msg.innerHTML=when+'Preview mode — nothing was saved. Once the calendar backend is connected, this slot will be created on the calendar automatically.';}
-      else{msg.innerHTML=when+(synced?'It\'s on the calendar — a confirmation is on its way to '+esc(val('bkEmail'))+'.':'Saved — you\'ll get an email confirmation shortly.');}
+      else if(synced){msg.innerHTML=when+(invited?'Confirmed — an invite is on its way to '+esc(val('bkEmail'))+'. ':'Confirmed and saved. ')+'Tap below to add it to your own calendar, and we\'ll reach out at the time.';}
+      else{msg.innerHTML=when+'Confirmed — we\'ve got your request and will reach out at this time. Tap below to add it to your calendar.';}
       var demoEl=document.getElementById('bkDemo');demoEl.hidden=!demo;if(demo)demoEl.textContent='Developer note: set BOOKING_FN_URL in config.js to enable real bookings + auto-sync.';
       try{var ics=document.getElementById('bkIcs');ics.href=URL.createObjectURL(new Blob([buildIcs()],{type:'text/calendar'}));ics.setAttribute('download','ligemat-call.ics');}catch(e){}
     }
@@ -679,7 +680,7 @@
       if(FN){
         fetch(FN,{method:'POST',headers:Object.assign({'Content-Type':'application/json'},authH()),body:JSON.stringify({action:'book',start:selSlot.startISO,end:selSlot.endISO,name:name,email:email,phone:val('bkPhone'),note:val('bkNote'),tz:BK.tz})})
           .then(function(r){return r.json().then(function(j){return {ok:r.ok,j:j};});})
-          .then(function(res){if(!res.ok||res.j.error){err.textContent=res.j.error||'That slot may have just been taken — pick another.';reset();if(res.j.taken){showStep(1);loadSlots(selDay);}return;}reset();success(res.j.calendarSynced!==false,false);})
+          .then(function(res){if(!res.ok||res.j.error){err.textContent=res.j.error||'That slot may have just been taken — pick another.';reset();if(res.j.taken){showStep(1);loadSlots(selDay);}return;}reset();success(res.j.calendarSynced!==false,false,!!res.j.invited);})
           .catch(function(){err.textContent='Network error — please try again.';reset();});
       }else{setTimeout(function(){reset();success(false,true);},450);}
     };
