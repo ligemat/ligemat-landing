@@ -149,6 +149,8 @@
   .bk-slots{display:flex;flex-direction:column;gap:7px;max-height:282px;overflow-y:auto;padding-right:2px}
   .bk-slot{padding:10px 12px;border-radius:9px;border:1px solid var(--line);background:rgba(255,255,255,.045);color:var(--txt);font-size:13px;font-weight:600;cursor:pointer;text-align:center;transition:all .16s}
   .bk-slot:hover{border-color:var(--gold);color:var(--gold-lt)}
+  .bk-slot.pref{border-color:rgba(201,149,106,.45);background:color-mix(in srgb,var(--gold) 10%,transparent)}
+  .bk-slot .bk-star{color:var(--gold-lt);font-size:11px;vertical-align:1px}
   .bk-empty{font-size:12.5px;color:var(--muted);font-weight:300;line-height:1.6;padding:8px 0}
   .bk-back{background:none;border:none;color:var(--gold-lt);font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;padding:0;margin-bottom:14px}
   .bk-summary{display:flex;align-items:center;gap:10px;padding:13px 15px;border-radius:12px;border:1px solid var(--line);background:color-mix(in srgb,var(--gold) 7%,transparent);margin-bottom:18px;font-size:14px;font-weight:600}
@@ -580,7 +582,7 @@
   (function(){
     var CFG=window.LIGEMAT_CONFIG||{};
     var FN=CFG.BOOKING_FN_URL||'';
-    var BK=CFG.BOOKING||{tz:'Africa/Cairo',days:[0,1,2,3,4,6],startHour:11,endHour:19,slotMin:30,leadHours:3,horizonDays:45};
+    var BK=CFG.BOOKING||{tz:'Africa/Cairo',days:[0,1,2,3,4,6],startHour:9,endHour:23,preferredStart:16,preferredEnd:21,slotMin:30,leadHours:3,horizonDays:45};
     var bModal=document.getElementById('bookModal');
     if(!bModal) return;
     var MON=['January','February','March','April','May','June','July','August','September','October','November','December'];
@@ -591,14 +593,17 @@
     function icsEsc(s){return (s||'').replace(/\\/g,'\\\\').replace(/;/g,'\\;').replace(/,/g,'\\,').replace(/\n/g,'\\n');}
     function cmp(a,b){return (a.y-b.y)||(a.m-b.m)||(a.d-b.d);}
     function authH(){return {apikey:CFG.SUPABASE_ANON_KEY||'',Authorization:'Bearer '+(CFG.SUPABASE_ANON_KEY||'')};}
-    function tzParts(d,tz){var p=new Intl.DateTimeFormat('en-CA',{timeZone:tz,year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(d).reduce(function(a,x){a[x.type]=x.value;return a;},{});return {y:+p.year,m:+p.month,d:+p.day};}
+    // host-tz helpers (for the demo/offline fallback only — the server is authoritative)
+    function hostParts(d){var p=new Intl.DateTimeFormat('en-US',{timeZone:BK.tz,hour12:false,year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(d).reduce(function(a,x){a[x.type]=x.value;return a;},{});return {y:+p.year,m:+p.month,d:+p.day};}
     function tzOffMs(d,tz){var p=new Intl.DateTimeFormat('en-US',{timeZone:tz,hour12:false,year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit'}).formatToParts(d).reduce(function(a,x){a[x.type]=x.value;return a;},{});var asUTC=Date.UTC(+p.year,+p.month-1,+p.day,(+p.hour)%24,+p.minute,+p.second);return asUTC-d.getTime();}
     function zonedToUtc(y,m,d,hh,mm,tz){var base=Date.UTC(y,m-1,d,hh,mm,0);var o=tzOffMs(new Date(base),tz);o=tzOffMs(new Date(base-o),tz);return new Date(base-o);}
-    function lab(hh,mm){var ap=hh<12?'AM':'PM';var h12=hh%12||12;return h12+':'+pad(mm)+' '+ap;}
-    function fmtDay(day){return new Intl.DateTimeFormat('en-GB',{weekday:'short',day:'numeric',month:'short',year:'numeric',timeZone:'UTC'}).format(new Date(Date.UTC(day.y,day.m-1,day.d,12)));}
-    function tzShort(){try{return new Intl.DateTimeFormat('en-US',{timeZone:BK.tz,timeZoneName:'short'}).formatToParts(new Date()).find(function(p){return p.type==='timeZoneName';}).value;}catch(e){return BK.tz;}}
+    // viewer-LOCAL helpers (browser local time == visitor's timezone)
+    function dObj(date){return {y:date.getFullYear(),m:date.getMonth()+1,d:date.getDate()};}
+    function fmtDay(day){return new Intl.DateTimeFormat(undefined,{weekday:'short',day:'numeric',month:'short',year:'numeric'}).format(new Date(day.y,day.m-1,day.d,12));}
+    function slotLabel(iso){return new Date(iso).toLocaleTimeString([],{hour:'numeric',minute:'2-digit'});}
+    function vtz(){try{return new Intl.DateTimeFormat(undefined,{timeZoneName:'short'}).formatToParts(new Date()).find(function(p){return p.type==='timeZoneName';}).value;}catch(e){return '';}}
 
-    var today=tzParts(new Date(),BK.tz), horizon=tzParts(new Date(Date.now()+BK.horizonDays*864e5),BK.tz);
+    var today=dObj(new Date()), horizon=dObj(new Date(Date.now()+BK.horizonDays*864e5));
     var viewY=today.y, viewM=today.m, sel=null, selDay=null, selSlot=null;
 
     function showStep(n){[1,2,3].forEach(function(s){document.getElementById('bkStep'+s).hidden=(s!==n);});}
@@ -606,17 +611,16 @@
     function render(){
       buildDow();
       document.getElementById('bkMonth').textContent=MON[viewM-1]+' '+viewY;
-      var first=new Date(Date.UTC(viewY,viewM-1,1)).getUTCDay();
-      var dim=new Date(Date.UTC(viewY,viewM,0)).getUTCDate();
+      var first=new Date(viewY,viewM-1,1).getDay();
+      var dim=new Date(viewY,viewM,0).getDate();
       var g=document.getElementById('bkDays');g.innerHTML='';
       for(var i=0;i<first;i++){var e=document.createElement('div');e.className='bk-day empty';g.appendChild(e);}
       for(var d=1;d<=dim;d++){(function(d){
         var day={y:viewY,m:viewM,d:d};
-        var wd=new Date(Date.UTC(viewY,viewM-1,d)).getUTCDay();
         var b=document.createElement('button');b.type='button';b.className='bk-day';b.textContent=d;
         if(cmp(day,today)===0)b.classList.add('today');
         if(sel&&cmp(day,sel)===0)b.classList.add('sel');
-        if(cmp(day,today)<0||cmp(day,horizon)>0||BK.days.indexOf(wd)<0){b.disabled=true;}
+        if(cmp(day,today)<0||cmp(day,horizon)>0){b.disabled=true;}
         else{b.onclick=function(){pickDay(day);};}
         g.appendChild(b);
       })(d);}
@@ -624,32 +628,38 @@
       document.getElementById('bkNext').disabled=(viewY>horizon.y||(viewY===horizon.y&&viewM>=horizon.m));
     }
     function pickDay(day){sel=day;render();loadSlots(day);}
-    function localSlots(day){
-      var out=[],earliest=Date.now()+BK.leadHours*3600e3;
-      for(var mins=BK.startHour*60;mins+BK.slotMin<=BK.endHour*60;mins+=BK.slotMin){
-        var hh=Math.floor(mins/60),mm=mins%60,st=zonedToUtc(day.y,day.m,day.d,hh,mm,BK.tz);
-        if(st.getTime()<earliest)continue;
-        var en=new Date(st.getTime()+BK.slotMin*60000);
-        out.push({label:lab(hh,mm),startISO:st.toISOString(),endISO:en.toISOString()});
+    // fallback only (FN unreachable): mirror the server's host-window logic
+    function localSlotsWindow(fromISO,toISO){
+      var from=new Date(fromISO),to=new Date(toISO),out=[],earliest=Date.now()+BK.leadHours*3600e3,seen={};
+      for(var t=from.getTime()-864e5;t<=to.getTime();t+=864e5){
+        var hp=hostParts(new Date(t)),key=hp.y+'-'+hp.m+'-'+hp.d;if(seen[key])continue;seen[key]=1;
+        var wd=new Date(Date.UTC(hp.y,hp.m-1,hp.d)).getUTCDay();if(BK.days.indexOf(wd)<0)continue;
+        for(var mins=BK.startHour*60;mins+BK.slotMin<=BK.endHour*60;mins+=BK.slotMin){
+          var hh=Math.floor(mins/60),mm=mins%60,st=zonedToUtc(hp.y,hp.m,hp.d,hh,mm,BK.tz);
+          if(st<from||st>=to||st.getTime()<earliest)continue;
+          out.push({startISO:st.toISOString(),endISO:new Date(st.getTime()+BK.slotMin*60000).toISOString(),preferred:hh>=BK.preferredStart&&hh<BK.preferredEnd});
+        }
       }
-      return out;
+      out.sort(function(a,b){return a.startISO<b.startISO?-1:1});return out;
     }
     function genSlots(day){
-      if(FN){return fetch(FN+'?action=slots&date='+day.y+'-'+pad(day.m)+'-'+pad(day.d)+'&tz='+encodeURIComponent(BK.tz),{headers:authH()}).then(function(r){return r.json();}).then(function(j){return j.slots||[];}).catch(function(){return localSlots(day);});}
-      return Promise.resolve(localSlots(day));
+      var from=new Date(day.y,day.m-1,day.d,0,0,0).toISOString();
+      var to=new Date(day.y,day.m-1,day.d+1,0,0,0).toISOString();
+      if(FN){return fetch(FN+'?action=slots&from='+encodeURIComponent(from)+'&to='+encodeURIComponent(to),{headers:authH()}).then(function(r){return r.json();}).then(function(j){return j.slots||[];}).catch(function(){return localSlotsWindow(from,to);});}
+      return Promise.resolve(localSlotsWindow(from,to));
     }
     function loadSlots(day){
       document.getElementById('bkSlotsLbl').textContent=fmtDay(day);
       var box=document.getElementById('bkSlots');box.innerHTML='<div class="bk-empty">Loading…</div>';
       genSlots(day).then(function(slots){
-        if(!slots.length){box.innerHTML='<div class="bk-empty">No times left on this day — try another date.</div>';return;}
+        if(!slots.length){box.innerHTML='<div class="bk-empty">No times this day — try another date.</div>';return;}
         box.innerHTML='';
-        slots.forEach(function(s){var b=document.createElement('button');b.type='button';b.className='bk-slot';b.textContent=s.label;b.onclick=function(){pickSlot(day,s);};box.appendChild(b);});
+        slots.forEach(function(s){var b=document.createElement('button');b.type='button';b.className='bk-slot'+(s.preferred?' pref':'');b.innerHTML=(s.preferred?'<span class="bk-star">★</span> ':'')+slotLabel(s.startISO);b.onclick=function(){pickSlot(day,s);};box.appendChild(b);});
       });
     }
     function pickSlot(day,s){
       selDay=day;selSlot=s;
-      document.getElementById('bkSummary').innerHTML='<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg><span>'+fmtDay(day)+' · '+s.label+' &nbsp;<span style="color:var(--muted);font-weight:400">'+BK.slotMin+' min · '+tzShort()+'</span></span>';
+      document.getElementById('bkSummary').innerHTML='<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg><span>'+fmtDay(day)+' · '+slotLabel(s.startISO)+' &nbsp;<span style="color:var(--muted);font-weight:400">'+BK.slotMin+' min · your time ('+vtz()+')</span></span>';
       document.getElementById('bkErr').textContent='';
       showStep(2);
     }
@@ -662,7 +672,7 @@
     }
     function success(synced,demo,invited){
       showStep(3);
-      var when='<b>'+fmtDay(selDay)+' at '+selSlot.label+' ('+tzShort()+')</b><br>';
+      var when='<b>'+fmtDay(selDay)+' at '+slotLabel(selSlot.startISO)+' (your time, '+vtz()+')</b><br>';
       var msg=document.getElementById('bkDoneMsg');
       if(demo){msg.innerHTML=when+'Preview mode — nothing was saved. Once the calendar backend is connected, this slot will be created on the calendar automatically.';}
       else if(synced){msg.innerHTML=when+(invited?'Confirmed — an invite is on its way to '+esc(val('bkEmail'))+'. ':'Confirmed and saved. ')+'Tap below to add it to your own calendar, and we\'ll reach out at the time.';}
@@ -684,7 +694,7 @@
           .catch(function(){err.textContent='Network error — please try again.';reset();});
       }else{setTimeout(function(){reset();success(false,true);},450);}
     };
-    function open(e){if(e)e.preventDefault();fClose();sel=null;selSlot=null;viewY=today.y;viewM=today.m;document.getElementById('bkSlots').innerHTML='';document.getElementById('bkSlotsLbl').textContent='Select a date →';showStep(1);render();bModal.classList.add('open');document.body.style.overflow='hidden';}
+    function open(e){if(e)e.preventDefault();fClose();sel=null;selSlot=null;viewY=today.y;viewM=today.m;document.getElementById('bkSlots').innerHTML='';document.getElementById('bkSlotsLbl').textContent='Select a date →';document.getElementById('bkSubhead').innerHTML='Times are in <b>your</b> timezone ('+vtz()+'). <span style="color:var(--gold-lt)">★ best hours (4–9 PM Egypt)</span> — any other time works too.';showStep(1);render();bModal.classList.add('open');document.body.style.overflow='hidden';}
     function close(){bModal.classList.remove('open');document.body.style.overflow='';}
     [].forEach.call(document.querySelectorAll('[data-book]'),function(el){el.addEventListener('click',open);});
     document.getElementById('bookModalBg').addEventListener('click',close);

@@ -23,10 +23,13 @@ window.LIGEMAT_CONFIG = {
   // Once the Supabase Edge Function is deployed, paste its URL here to go live.
   BOOKING_FN_URL: "https://xdirlxklggepfwvfmgeu.supabase.co/functions/v1/ligemat-book",
   BOOKING: {
-    tz: "Africa/Cairo",           // your timezone — slots are shown in this zone
+    tz: "Africa/Cairo",           // YOUR timezone — availability hours below are in this zone.
+                                   // Visitors always SEE times in their own local timezone.
     days: [0,1,2,3,4,6],          // available weekdays (0=Sun … 6=Sat); default = all except Friday
-    startHour: 11,                // first slot start (24h)
-    endHour: 19,                  // last slot must END by this hour
+    startHour: 9,                 // first bookable slot start (your time, 24h)
+    endHour: 23,                  // last slot must END by this hour (your time)
+    preferredStart: 16,           // "best time" band start = 4 PM (your time)
+    preferredEnd: 21,             // "best time" band end = 9 PM (your time)
     slotMin: 30,                  // call length in minutes
     leadHours: 3,                 // earliest bookable time from now
     horizonDays: 45               // how far ahead bookings are allowed
