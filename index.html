@@ -168,7 +168,7 @@
   .bk-other{margin-top:18px;padding-top:15px;border-top:1px solid var(--line)}
   .bk-other-lbl{display:block;font-size:12px;color:var(--muted);font-weight:600;margin-bottom:9px}
   .bk-other-row{display:flex;gap:8px}
-  .bk-other-row input{flex:1;min-width:0;padding:10px 13px;border-radius:10px;border:1px solid var(--line);background:rgba(255,255,255,.045);color:var(--txt);font-family:inherit;font-size:13.5px;outline:none;transition:border-color .18s}
+  .bk-other-row input{flex:1;min-width:0;padding:10px 13px;border-radius:10px;border:1px solid var(--line);background:rgba(255,255,255,.045);color:var(--txt);font-family:inherit;font-size:13.5px;outline:none;transition:border-color .18s;color-scheme:dark}
   .bk-other-row input:focus{border-color:var(--gold)}
   .bk-other-row .btn{flex:0 0 auto;padding:10px 16px;font-size:13px;white-space:nowrap}
   @media(max-width:560px){.bk-cols{grid-template-columns:1fr}.bk-slots{max-height:200px}.bk-other-row{flex-direction:column}}
@@ -387,9 +387,9 @@
           </div>
         </div>
         <div class="bk-other" id="bkOther" hidden>
-          <span class="bk-other-lbl">None of these work? Tell me what time suits you on this day:</span>
+          <span class="bk-other-lbl">None of these work? Pick a time that suits you on this day:</span>
           <div class="bk-other-row">
-            <input id="bkOtherTime" type="text" placeholder="e.g. around 7 PM, or after 9">
+            <input id="bkOtherTime" type="time" step="300">
             <button type="button" class="btn btn-line" id="bkOtherGo">Request time</button>
           </div>
         </div>
@@ -615,6 +615,7 @@
     function dObj(date){return {y:date.getFullYear(),m:date.getMonth()+1,d:date.getDate()};}
     function fmtDay(day){return new Intl.DateTimeFormat(undefined,{weekday:'short',day:'numeric',month:'short',year:'numeric'}).format(new Date(day.y,day.m-1,day.d,12));}
     function slotLabel(iso){return new Date(iso).toLocaleTimeString([],{hour:'numeric',minute:'2-digit'});}
+    function fmtHM(hm){var p=(hm||'').split(':');if(p.length<2)return hm;return new Date(2000,0,1,+p[0],+p[1]).toLocaleTimeString([],{hour:'numeric',minute:'2-digit'});}
     function hostHM(iso){var p=new Intl.DateTimeFormat('en-GB',{timeZone:BK.tz,hour12:false,hour:'2-digit',minute:'2-digit'}).formatToParts(new Date(iso)).reduce(function(a,x){a[x.type]=x.value;return a;},{});return (p.hour==='24'?'00':p.hour)+':'+p.minute;}
     function filterChosen(slots){if(!CHOSEN)return slots;return slots.filter(function(s){return CHOSEN.indexOf(hostHM(s.startISO))>=0;});}
     function vtz(){try{return new Intl.DateTimeFormat(undefined,{timeZoneName:'short'}).formatToParts(new Date()).find(function(p){return p.type==='timeZoneName';}).value;}catch(e){return '';}}
@@ -681,9 +682,10 @@
       document.getElementById('bkErr').textContent='';
       showStep(2);
     }
-    function pickCustom(day,text){
-      selDay=day;selSlot={custom:true,text:text};
-      document.getElementById('bkSummary').innerHTML='<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg><span>'+fmtDay(day)+' · '+esc(text)+' &nbsp;<span style="color:var(--muted);font-weight:400">requested — we’ll confirm</span></span>';
+    function pickCustom(day,hm){
+      var label=fmtHM(hm)+' ('+vtz()+')';
+      selDay=day;selSlot={custom:true,text:label};
+      document.getElementById('bkSummary').innerHTML='<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg><span>'+fmtDay(day)+' · '+esc(label)+' &nbsp;<span style="color:var(--muted);font-weight:400">requested — we’ll confirm</span></span>';
       document.getElementById('bkErr').textContent='';
       showStep(2);
     }
@@ -720,7 +722,7 @@
       var btn=this,old=btn.textContent;btn.disabled=true;btn.textContent='Booking…';
       function reset(){btn.disabled=false;btn.textContent=old;}
       if(selSlot.custom){
-        if(FN){fetch(FN+'?action=request',{method:'POST',headers:Object.assign({'Content-Type':'application/json'},authH()),body:JSON.stringify({day:selDay.y+'-'+pad(selDay.m)+'-'+pad(selDay.d),requestedTime:selSlot.text,name:name,email:email,phone:val('bkPhone'),note:val('bkNote'),tz:BK.tz})}).catch(function(){});}
+        if(FN){var vz='';try{vz=Intl.DateTimeFormat().resolvedOptions().timeZone||'';}catch(e){}fetch(FN+'?action=request',{method:'POST',headers:Object.assign({'Content-Type':'application/json'},authH()),body:JSON.stringify({day:selDay.y+'-'+pad(selDay.m)+'-'+pad(selDay.d),requestedTime:selSlot.text,name:name,email:email,phone:val('bkPhone'),note:val('bkNote'),tz:vz||BK.tz})}).catch(function(){});}
         setTimeout(function(){reset();success(false,!FN);},400);
         return;
       }
