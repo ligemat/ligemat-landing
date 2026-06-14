@@ -165,7 +165,13 @@
   .bk-success h4{font-size:20px;font-weight:800;margin-bottom:6px}
   .bk-success p{font-size:14px;color:var(--muted);line-height:1.65;margin-bottom:6px}
   .bk-demo{font-size:11.5px;color:var(--gold-lt);background:color-mix(in srgb,var(--gold) 10%,transparent);border:1px dashed rgba(201,149,106,.4);border-radius:9px;padding:8px 11px;margin-top:14px;line-height:1.5}
-  @media(max-width:560px){.bk-cols{grid-template-columns:1fr}.bk-slots{max-height:200px}}
+  .bk-other{margin-top:18px;padding-top:15px;border-top:1px solid var(--line)}
+  .bk-other-lbl{display:block;font-size:12px;color:var(--muted);font-weight:600;margin-bottom:9px}
+  .bk-other-row{display:flex;gap:8px}
+  .bk-other-row input{flex:1;min-width:0;padding:10px 13px;border-radius:10px;border:1px solid var(--line);background:rgba(255,255,255,.045);color:var(--txt);font-family:inherit;font-size:13.5px;outline:none;transition:border-color .18s}
+  .bk-other-row input:focus{border-color:var(--gold)}
+  .bk-other-row .btn{flex:0 0 auto;padding:10px 16px;font-size:13px;white-space:nowrap}
+  @media(max-width:560px){.bk-cols{grid-template-columns:1fr}.bk-slots{max-height:200px}.bk-other-row{flex-direction:column}}
 
   .strip{border-top:1px solid var(--line);border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg-2) 35%,transparent);backdrop-filter:blur(8px)}
   .strip-in{display:grid;grid-template-columns:repeat(4,1fr)}
@@ -380,6 +386,13 @@
             <div class="bk-slots" id="bkSlots"></div>
           </div>
         </div>
+        <div class="bk-other" id="bkOther" hidden>
+          <span class="bk-other-lbl">None of these work? Tell me what time suits you on this day:</span>
+          <div class="bk-other-row">
+            <input id="bkOtherTime" type="text" placeholder="e.g. around 7 PM, or after 9">
+            <button type="button" class="btn btn-line" id="bkOtherGo">Request time</button>
+          </div>
+        </div>
       </div>
       <!-- step 2: details -->
       <div class="bk-step" id="bkStep2" hidden>
@@ -582,7 +595,8 @@
   (function(){
     var CFG=window.LIGEMAT_CONFIG||{};
     var FN=CFG.BOOKING_FN_URL||'';
-    var BK=CFG.BOOKING||{tz:'Africa/Cairo',days:[0,1,2,3,4,6],startHour:9,endHour:23,preferredStart:16,preferredEnd:21,slotMin:30,leadHours:3,horizonDays:45};
+    var BK=CFG.BOOKING||{tz:'Africa/Cairo',days:[0,1,2,3,4,6],times:['16:00','17:00','18:00','19:00','20:00'],startHour:9,endHour:23,preferredStart:16,preferredEnd:21,slotMin:30,leadHours:3,horizonDays:45};
+    var CHOSEN=(BK.times&&BK.times.length)?BK.times.slice():null;
     var bModal=document.getElementById('bookModal');
     if(!bModal) return;
     var MON=['January','February','March','April','May','June','July','August','September','October','November','December'];
@@ -601,6 +615,8 @@
     function dObj(date){return {y:date.getFullYear(),m:date.getMonth()+1,d:date.getDate()};}
     function fmtDay(day){return new Intl.DateTimeFormat(undefined,{weekday:'short',day:'numeric',month:'short',year:'numeric'}).format(new Date(day.y,day.m-1,day.d,12));}
     function slotLabel(iso){return new Date(iso).toLocaleTimeString([],{hour:'numeric',minute:'2-digit'});}
+    function hostHM(iso){var p=new Intl.DateTimeFormat('en-GB',{timeZone:BK.tz,hour12:false,hour:'2-digit',minute:'2-digit'}).formatToParts(new Date(iso)).reduce(function(a,x){a[x.type]=x.value;return a;},{});return (p.hour==='24'?'00':p.hour)+':'+p.minute;}
+    function filterChosen(slots){if(!CHOSEN)return slots;return slots.filter(function(s){return CHOSEN.indexOf(hostHM(s.startISO))>=0;});}
     function vtz(){try{return new Intl.DateTimeFormat(undefined,{timeZoneName:'short'}).formatToParts(new Date()).find(function(p){return p.type==='timeZoneName';}).value;}catch(e){return '';}}
 
     var today=dObj(new Date()), horizon=dObj(new Date(Date.now()+BK.horizonDays*864e5));
@@ -650,16 +666,24 @@
     }
     function loadSlots(day){
       document.getElementById('bkSlotsLbl').textContent=fmtDay(day);
+      var other=document.getElementById('bkOther');if(other){other.hidden=false;document.getElementById('bkOtherTime').value='';}
       var box=document.getElementById('bkSlots');box.innerHTML='<div class="bk-empty">Loading…</div>';
       genSlots(day).then(function(slots){
-        if(!slots.length){box.innerHTML='<div class="bk-empty">No times this day — try another date.</div>';return;}
+        slots=filterChosen(slots);
+        if(!slots.length){box.innerHTML='<div class="bk-empty">No open times this day — pick another date, or request a time below.</div>';return;}
         box.innerHTML='';
-        slots.forEach(function(s){var b=document.createElement('button');b.type='button';b.className='bk-slot'+(s.preferred?' pref':'');b.innerHTML=(s.preferred?'<span class="bk-star">★</span> ':'')+slotLabel(s.startISO);b.onclick=function(){pickSlot(day,s);};box.appendChild(b);});
+        slots.forEach(function(s){var b=document.createElement('button');b.type='button';b.className='bk-slot';b.textContent=slotLabel(s.startISO);b.onclick=function(){pickSlot(day,s);};box.appendChild(b);});
       });
     }
     function pickSlot(day,s){
       selDay=day;selSlot=s;
       document.getElementById('bkSummary').innerHTML='<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg><span>'+fmtDay(day)+' · '+slotLabel(s.startISO)+' &nbsp;<span style="color:var(--muted);font-weight:400">'+BK.slotMin+' min · your time ('+vtz()+')</span></span>';
+      document.getElementById('bkErr').textContent='';
+      showStep(2);
+    }
+    function pickCustom(day,text){
+      selDay=day;selSlot={custom:true,text:text};
+      document.getElementById('bkSummary').innerHTML='<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg><span>'+fmtDay(day)+' · '+esc(text)+' &nbsp;<span style="color:var(--muted);font-weight:400">requested — we’ll confirm</span></span>';
       document.getElementById('bkErr').textContent='';
       showStep(2);
     }
@@ -672,6 +696,14 @@
     }
     function success(synced,demo,invited){
       showStep(3);
+      var icsEl=document.getElementById('bkIcs');
+      if(selSlot.custom){
+        document.getElementById('bkDoneMsg').innerHTML='<b>'+fmtDay(selDay)+' · '+esc(selSlot.text)+'</b><br>'+(demo?'Preview mode — nothing was saved. ':'')+'Thanks — we’ve received your preferred time and will get back to you'+(val('bkEmail')?' at '+esc(val('bkEmail')):'')+' to confirm.';
+        icsEl.hidden=true;
+        var de=document.getElementById('bkDemo');de.hidden=!demo;if(demo)de.textContent='Developer note: set BOOKING_FN_URL in config.js to enable real bookings + auto-sync.';
+        return;
+      }
+      icsEl.hidden=false;
       var when='<b>'+fmtDay(selDay)+' at '+slotLabel(selSlot.startISO)+' (your time, '+vtz()+')</b><br>';
       var msg=document.getElementById('bkDoneMsg');
       if(demo){msg.innerHTML=when+'Preview mode — nothing was saved. Once the calendar backend is connected, this slot will be created on the calendar automatically.';}
@@ -687,6 +719,11 @@
       err.textContent='';
       var btn=this,old=btn.textContent;btn.disabled=true;btn.textContent='Booking…';
       function reset(){btn.disabled=false;btn.textContent=old;}
+      if(selSlot.custom){
+        if(FN){fetch(FN,{method:'POST',headers:Object.assign({'Content-Type':'application/json'},authH()),body:JSON.stringify({action:'request',day:selDay.y+'-'+pad(selDay.m)+'-'+pad(selDay.d),requestedTime:selSlot.text,name:name,email:email,phone:val('bkPhone'),note:val('bkNote'),tz:BK.tz})}).catch(function(){});}
+        setTimeout(function(){reset();success(false,!FN);},400);
+        return;
+      }
       if(FN){
         fetch(FN,{method:'POST',headers:Object.assign({'Content-Type':'application/json'},authH()),body:JSON.stringify({action:'book',start:selSlot.startISO,end:selSlot.endISO,name:name,email:email,phone:val('bkPhone'),note:val('bkNote'),tz:BK.tz})})
           .then(function(r){return r.json().then(function(j){return {ok:r.ok,j:j};});})
@@ -694,12 +731,14 @@
           .catch(function(){err.textContent='Network error — please try again.';reset();});
       }else{setTimeout(function(){reset();success(false,true);},450);}
     };
-    function open(e){if(e)e.preventDefault();fClose();sel=null;selSlot=null;viewY=today.y;viewM=today.m;document.getElementById('bkSlots').innerHTML='';document.getElementById('bkSlotsLbl').textContent='Select a date →';document.getElementById('bkSubhead').innerHTML='Times are in <b>your</b> timezone ('+vtz()+'). <span style="color:var(--gold-lt)">★ best hours (4–9 PM Egypt)</span> — any other time works too.';showStep(1);render();bModal.classList.add('open');document.body.style.overflow='hidden';}
+    function open(e){if(e)e.preventDefault();fClose();sel=null;selSlot=null;viewY=today.y;viewM=today.m;document.getElementById('bkSlots').innerHTML='';document.getElementById('bkSlotsLbl').textContent='Select a date →';var oth=document.getElementById('bkOther');if(oth)oth.hidden=true;document.getElementById('bkSubhead').innerHTML='Times shown in <b>your</b> timezone ('+vtz()+'). Pick a slot below — or request another time.';showStep(1);render();bModal.classList.add('open');document.body.style.overflow='hidden';}
     function close(){bModal.classList.remove('open');document.body.style.overflow='';}
     [].forEach.call(document.querySelectorAll('[data-book]'),function(el){el.addEventListener('click',open);});
     document.getElementById('bookModalBg').addEventListener('click',close);
     document.getElementById('bookModalX').addEventListener('click',close);
     document.getElementById('bkBack').onclick=function(){showStep(1);};
+    document.getElementById('bkOtherGo').onclick=function(){var t=val('bkOtherTime');if(!t||!sel)return;pickCustom(sel,t);};
+    document.getElementById('bkOtherTime').addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();document.getElementById('bkOtherGo').click();}});
     document.getElementById('bkPrev').onclick=function(){if(--viewM<1){viewM=12;viewY--;}render();};
     document.getElementById('bkNext').onclick=function(){if(++viewM>12){viewM=1;viewY++;}render();};
     document.addEventListener('keydown',function(e){if(e.key==='Escape')close();});
