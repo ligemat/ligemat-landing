@@ -720,7 +720,7 @@
       var btn=this,old=btn.textContent;btn.disabled=true;btn.textContent='Booking…';
       function reset(){btn.disabled=false;btn.textContent=old;}
       if(selSlot.custom){
-        if(FN){fetch(FN,{method:'POST',headers:Object.assign({'Content-Type':'application/json'},authH()),body:JSON.stringify({action:'request',day:selDay.y+'-'+pad(selDay.m)+'-'+pad(selDay.d),requestedTime:selSlot.text,name:name,email:email,phone:val('bkPhone'),note:val('bkNote'),tz:BK.tz})}).catch(function(){});}
+        if(FN){fetch(FN+'?action=request',{method:'POST',headers:Object.assign({'Content-Type':'application/json'},authH()),body:JSON.stringify({day:selDay.y+'-'+pad(selDay.m)+'-'+pad(selDay.d),requestedTime:selSlot.text,name:name,email:email,phone:val('bkPhone'),note:val('bkNote'),tz:BK.tz})}).catch(function(){});}
         setTimeout(function(){reset();success(false,!FN);},400);
         return;
       }
