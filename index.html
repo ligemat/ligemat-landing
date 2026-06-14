@@ -159,6 +159,11 @@
   .bk-field label{display:block;font-size:12px;color:var(--muted);margin-bottom:5px;font-weight:600}
   .bk-field input,.bk-field textarea{width:100%;padding:11px 13px;border-radius:10px;border:1px solid var(--line);background:rgba(255,255,255,.045);color:var(--txt);font-family:inherit;font-size:14px;outline:none;transition:border-color .18s;resize:vertical}
   .bk-field input:focus,.bk-field textarea:focus{border-color:var(--gold)}
+  .bk-opt{color:var(--muted);font-weight:400;font-size:11px}
+  .bk-phone{display:flex;gap:8px}
+  .bk-phone select{flex:0 0 auto;max-width:46%;padding:11px 10px;border-radius:10px;border:1px solid var(--line);background:rgba(255,255,255,.045);color:var(--txt);font-family:inherit;font-size:14px;outline:none;cursor:pointer;color-scheme:dark;transition:border-color .18s}
+  .bk-phone select:focus{border-color:var(--gold)}
+  .bk-phone input{flex:1;min-width:0}
   .bk-err{color:#e88;font-size:12.5px;margin-bottom:10px;min-height:0}
   .bk-success{text-align:center;padding:14px 0}
   .bk-check{width:64px;height:64px;border-radius:50%;margin:0 auto 16px;display:flex;align-items:center;justify-content:center;background:linear-gradient(140deg,var(--gold),#a9763f);color:#1a1206;animation:fmpop .4s cubic-bezier(.2,.7,.2,1) both}
@@ -399,8 +404,8 @@
         <button class="bk-back" id="bkBack">‹ change time</button>
         <div class="bk-summary" id="bkSummary"></div>
         <div class="bk-field"><label>Your name</label><input id="bkName" type="text" autocomplete="name" placeholder="Full name"></div>
-        <div class="bk-field"><label>Email</label><input id="bkEmail" type="email" autocomplete="email" placeholder="you@email.com"></div>
-        <div class="bk-field"><label>Phone / WhatsApp</label><input id="bkPhone" type="tel" autocomplete="tel" placeholder="Optional"></div>
+        <div class="bk-field"><label>Email <span class="bk-opt">(optional)</span></label><input id="bkEmail" type="email" autocomplete="email" placeholder="you@email.com"></div>
+        <div class="bk-field"><label>Phone / WhatsApp <span class="bk-opt">(optional)</span></label><div class="bk-phone"><select id="bkPhoneCC" aria-label="Country dialing code"></select><input id="bkPhone" type="tel" inputmode="tel" autocomplete="tel" placeholder="10 0000 0000"></div></div>
         <div class="bk-field"><label>What would you like to discuss?</label><textarea id="bkNote" rows="2" placeholder="Optional — a unit, an area, your budget…"></textarea></div>
         <div class="bk-err" id="bkErr"></div>
         <button class="btn btn-gold" id="bkConfirm" style="width:100%;justify-content:center">Confirm booking</button>
@@ -716,18 +721,20 @@
     }
     document.getElementById('bkConfirm').onclick=function(){
       var name=val('bkName'),email=val('bkEmail'),err=document.getElementById('bkErr');
+      var ccEl=document.getElementById('bkPhoneCC'),num=val('bkPhone'),phone=num?((ccEl?ccEl.value+' ':'')+num).trim():'';
       if(!name){err.textContent='Please enter your name.';return;}
-      if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){err.textContent='Please enter a valid email.';return;}
+      if(email&&!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){err.textContent='Please enter a valid email, or leave it blank.';return;}
+      if(!email&&!phone){err.textContent='Add an email or phone so we can reach you.';return;}
       err.textContent='';
       var btn=this,old=btn.textContent;btn.disabled=true;btn.textContent='Booking…';
       function reset(){btn.disabled=false;btn.textContent=old;}
       if(selSlot.custom){
-        if(FN){var vz='';try{vz=Intl.DateTimeFormat().resolvedOptions().timeZone||'';}catch(e){}fetch(FN+'?action=request',{method:'POST',headers:Object.assign({'Content-Type':'application/json'},authH()),body:JSON.stringify({day:selDay.y+'-'+pad(selDay.m)+'-'+pad(selDay.d),requestedTime:selSlot.text,name:name,email:email,phone:val('bkPhone'),note:val('bkNote'),tz:vz||BK.tz})}).catch(function(){});}
+        if(FN){var vz='';try{vz=Intl.DateTimeFormat().resolvedOptions().timeZone||'';}catch(e){}fetch(FN+'?action=request',{method:'POST',headers:Object.assign({'Content-Type':'application/json'},authH()),body:JSON.stringify({day:selDay.y+'-'+pad(selDay.m)+'-'+pad(selDay.d),requestedTime:selSlot.text,name:name,email:email||null,phone:phone||null,note:val('bkNote'),tz:vz||BK.tz})}).catch(function(){});}
         setTimeout(function(){reset();success(false,!FN);},400);
         return;
       }
       if(FN){
-        fetch(FN,{method:'POST',headers:Object.assign({'Content-Type':'application/json'},authH()),body:JSON.stringify({action:'book',start:selSlot.startISO,end:selSlot.endISO,name:name,email:email,phone:val('bkPhone'),note:val('bkNote'),tz:BK.tz})})
+        fetch(FN,{method:'POST',headers:Object.assign({'Content-Type':'application/json'},authH()),body:JSON.stringify({action:'book',start:selSlot.startISO,end:selSlot.endISO,name:name,email:email||null,phone:phone||null,note:val('bkNote'),tz:BK.tz})})
           .then(function(r){return r.json().then(function(j){return {ok:r.ok,j:j};});})
           .then(function(res){if(!res.ok||res.j.error){err.textContent=res.j.error||'That slot may have just been taken — pick another.';reset();if(res.j.taken){showStep(1);loadSlots(selDay);}return;}reset();success(res.j.calendarSynced!==false,false,!!res.j.invited);})
           .catch(function(){err.textContent='Network error — please try again.';reset();});
@@ -741,6 +748,10 @@
     document.getElementById('bkBack').onclick=function(){showStep(1);};
     document.getElementById('bkOtherGo').onclick=function(){var t=val('bkOtherTime');if(!t||!sel)return;pickCustom(sel,t);};
     document.getElementById('bkOtherTime').addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();document.getElementById('bkOtherGo').click();}});
+    (function(){var ccSel=document.getElementById('bkPhoneCC');if(!ccSel)return;
+      var CC=[['🇪🇬','Egypt','+20'],['🇸🇦','Saudi Arabia','+966'],['🇦🇪','UAE','+971'],['🇰🇼','Kuwait','+965'],['🇶🇦','Qatar','+974'],['🇧🇭','Bahrain','+973'],['🇴🇲','Oman','+968'],['🇯🇴','Jordan','+962'],['🇱🇧','Lebanon','+961'],['🇮🇶','Iraq','+964'],['🇵🇸','Palestine','+970'],['🇸🇾','Syria','+963'],['🇱🇾','Libya','+218'],['🇸🇩','Sudan','+249'],['🇲🇦','Morocco','+212'],['🇹🇳','Tunisia','+216'],['🇩🇿','Algeria','+213'],['🇺🇸','USA / Canada','+1'],['🇬🇧','UK','+44'],['🇩🇪','Germany','+49'],['🇫🇷','France','+33'],['🇮🇹','Italy','+39'],['🇪🇸','Spain','+34'],['🇳🇱','Netherlands','+31'],['🇧🇪','Belgium','+32'],['🇨🇭','Switzerland','+41'],['🇸🇪','Sweden','+46'],['🇳🇴','Norway','+47'],['🇩🇰','Denmark','+45'],['🇮🇪','Ireland','+353'],['🇹🇷','Turkey','+90'],['🇷🇺','Russia','+7'],['🇮🇳','India','+91'],['🇵🇰','Pakistan','+92'],['🇨🇳','China','+86'],['🇯🇵','Japan','+81'],['🇦🇺','Australia','+61'],['🇿🇦','South Africa','+27'],['🇳🇬','Nigeria','+234'],['🇰🇪','Kenya','+254']];
+      CC.forEach(function(c){var o=document.createElement('option');o.value=c[2];o.textContent=c[0]+' '+c[1]+' '+c[2];o.title=c[1]+' ('+c[2]+')';ccSel.appendChild(o);});
+      ccSel.value='+20';})();
     document.getElementById('bkPrev').onclick=function(){if(--viewM<1){viewM=12;viewY--;}render();};
     document.getElementById('bkNext').onclick=function(){if(++viewM>12){viewM=1;viewY++;}render();};
     document.addEventListener('keydown',function(e){if(e.key==='Escape')close();});
