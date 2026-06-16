@@ -273,8 +273,8 @@
   /* Reveal = aurora iris collapse. Logo motion = gold-fill pop + shine sweep, letters rise in sequence. */
   #intro{position:fixed;inset:0;z-index:500;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:20px;pointer-events:none;overflow:hidden}
   #intro.gone{display:none}
-  .intro-veil{position:absolute;inset:0;background:var(--bg);z-index:1;clip-path:circle(150% at 50% 50%);transition:clip-path .45s cubic-bezier(.7,0,.25,1)}
-  #intro.done .intro-veil{clip-path:circle(0% at 50% 50%)}
+  .intro-veil{position:absolute;inset:0;background:var(--bg);z-index:1;transition:transform .55s cubic-bezier(.76,0,.24,1)}
+  #intro.done .intro-veil{transform:translateY(-100%)}
   #intro.done .intro-logo{animation:ilogoOut .45s ease forwards}
   @keyframes ilogoOut{to{opacity:0;transform:scale(.9)}}
 
@@ -805,18 +805,26 @@
     }
 
     function runType(){
-      // Re-read if renderContent updated them while we waited
+      // Re-read in case renderContent updated while we waited
       if(preEl.textContent) preText=preEl.textContent;
-      if(gradEl.textContent) gradText=gradEl.textContent;
-      preEl.textContent=''; gradEl.textContent='';
+      preEl.textContent='';
+
+      // Pre-fill gradEl with invisible chars — layout is locked so "clearer"
+      // stays on its final line from the very first character typed
+      var dotEl=gradEl.nextElementSibling;
+      gradEl.innerHTML=gradText.split('').map(function(ch){
+        return '<span style="opacity:0">'+ch.replace(/&/g,'&amp;').replace(/</g,'&lt;')+'</span>';
+      }).join('');
+      if(dotEl) dotEl.style.opacity='0';
 
       var cur=document.createElement('span');
       cur.className='type-cur';
       preEl.appendChild(cur);
 
-      var SPEED=90; // ms per character
+      var SPEED=90;
 
-      function type(text,el,cb){
+      // Phase 1: type preEl by inserting text nodes before the cursor
+      function typeText(text,cb){
         var i=0;
         (function tick(){
           if(i>=text.length){cb&&cb();return;}
@@ -825,19 +833,30 @@
         })();
       }
 
-      // Phase 1: type headline_pre
-      type(preText,preEl,function(){
-        // Move cursor into grad span
-        gradEl.appendChild(cur);
+      // Phase 2: reveal the pre-filled gradEl chars one by one
+      function revealGrad(cb){
+        var chars=Array.from(gradEl.querySelectorAll('span'));
+        if(chars.length) gradEl.insertBefore(cur,chars[0]);
+        else gradEl.appendChild(cur);
+        var i=0;
+        (function tick(){
+          if(i>=chars.length){cb&&cb();return;}
+          chars[i].style.opacity='1';
+          chars[i].after(cur);
+          i++;
+          setTimeout(tick,SPEED);
+        })();
+      }
+
+      typeText(preText,function(){
         setTimeout(function(){
-          // Phase 2: type headline_accent (gradient word)
-          type(gradText,gradEl,function(){
+          revealGrad(function(){
             cur.remove();
             window._heroTyping=false;
-            // Fade in subline
+            if(dotEl){dotEl.style.transition='opacity .25s ease';dotEl.style.opacity='1';}
             if(subEl){subEl.style.transition='opacity .7s ease';subEl.style.opacity='1';}
           });
-        },90); // brief pause before the accent word
+        },90);
       });
     }
 
