@@ -247,6 +247,9 @@
   .foot small{font-size:13px;color:var(--muted)}
   .foot a.borlink{color:var(--gold-lt);border-bottom:1px solid color-mix(in srgb,var(--gold) 40%,transparent)}
 
+  @keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+  .type-cur{display:inline-block;width:2px;height:.82em;background:rgba(255,255,255,.8);border-radius:1px;margin-left:1px;vertical-align:-.1em;animation:blink .6s step-end infinite}
+
   @media(max-width:880px){
     .hero-grid{grid-template-columns:1fr;gap:40px}
     h1{font-size:44px}.head h2,.cta h2{font-size:32px}.head h2{white-space:normal}
@@ -493,6 +496,7 @@
 
   function renderContent(c){
     document.querySelectorAll('[data-c]').forEach(function(el){
+      if(window._heroTyping){var k=el.getAttribute('data-c');if(k==='hero.headline_pre'||k==='hero.headline_accent')return;}
       var v=get(c, el.getAttribute('data-c'));
       if(v!=null) el.textContent=v;
     });
@@ -776,6 +780,75 @@
     b.addEventListener('mousemove',function(e){var rc=b.getBoundingClientRect();b.style.transform='translate('+((e.clientX-rc.left-rc.width/2)*.22)+'px,'+((e.clientY-rc.top-rc.height/2)*.35)+'px)';});
     b.addEventListener('mouseleave',function(){b.style.transform='translate(0,0)';});
   });
+  // ===== hero title type-in =====
+  (function(){
+    var red=window.matchMedia('(prefers-reduced-motion:reduce)').matches;
+    var introEl=document.getElementById('intro');
+    if(red||!introEl)return;
+
+    var preEl,gradEl,subEl,preText='',gradText='',started=false;
+
+    function start(){
+      if(started)return; started=true;
+      preEl  = document.querySelector('[data-c="hero.headline_pre"]');
+      gradEl = document.querySelector('.grad[data-c="hero.headline_accent"]');
+      subEl  = document.querySelector('.sub-line[data-c="hero.subline"]');
+      if(!preEl||!gradEl)return;
+      // Read current text (Supabase may have already loaded by now)
+      preText  = preEl.textContent||'';
+      gradText = gradEl.textContent||'';
+      // Clear h1 text immediately so curtain reveals an empty headline
+      preEl.textContent=''; gradEl.textContent='';
+      if(subEl){subEl.style.opacity='0';}
+      window._heroTyping=true;
+      setTimeout(runType,180);
+    }
+
+    function runType(){
+      // Re-read if renderContent updated them while we waited
+      if(preEl.textContent) preText=preEl.textContent;
+      if(gradEl.textContent) gradText=gradEl.textContent;
+      preEl.textContent=''; gradEl.textContent='';
+
+      var cur=document.createElement('span');
+      cur.className='type-cur';
+      preEl.appendChild(cur);
+
+      var SPEED=30; // ms per character
+
+      function type(text,el,cb){
+        var i=0;
+        (function tick(){
+          if(i>=text.length){cb&&cb();return;}
+          cur.before(document.createTextNode(text[i++]));
+          setTimeout(tick,SPEED);
+        })();
+      }
+
+      // Phase 1: type headline_pre
+      type(preText,preEl,function(){
+        // Move cursor into grad span
+        gradEl.appendChild(cur);
+        setTimeout(function(){
+          // Phase 2: type headline_accent (gradient word)
+          type(gradText,gradEl,function(){
+            cur.remove();
+            window._heroTyping=false;
+            // Fade in subline
+            if(subEl){subEl.style.transition='opacity .7s ease';subEl.style.opacity='1';}
+          });
+        },90); // brief pause before the accent word
+      });
+    }
+
+    // Fire when intro curtain gets its 'done' class
+    var mo=new MutationObserver(function(){
+      if(introEl.classList.contains('done')){mo.disconnect();start();}
+    });
+    mo.observe(introEl,{attributes:true,attributeFilter:['class']});
+    if(introEl.classList.contains('done')||introEl.classList.contains('gone'))start();
+  })();
+
   // ===== scroll-driven reveals =====
   (function(){
     var red=window.matchMedia('(prefers-reduced-motion:reduce)').matches;
