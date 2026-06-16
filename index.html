@@ -273,8 +273,8 @@
   /* Reveal = aurora iris collapse. Logo motion = gold-fill pop + shine sweep, letters rise in sequence. */
   #intro{position:fixed;inset:0;z-index:500;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:20px;pointer-events:none;overflow:hidden}
   #intro.gone{display:none}
-  .intro-veil{position:absolute;inset:0;background:var(--bg);z-index:1;transition:transform .55s cubic-bezier(.76,0,.24,1)}
-  #intro.done .intro-veil{transform:translateY(-100%)}
+  .intro-veil{position:absolute;inset:0;background:var(--bg);z-index:1;transition:opacity .45s ease .1s}
+  #intro.done .intro-veil{opacity:0}
   #intro.done .intro-logo{animation:ilogoOut .45s ease forwards}
   @keyframes ilogoOut{to{opacity:0;transform:scale(.9)}}
 
@@ -496,7 +496,7 @@
 
   function renderContent(c){
     document.querySelectorAll('[data-c]').forEach(function(el){
-      if(window._heroTyping){var k=el.getAttribute('data-c');if(k==='hero.headline_pre'||k==='hero.headline_accent')return;}
+      if(window._heroTyping&&el.getAttribute('data-c')==='hero.headline_accent')return;
       var v=get(c, el.getAttribute('data-c'));
       if(v!=null) el.textContent=v;
     });
@@ -786,31 +786,24 @@
     var introEl=document.getElementById('intro');
     if(red||!introEl)return;
 
-    var preEl,gradEl,subEl,preText='',gradText='',started=false;
+    var gradEl,subEl,gradText='',started=false;
 
     function start(){
       if(started)return; started=true;
-      preEl  = document.querySelector('[data-c="hero.headline_pre"]');
       gradEl = document.querySelector('.grad[data-c="hero.headline_accent"]');
       subEl  = document.querySelector('.sub-line[data-c="hero.subline"]');
-      if(!preEl||!gradEl)return;
-      // Read current text (Supabase may have already loaded by now)
-      preText  = preEl.textContent||'';
+      if(!gradEl)return;
+      // preEl ("Property, made") stays visible — only the accent word types in
       gradText = gradEl.textContent||'';
-      // Clear h1 text immediately so curtain reveals an empty headline
-      preEl.textContent=''; gradEl.textContent='';
-      if(subEl){subEl.style.opacity='0';}
+      gradEl.textContent='';
+      if(subEl) subEl.style.opacity='0';
       window._heroTyping=true;
-      setTimeout(runType,180);
+      setTimeout(runType,200);
     }
 
     function runType(){
-      // Re-read in case renderContent updated while we waited
-      if(preEl.textContent) preText=preEl.textContent;
-      preEl.textContent='';
-
-      // Pre-fill gradEl with invisible chars — layout is locked so "clearer"
-      // stays on its final line from the very first character typed
+      // Pre-fill gradEl with invisible chars so layout is locked on line 2
+      // before the cursor even appears
       var dotEl=gradEl.nextElementSibling;
       gradEl.innerHTML=gradText.split('').map(function(ch){
         return '<span style="opacity:0">'+ch.replace(/&/g,'&amp;').replace(/</g,'&lt;')+'</span>';
@@ -819,45 +812,24 @@
 
       var cur=document.createElement('span');
       cur.className='type-cur';
-      preEl.appendChild(cur);
+      var chars=Array.from(gradEl.querySelectorAll('span'));
+      if(chars.length) gradEl.insertBefore(cur,chars[0]);
+      else gradEl.appendChild(cur);
 
-      var SPEED=90;
-
-      // Phase 1: type preEl by inserting text nodes before the cursor
-      function typeText(text,cb){
-        var i=0;
-        (function tick(){
-          if(i>=text.length){cb&&cb();return;}
-          cur.before(document.createTextNode(text[i++]));
-          setTimeout(tick,SPEED);
-        })();
-      }
-
-      // Phase 2: reveal the pre-filled gradEl chars one by one
-      function revealGrad(cb){
-        var chars=Array.from(gradEl.querySelectorAll('span'));
-        if(chars.length) gradEl.insertBefore(cur,chars[0]);
-        else gradEl.appendChild(cur);
-        var i=0;
-        (function tick(){
-          if(i>=chars.length){cb&&cb();return;}
-          chars[i].style.opacity='1';
-          chars[i].after(cur);
-          i++;
-          setTimeout(tick,SPEED);
-        })();
-      }
-
-      typeText(preText,function(){
-        setTimeout(function(){
-          revealGrad(function(){
-            cur.remove();
-            window._heroTyping=false;
-            if(dotEl){dotEl.style.transition='opacity .25s ease';dotEl.style.opacity='1';}
-            if(subEl){subEl.style.transition='opacity .7s ease';subEl.style.opacity='1';}
-          });
-        },90);
-      });
+      var SPEED=90,i=0;
+      (function tick(){
+        if(i>=chars.length){
+          cur.remove();
+          window._heroTyping=false;
+          if(dotEl){dotEl.style.transition='opacity .25s ease';dotEl.style.opacity='1';}
+          if(subEl){subEl.style.transition='opacity .7s ease';subEl.style.opacity='1';}
+          return;
+        }
+        chars[i].style.opacity='1';
+        chars[i].after(cur);
+        i++;
+        setTimeout(tick,SPEED);
+      })();
     }
 
     // Fire when intro curtain gets its 'done' class
