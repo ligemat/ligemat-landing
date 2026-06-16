@@ -52,7 +52,10 @@
   nav:not(.scrolled) .theme-toggle{color:#fff;border-color:rgba(255,255,255,.28);background:rgba(255,255,255,.08)}
   .nav-in{display:flex;align-items:center;justify-content:space-between;height:76px}
   .brand{font-size:22px;font-weight:700;display:flex;align-items:center;gap:11px}
-  .brand i{width:32px;height:32px;border-radius:9px;background:linear-gradient(140deg,var(--gold),#a9763f);color:#1a1206;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:800;font-style:normal}
+  .brand i{width:32px;height:32px;border-radius:9px;background:linear-gradient(140deg,var(--gold),#a9763f);color:#1a1206;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:800;font-style:normal;position:relative;overflow:hidden}
+  .brand i::after{content:'';position:absolute;inset:0;border-radius:inherit;background:linear-gradient(115deg,transparent 32%,rgba(255,255,255,.7) 50%,transparent 68%);transform:translateX(-160%);pointer-events:none}
+  .brand i.shine::after{animation:brand-shine .9s ease forwards}
+  @keyframes brand-shine{to{transform:translateX(160%)}}
   .nav-right{display:flex;align-items:center;gap:18px}
   .nav-links{display:flex;gap:30px}
   .nav-links a{font-size:14px;color:var(--muted);transition:color .2s}
@@ -780,6 +783,18 @@
     b.addEventListener('mousemove',function(e){var rc=b.getBoundingClientRect();b.style.transform='translate('+((e.clientX-rc.left-rc.width/2)*.22)+'px,'+((e.clientY-rc.top-rc.height/2)*.35)+'px)';});
     b.addEventListener('mouseleave',function(){b.style.transform='translate(0,0)';});
   });
+  // ===== periodic shine on nav/footer logo =====
+  (function(){
+    function shine(){
+      document.querySelectorAll('.brand i').forEach(function(el){
+        el.classList.remove('shine');
+        void el.offsetWidth; // restart animation
+        el.classList.add('shine');
+      });
+    }
+    setTimeout(function loop(){shine();setTimeout(loop,6000);},3000);
+  })();
+
   // ===== hero title type-in =====
   (function(){
     var red=window.matchMedia('(prefers-reduced-motion:reduce)').matches;
@@ -795,7 +810,10 @@
       if(!gradEl)return;
       // preEl ("Property, made") stays visible — only the accent word types in
       gradText = gradEl.textContent||'';
-      gradEl.textContent='';
+      var d=gradEl.nextElementSibling;
+      // Hide via opacity, NOT by clearing text — preserves layout so line 2 stays line 2
+      gradEl.style.opacity='0';
+      if(d) d.style.opacity='0';
       if(subEl) subEl.style.opacity='0';
       window._heroTyping=true;
       setTimeout(runType,200);
@@ -808,7 +826,7 @@
       gradEl.innerHTML=gradText.split('').map(function(ch){
         return '<span style="opacity:0">'+ch.replace(/&/g,'&amp;').replace(/</g,'&lt;')+'</span>';
       }).join('');
-      if(dotEl) dotEl.style.opacity='0';
+      gradEl.style.opacity=''; // restore gradEl visibility; individual chars still hidden
 
       var cur=document.createElement('span');
       cur.className='type-cur';
@@ -881,7 +899,7 @@
       {id:'aboutCards',delay:90},
       {id:'locGrid',delay:75},
       {id:'devGrid',delay:48},
-      {id:'unitGrid',delay:65}
+      {id:'unitGrid',delay:130}
     ];
     var gridObs=new IntersectionObserver(function(es){
       es.forEach(function(en){
