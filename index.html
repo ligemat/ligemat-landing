@@ -273,7 +273,7 @@
   /* Reveal = aurora iris collapse. Logo motion = gold-fill pop + shine sweep, letters rise in sequence. */
   #intro{position:fixed;inset:0;z-index:500;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:20px;pointer-events:none;overflow:hidden}
   #intro.gone{display:none}
-  .intro-veil{position:absolute;inset:0;background:var(--bg);z-index:1;clip-path:circle(150% at 50% 50%);transition:clip-path .9s cubic-bezier(.7,0,.25,1) .1s}
+  .intro-veil{position:absolute;inset:0;background:var(--bg);z-index:1;clip-path:circle(150% at 50% 50%);transition:clip-path .45s cubic-bezier(.7,0,.25,1)}
   #intro.done .intro-veil{clip-path:circle(0% at 50% 50%)}
   #intro.done .intro-logo{animation:ilogoOut .45s ease forwards}
   @keyframes ilogoOut{to{opacity:0;transform:scale(.9)}}
@@ -814,7 +814,7 @@
       cur.className='type-cur';
       preEl.appendChild(cur);
 
-      var SPEED=62; // ms per character
+      var SPEED=90; // ms per character
 
       function type(text,el,cb){
         var i=0;
