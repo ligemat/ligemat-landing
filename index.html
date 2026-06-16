@@ -67,8 +67,8 @@
   :root[data-theme="light"] .i-moon{display:none}
   :root[data-theme="dark"] .i-sun{display:none}
 
-  /* reveal on scroll (hide/show handled via inline styles in JS for reliability) */
-  .reveal{transition:opacity .8s cubic-bezier(.2,.7,.2,1),transform .8s cubic-bezier(.2,.7,.2,1)}
+  /* reveal on scroll — values driven by JS each frame; CSS transition removed so scroll-progress is instant */
+  .reveal{will-change:opacity,transform}
 
   /* full-bleed luxury property hero */
   header{position:relative;min-height:100vh;min-height:100svh;display:flex;align-items:center;overflow:hidden;background:#06100d center/cover no-repeat;background-image:linear-gradient(150deg,#0f6e56,#06100d)}
@@ -776,25 +776,105 @@
     b.addEventListener('mousemove',function(e){var rc=b.getBoundingClientRect();b.style.transform='translate('+((e.clientX-rc.left-rc.width/2)*.22)+'px,'+((e.clientY-rc.top-rc.height/2)*.35)+'px)';});
     b.addEventListener('mouseleave',function(){b.style.transform='translate(0,0)';});
   });
-  // scroll reveal — hide + show via INLINE styles (reliable; content stays visible if JS fails)
-  var reveals=document.querySelectorAll('.reveal');
-  var reduce=window.matchMedia('(prefers-reduced-motion:reduce)').matches;
-  if(!reduce){reveals.forEach(function(el){el.style.opacity='0';el.style.transform='translateY(28px)';});}
-  var revObs=new IntersectionObserver(function(es){es.forEach(function(en){if(en.isIntersecting){en.target.style.opacity='1';en.target.style.transform='none';revObs.unobserve(en.target);}});},{threshold:.12});
-  reveals.forEach(function(el){revObs.observe(el);});
-  // safety net: ensure everything is visible after 1.6s no matter what
-  setTimeout(function(){reveals.forEach(function(el){el.style.opacity='1';el.style.transform='none';});},1600);
+  // ===== scroll-driven reveals =====
+  (function(){
+    var red=window.matchMedia('(prefers-reduced-motion:reduce)').matches;
+    // Safety net — everything visible after 2s no matter what
+    setTimeout(function(){
+      document.querySelectorAll('.reveal').forEach(function(el){el.style.opacity='1';el.style.transform='none';});
+      document.querySelectorAll('#statStrip .st,#aboutCards .val,#locGrid .loc,#devGrid .dev,#unitGrid .unit').forEach(function(el){el.style.opacity='1';el.style.transform='none';});
+    },2000);
+    if(red){document.querySelectorAll('.reveal').forEach(function(el){el.style.opacity='1';el.style.transform='none';});return;}
+
+    // Scroll-progress for .reveal blocks — opacity/transform tied directly to how far element has entered viewport
+    var progItems=[];
+    document.querySelectorAll('.reveal').forEach(function(el){
+      el.style.opacity='0';el.style.transform='translateY(38px)';
+      progItems.push({el:el,done:false});
+    });
+    var rafPend=false;
+    function updateProg(){
+      rafPend=false;
+      var vh=window.innerHeight,hasLive=false;
+      progItems.forEach(function(item){
+        if(item.done)return;
+        var r=item.el.getBoundingClientRect();
+        // 0 when top enters at 90% of viewport, 1 when top reaches 35%
+        var p=(vh*0.9-r.top)/(vh*0.55);
+        p=Math.max(0,Math.min(1,p));
+        var e=1-Math.pow(1-p,2.8); // cubic ease
+        item.el.style.opacity=String(e);
+        item.el.style.transform='translateY('+(38*(1-e))+'px)';
+        if(p>=1){item.el.style.opacity='1';item.el.style.transform='none';item.done=true;}
+        else if(p>0)hasLive=true;
+      });
+      if(hasLive){rafPend=true;requestAnimationFrame(updateProg);}
+    }
+
+    // Stagger cascade for grid children — each child animates in with an increasing delay
+    var GRIDS=[
+      {id:'statStrip',delay:55},
+      {id:'aboutCards',delay:90},
+      {id:'locGrid',delay:75},
+      {id:'devGrid',delay:48},
+      {id:'unitGrid',delay:65}
+    ];
+    var gridObs=new IntersectionObserver(function(es){
+      es.forEach(function(en){
+        if(!en.isIntersecting)return;
+        var id=en.target.id,g=null;
+        GRIDS.forEach(function(x){if(x.id===id)g=x;});
+        if(!g)return;
+        Array.from(en.target.children).forEach(function(child,i){
+          child.style.transitionDelay=(i*g.delay)+'ms';
+          child.style.opacity='1';
+          child.style.transform='none';
+        });
+        gridObs.unobserve(en.target);
+      });
+    },{threshold:0.06,rootMargin:'0px 0px -32px 0px'});
+
+    // Called after each JS render so newly created grid children are initialized
+    window._initGrids=function(){
+      GRIDS.forEach(function(g){
+        var el=document.getElementById(g.id);
+        if(!el)return;
+        Array.from(el.children).forEach(function(child){
+          if(!child._revInit){
+            child._revInit=true;
+            child.style.opacity='0';
+            child.style.transform='translateY(24px)';
+            child.style.transition='opacity 0.65s cubic-bezier(.2,.7,.2,1),transform 0.65s cubic-bezier(.2,.7,.2,1)';
+          }
+        });
+        gridObs.unobserve(el);
+        gridObs.observe(el);
+      });
+    };
+
+    // Hero parallax — background drifts at 25% of scroll speed
+    var heroEl=document.getElementById('heroSec');
+    function onScroll(){
+      if(heroEl&&window.scrollY<window.innerHeight*1.5){
+        heroEl.style.backgroundPositionY='calc(50% + '+(window.scrollY*0.25)+'px)';
+      }
+      if(!rafPend){rafPend=true;requestAnimationFrame(updateProg);}
+    }
+    window.addEventListener('scroll',onScroll,{passive:true});
+    updateProg();
+  })();
 
   // ===== data =====
   renderContent(DEF);
   renderUnits(DEF.units_demo);
+  if(window._initGrids)window._initGrids();
 
   var configured=C.SUPABASE_URL&&C.SUPABASE_URL.indexOf('http')===0&&C.SUPABASE_ANON_KEY&&C.SUPABASE_ANON_KEY.indexOf('PASTE')!==0;
   if(configured&&window.supabase){
     var sb=window.supabase.createClient(C.SUPABASE_URL,C.SUPABASE_ANON_KEY);
     sb.from('ligemat_settings').select('content,portrait_url').eq('id',1).single().then(function(res){
       if(res&&res.data){
-        if(res.data.content) renderContent(res.data.content);
+        if(res.data.content){renderContent(res.data.content);if(window._initGrids)window._initGrids();}
         if(res.data.portrait_url){
           var im=document.getElementById('portraitImg');if(im){im.style.display='block';im.src=res.data.portrait_url;}
           var im2=document.getElementById('modalPortrait');if(im2){im2.src=res.data.portrait_url;}
@@ -802,7 +882,7 @@
       }
     });
     sb.from('ligemat_units').select('*').eq('visible',true).order('sort_order',{ascending:true}).then(function(res){
-      if(res&&!res.error&&res.data) renderUnits(res.data);
+      if(res&&!res.error&&res.data){renderUnits(res.data);if(window._initGrids)window._initGrids();}
     });
   }
 })();
