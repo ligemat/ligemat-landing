@@ -329,7 +329,7 @@
   <div class="wrap hero-in">
     <div class="reveal" style="max-width:720px">
       <div class="pill"><span class="dot"></span> <span data-c="hero.eyebrow"></span></div>
-      <h1><span data-c="hero.headline_pre"></span> <span class="grad" data-c="hero.headline_accent"></span><span class="grad">.</span>
+      <h1><span data-c="hero.headline_pre"></span><span id="_hsp"> </span><span class="grad" data-c="hero.headline_accent"></span><span class="grad">.</span>
         <span class="sub-line" data-c="hero.subline"></span></h1>
       <p class="lead" data-c="hero.lead"></p>
       <div class="hero-cta">
@@ -499,7 +499,7 @@
 
   function renderContent(c){
     document.querySelectorAll('[data-c]').forEach(function(el){
-      if(window._heroTyping&&el.getAttribute('data-c')==='hero.headline_accent')return;
+      if(window._heroTyping&&(el.getAttribute('data-c')==='hero.headline_accent'||el.getAttribute('data-c')==='hero.headline_pre'))return;
       var v=get(c, el.getAttribute('data-c'));
       if(v!=null) el.textContent=v;
     });
@@ -801,52 +801,54 @@
     var introEl=document.getElementById('intro');
     if(red||!introEl)return;
 
-    var gradEl,subEl,gradText='',started=false;
+    var preEl,gradEl,subEl,preText='',gradText='',started=false;
+
+    function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;');}
 
     function start(){
       if(started)return; started=true;
+      preEl  = document.querySelector('[data-c="hero.headline_pre"]');
       gradEl = document.querySelector('.grad[data-c="hero.headline_accent"]');
       subEl  = document.querySelector('.sub-line[data-c="hero.subline"]');
-      if(!gradEl)return;
-      // preEl ("Property, made") stays visible — only the accent word types in
-      gradText = gradEl.textContent||'';
-      var d=gradEl.nextElementSibling;
-      // Hide via opacity, NOT by clearing text — preserves layout so line 2 stays line 2
-      gradEl.style.opacity='0';
-      if(d) d.style.opacity='0';
-      if(subEl) subEl.style.opacity='0';
+      if(!gradEl||!preEl)return;
+      preText  = (preEl.textContent||'').trim();
+      gradText = (gradEl.textContent||'').trim();
+      var spEl  = document.getElementById('_hsp');
+      var dotEl = gradEl.nextElementSibling;
+      [preEl,spEl,gradEl,dotEl,subEl].forEach(function(e){if(e)e.style.opacity='0';});
       window._heroTyping=true;
       setTimeout(runType,200);
     }
 
     function runType(){
-      // Pre-fill gradEl with invisible chars so layout is locked on line 2
-      // before the cursor even appears
-      var dotEl=gradEl.nextElementSibling;
-      gradEl.innerHTML=gradText.split('').map(function(ch){
-        return '<span style="opacity:0">'+ch.replace(/&/g,'&amp;').replace(/</g,'&lt;')+'</span>';
-      }).join('');
-      gradEl.style.opacity=''; // restore gradEl visibility; individual chars still hidden
+      var spEl  = document.getElementById('_hsp');
+      var dotEl = gradEl.nextElementSibling;
+
+      function mkSpans(el,text){
+        el.innerHTML=text.split('').map(function(ch){return '<span style="opacity:0">'+esc(ch)+'</span>';}).join('');
+        el.style.opacity='';
+        return Array.from(el.querySelectorAll('span'));
+      }
+
+      var allSpans=mkSpans(preEl,preText).concat(mkSpans(spEl,' ')).concat(mkSpans(gradEl,gradText)).concat(mkSpans(dotEl,'.'));
 
       var cur=document.createElement('span');
       cur.className='type-cur';
-      var chars=Array.from(gradEl.querySelectorAll('span'));
-      if(chars.length) gradEl.insertBefore(cur,chars[0]);
-      else gradEl.appendChild(cur);
+      if(allSpans.length) preEl.insertBefore(cur,allSpans[0]);
 
-      var SPEED=90,i=0;
+      var SPEED=90,COMMA_PAUSE=420,i=0;
       (function tick(){
-        if(i>=chars.length){
+        if(i>=allSpans.length){
           cur.remove();
           window._heroTyping=false;
-          if(dotEl){dotEl.style.transition='opacity .25s ease';dotEl.style.opacity='1';}
           if(subEl){subEl.style.transition='opacity .7s ease';subEl.style.opacity='1';}
           return;
         }
-        chars[i].style.opacity='1';
-        chars[i].after(cur);
+        allSpans[i].style.opacity='1';
+        allSpans[i].after(cur);
+        var ch=allSpans[i].textContent;
         i++;
-        setTimeout(tick,SPEED);
+        setTimeout(tick,SPEED+(ch===','?COMMA_PAUSE:0));
       })();
     }
 
