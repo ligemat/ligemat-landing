@@ -499,7 +499,7 @@
 
   function renderContent(c){
     document.querySelectorAll('[data-c]').forEach(function(el){
-      if(window._heroTyping&&(el.getAttribute('data-c')==='hero.headline_accent'||el.getAttribute('data-c')==='hero.headline_pre'))return;
+      if(window._heroTyping&&(el.getAttribute('data-c')==='hero.headline_accent'||el.getAttribute('data-c')==='hero.headline_pre'||el.getAttribute('data-c')==='hero.subline'))return;
       var v=get(c, el.getAttribute('data-c'));
       if(v!=null) el.textContent=v;
     });
@@ -801,7 +801,7 @@
     var introEl=document.getElementById('intro');
     if(red||!introEl)return;
 
-    var preEl,gradEl,subEl,preText='',gradText='',started=false;
+    var preEl,gradEl,subEl,preText='',gradText='',subText='',started=false;
 
     function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;');}
 
@@ -813,6 +813,7 @@
       if(!gradEl||!preEl)return;
       preText  = (preEl.textContent||'').trim();
       gradText = (gradEl.textContent||'').trim();
+      subText  = subEl ? (subEl.textContent||'').trim() : '';
       var spEl  = document.getElementById('_hsp');
       var dotEl = gradEl.nextElementSibling;
       [preEl,spEl,gradEl,dotEl,subEl].forEach(function(e){if(e)e.style.opacity='0';});
@@ -839,9 +840,21 @@
       var SPEED=90,COMMA_PAUSE=420,i=0;
       (function tick(){
         if(i>=allSpans.length){
-          cur.remove();
-          window._heroTyping=false;
-          if(subEl){subEl.style.transition='opacity .7s ease';subEl.style.opacity='1';}
+          if(subEl&&subText){
+            var subSpans=mkSpans(subEl,subText);
+            if(subSpans.length) subEl.insertBefore(cur,subSpans[0]);
+            var j=0;
+            setTimeout(function subTick(){
+              if(j>=subSpans.length){cur.remove();window._heroTyping=false;return;}
+              subSpans[j].style.opacity='1';
+              subSpans[j].after(cur);
+              var sc=subSpans[j].textContent;
+              j++;
+              setTimeout(subTick,SPEED+(sc===','?COMMA_PAUSE:0));
+            },320);
+          } else {
+            cur.remove();window._heroTyping=false;
+          }
           return;
         }
         allSpans[i].style.opacity='1';
