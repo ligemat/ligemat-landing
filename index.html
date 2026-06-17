@@ -845,7 +845,11 @@
             if(subSpans.length) subEl.insertBefore(cur,subSpans[0]);
             var j=0;
             setTimeout(function subTick(){
-              if(j>=subSpans.length){cur.remove();window._heroTyping=false;return;}
+              if(j>=subSpans.length){
+                cur.remove();window._heroTyping=false;
+                setTimeout(function(){subEl.style.transition='opacity 1.4s ease';subEl.style.opacity='.4';},700);
+                return;
+              }
               subSpans[j].style.opacity='1';
               subSpans[j].after(cur);
               var sc=subSpans[j].textContent;
