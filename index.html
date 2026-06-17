@@ -291,7 +291,8 @@
     .st{padding:28px 16px}
     nav .btn-gold{padding:9px 14px;font-size:12px}
     .hero-in{padding-top:88px;padding-bottom:max(160px,calc(140px + env(safe-area-inset-bottom,0px)))}
-    .fmodal-photo{height:220px}
+    .fmodal-photo{height:260px}
+    .fmodal-photo img{object-position:center 10%}
     .fmodal-card,.bmodal-card{max-height:88dvh;border-radius:18px}
     .fmodal-body{padding:26px 22px}
     .bmodal-body{padding:16px 18px 20px}
@@ -857,8 +858,10 @@ window.scrollTo(0,0);
       subText  = subEl ? (subEl.textContent||'').trim() : '';
       var spEl  = document.getElementById('_hsp');
       var dotEl = gradEl.nextElementSibling;
-      [preEl,spEl,gradEl,dotEl,subEl].forEach(function(e){if(e)e.style.opacity='0';});
       window._heroTyping=true;
+      [preEl,spEl,subEl].forEach(function(e){if(e)e.style.opacity='0';});
+      gradEl.textContent='';
+      if(dotEl)dotEl.textContent='';
       setTimeout(runType,200);
     }
 
@@ -872,16 +875,15 @@ window.scrollTo(0,0);
         return Array.from(el.querySelectorAll('span'));
       }
 
-      // Build white spans upfront; grad/dot built lazily so iOS never sees
-      // opacity:0 children inside background-clip:text before their turn
       var whiteSpans=mkSpans(preEl,preText).concat(mkSpans(spEl,' '));
-      var gradSpans=null,dotSpans=null;
+      var gradLen=gradText.length;
 
       var cur=document.createElement('span');
       cur.className='type-cur';
       if(whiteSpans.length) preEl.insertBefore(cur,whiteSpans[0]);
 
-      var SPEED=90,COMMA_PAUSE=420,wi=0,gi=0,di=0;
+      // clip-path reveal for grad/dot avoids iOS background-clip:text opacity bug
+      var SPEED=90,COMMA_PAUSE=220,wi=0,gi=0,gradDone=false,dotDone=false;
       (function tick(){
         // phase 1 — white chars
         if(wi<whiteSpans.length){
@@ -891,28 +893,28 @@ window.scrollTo(0,0);
           wi++;
           return setTimeout(tick,SPEED+(ch===','?COMMA_PAUSE:0));
         }
-        // phase 2 — grad word (build + reveal char 0 in same sync frame)
-        if(!gradSpans){
-          gradSpans=mkSpans(gradEl,gradText);
-          if(gradSpans.length){gradSpans[0].style.opacity='1';gradSpans[0].after(cur);gi=1;}
+        // phase 2 — grad word via clip-path (content was cleared in start())
+        if(!gradDone){
+          if(gi===0){
+            gradEl.textContent=gradText;
+            gradEl.style.clipPath='inset(0 100% 0 0)';
+            var lastW=whiteSpans[whiteSpans.length-1];
+            if(lastW)lastW.after(cur);
+          }
+          if(gi<gradLen){
+            gradEl.style.clipPath='inset(0 '+((100-(gi+1)/gradLen*100).toFixed(1))+'% 0 0)';
+            gi++;
+            return setTimeout(tick,SPEED);
+          }
+          gradEl.style.clipPath='';
+          gradEl.after(cur);
+          gradDone=true;
           return setTimeout(tick,SPEED);
         }
-        if(gi<gradSpans.length){
-          gradSpans[gi].style.opacity='1';
-          gradSpans[gi].after(cur);
-          gi++;
-          return setTimeout(tick,SPEED);
-        }
-        // phase 3 — dot
-        if(!dotSpans){
-          dotSpans=mkSpans(dotEl,'.');
-          if(dotSpans.length){dotSpans[0].style.opacity='1';dotSpans[0].after(cur);di=1;}
-          return setTimeout(tick,SPEED);
-        }
-        if(di<dotSpans.length){
-          dotSpans[di].style.opacity='1';
-          dotSpans[di].after(cur);
-          di++;
+        // phase 3 — dot (single char, restore and show in one tick)
+        if(!dotDone){
+          if(dotEl){dotEl.textContent='.';dotEl.after(cur);}
+          dotDone=true;
           return setTimeout(tick,SPEED);
         }
         // done — type subline
