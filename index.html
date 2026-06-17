@@ -24,7 +24,7 @@
     --shadow:rgba(0,0,0,.45);--glass:rgba(255,255,255,.05);--blob-blend:screen;--blob-op:.8;
   }
   *{margin:0;padding:0;box-sizing:border-box}
-  html{scroll-behavior:smooth}
+  html{scroll-behavior:smooth;background-color:#0A0F0D}
   body{font-family:'Sora',system-ui,sans-serif;background:var(--bg);color:var(--txt);line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden;transition:background .4s,color .4s}
   :root[data-theme="dark"] body{background:linear-gradient(160deg,#0A0F0D 0%,#0D1613 45%,#0A1110 100%) fixed}
   :root[data-theme="light"] body{background:linear-gradient(160deg,#13211A 0%,#1A2E25 45%,#142219 100%) fixed}
@@ -267,7 +267,7 @@
     .founder-tag img,.founder-tag .fb{width:56px;height:68px;border-radius:12px;font-size:inherit}
     .founder-tag>div:last-child{padding:0;text-align:left}
     .founder-tag .ft-stats{display:none}
-    .fmodal-card{grid-template-columns:1fr;max-height:90dvh;overflow-y:auto}
+    .fmodal-card{grid-template-columns:1fr;max-height:90dvh;overflow-y:auto;-webkit-overflow-scrolling:touch}
     .fmodal-photo{min-height:0;height:300px}
     .blob{filter:blur(50px);opacity:.52}
     section{padding:72px 0}
@@ -291,6 +291,7 @@
     .st{padding:28px 16px}
     nav .btn-gold{padding:9px 14px;font-size:12px}
     .hero-in{padding-top:88px;padding-bottom:max(160px,calc(140px + env(safe-area-inset-bottom,0px)))}
+    .fmodal-photo{height:220px}
     .fmodal-card,.bmodal-card{max-height:88dvh;border-radius:18px}
     .fmodal-body{padding:26px 22px}
     .bmodal-body{padding:16px 18px 20px}
@@ -517,6 +518,10 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="content-defaults.js"></script>
 <script>
+// Always land at the top on load/refresh — disable browser scroll restoration
+if('scrollRestoration' in history){history.scrollRestoration='manual';}
+window.scrollTo(0,0);
+
 (function(){
   var C = window.LIGEMAT_CONFIG || {};
   var DEF = window.LIGEMAT_DEFAULTS;
@@ -867,41 +872,69 @@
         return Array.from(el.querySelectorAll('span'));
       }
 
-      var allSpans=mkSpans(preEl,preText).concat(mkSpans(spEl,' ')).concat(mkSpans(gradEl,gradText)).concat(mkSpans(dotEl,'.'));
+      // Build white spans upfront; grad/dot built lazily so iOS never sees
+      // opacity:0 children inside background-clip:text before their turn
+      var whiteSpans=mkSpans(preEl,preText).concat(mkSpans(spEl,' '));
+      var gradSpans=null,dotSpans=null;
 
       var cur=document.createElement('span');
       cur.className='type-cur';
-      if(allSpans.length) preEl.insertBefore(cur,allSpans[0]);
+      if(whiteSpans.length) preEl.insertBefore(cur,whiteSpans[0]);
 
-      var SPEED=90,COMMA_PAUSE=420,i=0;
+      var SPEED=90,COMMA_PAUSE=420,wi=0,gi=0,di=0;
       (function tick(){
-        if(i>=allSpans.length){
-          if(subEl&&subText){
-            var subSpans=mkSpans(subEl,subText);
-            if(subSpans.length) subEl.insertBefore(cur,subSpans[0]);
-            var j=0;
-            setTimeout(function subTick(){
-              if(j>=subSpans.length){
-                cur.remove();window._heroTyping=false;
-                setTimeout(function(){subEl.style.transition='opacity 2.8s ease';subEl.style.opacity='.62';},700);
-                return;
-              }
-              subSpans[j].style.opacity='1';
-              subSpans[j].after(cur);
-              var sc=subSpans[j].textContent;
-              j++;
-              setTimeout(subTick,SPEED+(sc===','?COMMA_PAUSE:0));
-            },320);
-          } else {
-            cur.remove();window._heroTyping=false;
-          }
-          return;
+        // phase 1 — white chars
+        if(wi<whiteSpans.length){
+          whiteSpans[wi].style.opacity='1';
+          whiteSpans[wi].after(cur);
+          var ch=whiteSpans[wi].textContent;
+          wi++;
+          return setTimeout(tick,SPEED+(ch===','?COMMA_PAUSE:0));
         }
-        allSpans[i].style.opacity='1';
-        allSpans[i].after(cur);
-        var ch=allSpans[i].textContent;
-        i++;
-        setTimeout(tick,SPEED+(ch===','?COMMA_PAUSE:0));
+        // phase 2 — grad word (build + reveal char 0 in same sync frame)
+        if(!gradSpans){
+          gradSpans=mkSpans(gradEl,gradText);
+          if(gradSpans.length){gradSpans[0].style.opacity='1';gradSpans[0].after(cur);gi=1;}
+          return setTimeout(tick,SPEED);
+        }
+        if(gi<gradSpans.length){
+          gradSpans[gi].style.opacity='1';
+          gradSpans[gi].after(cur);
+          gi++;
+          return setTimeout(tick,SPEED);
+        }
+        // phase 3 — dot
+        if(!dotSpans){
+          dotSpans=mkSpans(dotEl,'.');
+          if(dotSpans.length){dotSpans[0].style.opacity='1';dotSpans[0].after(cur);di=1;}
+          return setTimeout(tick,SPEED);
+        }
+        if(di<dotSpans.length){
+          dotSpans[di].style.opacity='1';
+          dotSpans[di].after(cur);
+          di++;
+          return setTimeout(tick,SPEED);
+        }
+        // done — type subline
+        if(subEl&&subText){
+          var subSpans=mkSpans(subEl,subText);
+          if(subSpans.length) subEl.insertBefore(cur,subSpans[0]);
+          var j=0;
+          setTimeout(function subTick(){
+            if(j>=subSpans.length){
+              cur.remove();window._heroTyping=false;
+              setTimeout(function(){subEl.style.transition='opacity 2.8s ease';subEl.style.opacity='.62';},700);
+              return;
+            }
+            subSpans[j].style.opacity='1';
+            subSpans[j].after(cur);
+            var sc=subSpans[j].textContent;
+            j++;
+            setTimeout(subTick,SPEED+(sc===','?COMMA_PAUSE:0));
+          },320);
+        } else {
+          cur.remove();window._heroTyping=false;
+        }
       })();
     }
 
