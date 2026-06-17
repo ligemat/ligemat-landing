@@ -130,7 +130,7 @@
   .bmodal{position:fixed;inset:0;z-index:120;display:none;align-items:center;justify-content:center;padding:24px}
   .bmodal.open{display:flex}
   .bmodal-bg{position:absolute;inset:0;background:rgba(4,8,6,.72);backdrop-filter:blur(8px)}
-  .bmodal-card{position:relative;z-index:2;background:var(--panel);border:1px solid var(--line);border-radius:24px;max-width:660px;width:100%;max-height:90vh;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 40px 110px rgba(0,0,0,.55);animation:fmpop .35s cubic-bezier(.2,.7,.2,1) both}
+  .bmodal-card{position:relative;z-index:2;background:var(--panel);border:1px solid var(--line);border-radius:24px;max-width:660px;width:100%;max-height:90vh;max-height:90dvh;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 40px 110px rgba(0,0,0,.55);animation:fmpop .35s cubic-bezier(.2,.7,.2,1) both}
   .bmodal-head{position:relative;padding:24px 28px 18px;border-bottom:1px solid var(--line);background:linear-gradient(180deg,color-mix(in srgb,var(--gold) 8%,transparent),transparent)}
   .bmodal-head h3{font-size:21px;font-weight:800;letter-spacing:-.02em}
   .bmodal-head p{font-size:13px;color:var(--muted);margin-top:3px}
@@ -267,9 +267,43 @@
     .founder-tag img,.founder-tag .fb{width:56px;height:68px;border-radius:12px;font-size:inherit}
     .founder-tag>div:last-child{padding:0;text-align:left}
     .founder-tag .ft-stats{display:none}
-    .fmodal-card{grid-template-columns:1fr;max-height:90vh;overflow-y:auto}
+    .fmodal-card{grid-template-columns:1fr;max-height:90dvh;overflow-y:auto}
     .fmodal-photo{min-height:0;height:300px}
+    .blob{filter:blur(50px);opacity:.52}
+    section{padding:72px 0}
+    .founder-tag{bottom:max(22px,calc(18px + env(safe-area-inset-bottom,0px)))}
+    .hero-in{padding-bottom:max(140px,calc(120px + env(safe-area-inset-bottom,0px)))}
   }
+
+  @media(max-width:600px){
+    .wrap{padding:0 18px}
+    h1{font-size:36px}
+    .lead{font-size:16px;margin:18px 0 24px}
+    section{padding:56px 0}
+    .head{margin-bottom:38px}
+    .head h2,.cta h2{font-size:26px}
+    .head p,.cta p{font-size:16px}
+    .cta{padding:44px 20px}
+    .cta-rows{gap:18px;margin-top:26px;padding-top:22px}
+    .dev-grid{grid-template-columns:repeat(2,1fr)}
+    .strip-in{grid-template-columns:1fr}
+    .st b{font-size:30px}
+    .st{padding:28px 16px}
+    nav .btn-gold{padding:9px 14px;font-size:12px}
+    .hero-in{padding-top:88px;padding-bottom:max(160px,calc(140px + env(safe-area-inset-bottom,0px)))}
+    .fmodal-card,.bmodal-card{max-height:88dvh;border-radius:18px}
+    .fmodal-body{padding:26px 22px}
+    .bmodal-body{padding:16px 18px 20px}
+    .bmodal-head{padding:18px 20px 14px}
+  }
+
+  @media(max-width:380px){
+    h1{font-size:28px}
+    .pill{font-size:11px;padding:6px 12px}
+    .st b{font-size:26px}
+    .btn{padding:11px 16px;font-size:13px}
+  }
+
   @media(prefers-reduced-motion:reduce){.blob,.portrait-ring,.pill .dot{animation:none}}
 
   /* ===== intro screen ===== */
@@ -778,11 +812,13 @@
     pw.addEventListener('mousemove',function(e){var rc=pw.getBoundingClientRect();var x=(e.clientX-rc.left)/rc.width-.5,y=(e.clientY-rc.top)/rc.height-.5;pt.style.transform='rotateY('+(x*11)+'deg) rotateX('+(-y*11)+'deg)';});
     pw.addEventListener('mouseleave',function(){pt.style.transform='rotateY(0) rotateX(0)';});
   }
-  // magnetic buttons
-  document.querySelectorAll('.magnetic').forEach(function(b){
-    b.addEventListener('mousemove',function(e){var rc=b.getBoundingClientRect();b.style.transform='translate('+((e.clientX-rc.left-rc.width/2)*.22)+'px,'+((e.clientY-rc.top-rc.height/2)*.35)+'px)';});
-    b.addEventListener('mouseleave',function(){b.style.transform='translate(0,0)';});
-  });
+  // magnetic buttons — pointer-fine only (skips touch screens)
+  if(window.matchMedia('(pointer:fine)').matches){
+    document.querySelectorAll('.magnetic').forEach(function(b){
+      b.addEventListener('mousemove',function(e){var rc=b.getBoundingClientRect();b.style.transform='translate('+((e.clientX-rc.left-rc.width/2)*.22)+'px,'+((e.clientY-rc.top-rc.height/2)*.35)+'px)';});
+      b.addEventListener('mouseleave',function(){b.style.transform='translate(0,0)';});
+    });
+  }
   // ===== periodic shine on nav/footer logo =====
   (function(){
     function shine(){
