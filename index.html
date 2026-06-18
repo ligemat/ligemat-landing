@@ -310,8 +310,11 @@
   /* Reveal = aurora iris collapse. Logo motion = gold-fill pop + shine sweep, letters rise in sequence. */
   #intro{position:fixed;inset:0;z-index:500;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:20px;pointer-events:none;overflow:hidden}
   #intro.gone{display:none}
-  .intro-veil{position:absolute;inset:0;background:var(--bg);z-index:1;transition:opacity .45s ease .1s}
-  #intro.done .intro-veil{opacity:0}
+  .intro-top,.intro-bot{position:absolute;left:0;right:0;background:var(--bg);z-index:1;transition:transform .82s cubic-bezier(.76,0,.24,1)}
+  .intro-top{top:0;height:50.5%}
+  .intro-bot{bottom:0;height:50.5%}
+  #intro.done .intro-top{transform:translateY(-102%)}
+  #intro.done .intro-bot{transform:translateY(102%)}
   #intro.done .intro-logo{animation:ilogoOut .45s ease forwards}
   @keyframes ilogoOut{to{opacity:0;transform:scale(.9)}}
 
@@ -331,7 +334,8 @@
 <body>
 
 <div id="intro" aria-hidden="true">
-  <div class="intro-veil"></div>
+  <div class="intro-top"></div>
+  <div class="intro-bot"></div>
   <div class="intro-logo">
     <i class="intro-mark">L</i>
     <span class="intro-word"><b style="--i:0">L</b><b style="--i:1">i</b><b style="--i:2">g</b><b style="--i:3">e</b><b style="--i:4">m</b><b style="--i:5">a</b><b style="--i:6">t</b></span>
@@ -622,7 +626,7 @@ window.scrollTo(0,0);
     if(!el) return;
     if(window.matchMedia('(prefers-reduced-motion:reduce)').matches){el.classList.add('gone');return;}
     var done=false;
-    function dismiss(){if(done)return;done=true;el.classList.add('done');setTimeout(function(){el.classList.add('gone');},1700);}
+    function dismiss(){if(done)return;done=true;el.classList.add('done');setTimeout(function(){el.classList.add('gone');},1100);}
     setTimeout(dismiss,2000);
     window.addEventListener('click',dismiss,{once:true});
     window.addEventListener('keydown',dismiss,{once:true});
