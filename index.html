@@ -882,18 +882,20 @@ window.scrollTo(0,0);
       cur.className='type-cur';
       if(whiteSpans.length) preEl.insertBefore(cur,whiteSpans[0]);
 
-      // clip-path reveal for grad/dot avoids iOS background-clip:text opacity bug
-      var SPEED=90,COMMA_PAUSE=220,wi=0,gi=0,gradDone=false,dotDone=false;
-      (function tick(){
+      // rAF-based timing: no setTimeout drift on iOS — timestamp decides reveals
+      var SPEED=90,COMMA_PAUSE=220,wi=0,gi=0,gradDone=false,dotDone=false,nextAt=0;
+      function tick(ts){
+        if(ts<nextAt){requestAnimationFrame(tick);return;}
         // phase 1 — white chars
         if(wi<whiteSpans.length){
           whiteSpans[wi].style.opacity='1';
           whiteSpans[wi].after(cur);
           var ch=whiteSpans[wi].textContent;
+          nextAt=ts+SPEED+(ch===','?COMMA_PAUSE:0);
           wi++;
-          return setTimeout(tick,SPEED+(ch===','?COMMA_PAUSE:0));
+          requestAnimationFrame(tick);return;
         }
-        // phase 2 — grad word via clip-path (content was cleared in start())
+        // phase 2 — grad word via clip-path
         if(!gradDone){
           if(gi===0){
             gradEl.textContent=gradText;
@@ -903,26 +905,27 @@ window.scrollTo(0,0);
           }
           if(gi<gradLen){
             gradEl.style.clipPath='inset(0 '+((100-(gi+1)/gradLen*100).toFixed(1))+'% 0 0)';
-            gi++;
-            return setTimeout(tick,SPEED);
+            nextAt=ts+SPEED; gi++;
+            requestAnimationFrame(tick);return;
           }
           gradEl.style.clipPath='';
           gradEl.after(cur);
-          gradDone=true;
-          return setTimeout(tick,SPEED);
+          gradDone=true; nextAt=ts+SPEED;
+          requestAnimationFrame(tick);return;
         }
-        // phase 3 — dot (single char, restore and show in one tick)
+        // phase 3 — dot
         if(!dotDone){
           if(dotEl){dotEl.textContent='.';dotEl.after(cur);}
-          dotDone=true;
-          return setTimeout(tick,SPEED);
+          dotDone=true; nextAt=ts+SPEED;
+          requestAnimationFrame(tick);return;
         }
         // done — type subline
         if(subEl&&subText){
           var subSpans=mkSpans(subEl,subText);
           if(subSpans.length) subEl.insertBefore(cur,subSpans[0]);
-          var j=0;
-          setTimeout(function subTick(){
+          var j=0,subNextAt=0;
+          function subTick(ts2){
+            if(ts2<subNextAt){requestAnimationFrame(subTick);return;}
             if(j>=subSpans.length){
               cur.remove();window._heroTyping=false;
               setTimeout(function(){subEl.style.transition='opacity 2.8s ease';subEl.style.opacity='.62';},700);
@@ -931,13 +934,16 @@ window.scrollTo(0,0);
             subSpans[j].style.opacity='1';
             subSpans[j].after(cur);
             var sc=subSpans[j].textContent;
+            subNextAt=ts2+SPEED+(sc===','?COMMA_PAUSE:0);
             j++;
-            setTimeout(subTick,SPEED+(sc===','?COMMA_PAUSE:0));
-          },320);
+            requestAnimationFrame(subTick);
+          }
+          setTimeout(function(){requestAnimationFrame(subTick);},320);
         } else {
           cur.remove();window._heroTyping=false;
         }
-      })();
+      }
+      requestAnimationFrame(tick);
     }
 
     // Fire when intro curtain gets its 'done' class
