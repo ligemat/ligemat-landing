@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Draft B — rAF + CSS ::after cursor</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Sora',sans-serif;background:#0A0F0D;color:#EDEFEC;-webkit-font-smoothing:antialiased;min-height:100vh;display:flex;flex-direction:column;justify-content:center;align-items:flex-start;overflow:hidden}
+.aurora{position:fixed;inset:0;z-index:0;overflow:hidden;pointer-events:none}
+.blob{position:absolute;border-radius:50%;filter:blur(80px);mix-blend-mode:screen;opacity:.68}
+.b1{width:46vw;height:46vw;background:radial-gradient(circle,#1da882,transparent 65%);top:-12vw;left:-8vw;animation:d1 20s ease-in-out infinite}
+.b2{width:40vw;height:40vw;background:radial-gradient(circle,#caa06d,transparent 65%);top:4vw;right:-10vw;animation:d2 24s ease-in-out infinite}
+.b3{width:36vw;height:36vw;background:radial-gradient(circle,#0f6e56,transparent 65%);bottom:-14vw;left:26vw;animation:d3 28s ease-in-out infinite}
+.b4{width:30vw;height:30vw;background:radial-gradient(circle,#d8b27e,transparent 65%);bottom:-8vw;right:8vw;animation:d2 26s ease-in-out infinite reverse}
+@keyframes d1{50%{transform:translate(15vw,9vw) scale(1.15)}}
+@keyframes d2{50%{transform:translate(-11vw,7vw) scale(1.1)}}
+@keyframes d3{50%{transform:translate(7vw,-9vw) scale(1.2)}}
+.stage{position:relative;z-index:2;padding:clamp(60px,10vw,120px) clamp(32px,8vw,120px)}
+.badge{display:inline-block;font-size:11px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:#0A0F0D;background:linear-gradient(110deg,#C9956A,#23C39A);border-radius:20px;padding:5px 14px;margin-bottom:28px;opacity:.9}
+h1{font-size:clamp(36px,5.5vw,72px);line-height:1.08;font-weight:800;letter-spacing:-.04em}
+.gc{background:linear-gradient(110deg,#E2B98C,#23C39A);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;display:inline}
+/* cursor lives as ::after on whatever span has data-cur attribute — zero DOM insertions */
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+[data-cur]::after{
+  content:'';display:inline-block;width:3px;height:.78em;
+  background:rgba(255,255,255,.8);border-radius:2px;
+  margin-left:1px;vertical-align:-.1em;
+  animation:blink .6s step-end infinite;
+}
+.sub{font-size:clamp(14px,1.4vw,17px);font-weight:400;color:rgba(255,255,255,.55);margin-top:18px;line-height:1.6;opacity:0}
+.label{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);font-size:11px;color:rgba(255,255,255,.3);letter-spacing:.12em;text-transform:uppercase;z-index:10;text-align:center}
+</style>
+</head>
+<body>
+<div class="aurora"><div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div><div class="blob b4"></div></div>
+
+<div class="stage">
+  <div class="badge">Draft B — rAF + CSS ::after cursor · no DOM moves</div>
+  <h1 id="hl"></h1>
+  <p class="sub" id="sub"></p>
+</div>
+<div class="label">loops automatically · approach: rAF timestamps, cursor via CSS ::after (no insertions)</div>
+
+<script>
+var WHITE  = 'Properties, made ';
+var GRAD   = 'clearer';
+var SUB    = 'From the airport to your front door.';
+var SPEED  = 90;
+var COMMA  = 220;
+var HOLD   = 2800;
+
+var hl    = document.getElementById('hl');
+var subEl = document.getElementById('sub');
+var prevCurEl = null;
+
+function setCursor(el){
+  if(prevCurEl) prevCurEl.removeAttribute('data-cur');
+  if(el) el.setAttribute('data-cur','');
+  prevCurEl = el;
+}
+
+function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;');}
+
+function mkSpans(el, text){
+  el.innerHTML = text.split('').map(function(ch){
+    return '<span style="opacity:0">'+esc(ch)+'</span>';
+  }).join('');
+  el.style.opacity = '';
+  return Array.from(el.querySelectorAll('span'));
+}
+
+function run(){
+  hl.innerHTML = '';
+  subEl.innerHTML = '';
+  subEl.style.opacity = '0';
+  subEl.style.transition = '';
+  prevCurEl = null;
+
+  // Build spans
+  var preEl = document.createElement('span');
+  hl.appendChild(preEl);
+  var spEl = document.createElement('span');
+  hl.appendChild(spEl);
+  var br = document.createElement('br');
+  hl.appendChild(br);
+  var gradEl = document.createElement('span');
+  gradEl.className = 'gc';
+  hl.appendChild(gradEl);
+  var dotEl = document.createElement('span');
+  dotEl.className = 'gc';
+  hl.appendChild(dotEl);
+
+  var whiteSpans = mkSpans(preEl, WHITE.slice(0, -1)).concat(mkSpans(spEl, ' '));
+  gradEl.textContent = '';
+  dotEl.textContent = '';
+
+  // Measure grad width upfront (pixel clip avoids layout on each tick)
+  gradEl.textContent = GRAD;
+  var gradW = gradEl.getBoundingClientRect().width || 200;
+  gradEl.textContent = '';
+  gradEl.style.clipPath = 'inset(0 ' + gradW + 'px 0 0)';
+
+  setCursor(whiteSpans[0]);
+
+  var wi = 0, gi = 0, gradDone = false, dotDone = false, nextAt = 0;
+  var gradLen = GRAD.length;
+
+  function tick(ts){
+    if(ts < nextAt){ requestAnimationFrame(tick); return; }
+
+    // phase 1 — white
+    if(wi < whiteSpans.length){
+      if(wi > 0) whiteSpans[wi-1].removeAttribute('data-cur'); // remove old cursor
+      whiteSpans[wi].style.opacity = '1';
+      whiteSpans[wi].setAttribute('data-cur','');             // add new cursor — CSS does the rest
+      var ch = whiteSpans[wi].textContent;
+      nextAt = ts + SPEED + (ch === ',' ? COMMA : 0);
+      wi++;
+      requestAnimationFrame(tick); return;
+    }
+
+    // phase 2 — grad via pixel clip-path (no layout recalculation)
+    if(!gradDone){
+      if(gi === 0){
+        gradEl.textContent = GRAD;
+        if(whiteSpans.length) whiteSpans[whiteSpans.length-1].removeAttribute('data-cur');
+      }
+      if(gi < gradLen){
+        var px = (gradW - (gi+1)/gradLen * gradW).toFixed(1);
+        gradEl.style.clipPath = 'inset(0 ' + px + 'px 0 0)';
+        nextAt = ts + SPEED; gi++;
+        requestAnimationFrame(tick); return;
+      }
+      gradEl.style.clipPath = '';
+      gradDone = true; nextAt = ts + SPEED;
+      requestAnimationFrame(tick); return;
+    }
+
+    // phase 3 — dot
+    if(!dotDone){
+      dotEl.textContent = '.';
+      dotDone = true; nextAt = ts + SPEED;
+      requestAnimationFrame(tick); return;
+    }
+
+    // subline
+    var subSpans = mkSpans(subEl, SUB);
+    subEl.style.opacity = '1';
+    var j = 0, subNext = 0;
+    function subTick(ts2){
+      if(ts2 < subNext){ requestAnimationFrame(subTick); return; }
+      if(j >= subSpans.length){
+        setCursor(null);
+        setTimeout(function(){
+          subEl.style.transition = 'opacity 2.8s ease';
+          subEl.style.opacity = '.62';
+          setTimeout(run, HOLD);
+        }, 700);
+        return;
+      }
+      if(j > 0) subSpans[j-1].removeAttribute('data-cur');
+      subSpans[j].style.opacity = '1';
+      subSpans[j].setAttribute('data-cur','');
+      var sc = subSpans[j].textContent;
+      subNext = ts2 + SPEED + (sc === ',' ? COMMA : 0);
+      j++;
+      requestAnimationFrame(subTick);
+    }
+    setTimeout(function(){ requestAnimationFrame(subTick); }, 320);
+  }
+
+  requestAnimationFrame(tick);
+}
+
+document.fonts.ready.then(function(){ setTimeout(run, 500); });
+</script>
+</body>
+</html>
