@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Draft E4 — Cascade per Letter</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Sora',sans-serif;background:#0A0F0D;color:#EDEFEC;-webkit-font-smoothing:antialiased;min-height:100vh;display:flex;flex-direction:column;justify-content:center;align-items:flex-start;overflow:hidden}
+.aurora{position:fixed;inset:0;z-index:0;overflow:hidden;pointer-events:none}
+.blob{position:absolute;border-radius:50%;filter:blur(80px);mix-blend-mode:screen;opacity:.68}
+.b1{width:46vw;height:46vw;background:radial-gradient(circle,#1da882,transparent 65%);top:-12vw;left:-8vw;animation:d1 20s ease-in-out infinite}
+.b2{width:40vw;height:40vw;background:radial-gradient(circle,#caa06d,transparent 65%);top:4vw;right:-10vw;animation:d2 24s ease-in-out infinite}
+.b3{width:36vw;height:36vw;background:radial-gradient(circle,#0f6e56,transparent 65%);bottom:-14vw;left:26vw;animation:d3 28s ease-in-out infinite}
+.b4{width:30vw;height:30vw;background:radial-gradient(circle,#d8b27e,transparent 65%);bottom:-8vw;right:8vw;animation:d2 26s ease-in-out infinite reverse}
+@keyframes d1{50%{transform:translate(15vw,9vw) scale(1.15)}}
+@keyframes d2{50%{transform:translate(-11vw,7vw) scale(1.1)}}
+@keyframes d3{50%{transform:translate(7vw,-9vw) scale(1.2)}}
+.stage{position:relative;z-index:2;padding:clamp(60px,10vw,120px) clamp(32px,8vw,120px)}
+.badge{display:inline-block;font-size:11px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:#0A0F0D;background:linear-gradient(110deg,#C9956A,#23C39A);border-radius:20px;padding:5px 14px;margin-bottom:28px;opacity:.9}
+h1{font-size:clamp(36px,5.5vw,72px);line-height:1.12;font-weight:800;letter-spacing:-.04em}
+.gc{background:linear-gradient(110deg,#E2B98C,#23C39A);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+
+/* Per-character cascade: JS sets --i on each span, CSS staggers via calc() */
+.word span{
+  display:inline-block;
+  opacity:0;
+  transform:translateY(14px);
+  will-change:opacity,transform;
+}
+.word.go span{
+  opacity:1;
+  transform:translateY(0);
+  transition:
+    opacity  .38s ease calc(var(--i) * 32ms),
+    transform .42s cubic-bezier(.22,1,.36,1) calc(var(--i) * 32ms);
+}
+
+/* gradient word: whole-word clip-path steps to avoid iOS opacity bug */
+.word.gc{display:inline;clip-path:inset(0 100% 0 0)}
+.word.gc.go{
+  clip-path:inset(0 0% 0 0);
+  transition:clip-path .64s steps(8,end) 0ms;
+}
+
+/* subline per-char */
+.sub span{display:inline-block;opacity:0;transform:translateY(8px);will-change:opacity,transform}
+.sub span.go{opacity:1;transform:translateY(0);transition:opacity .3s ease,transform .35s cubic-bezier(.22,1,.36,1)}
+
+.sub{font-size:clamp(14px,1.4vw,17px);font-weight:400;color:rgba(255,255,255,.55);margin-top:22px;line-height:1.6}
+.label{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);font-size:11px;color:rgba(255,255,255,.3);letter-spacing:.12em;text-transform:uppercase;z-index:10;text-align:center}
+</style>
+</head>
+<body>
+<div class="aurora"><div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div><div class="blob b4"></div></div>
+<div class="stage">
+  <div class="badge">E4 — Letter Cascade</div>
+  <h1 id="hl"></h1>
+  <p class="sub" id="sub"></p>
+</div>
+<div class="label">loops automatically · word groups trigger once; CSS cascades each letter via --i delay</div>
+<script>
+// JS only adds .go to each word — CSS does all per-character work via --i custom property
+var WORDS = [
+  {text:'Properties,', cls:'word', id:'wp'},
+  {text:' made', cls:'word', id:'wm'},   // &nbsp;made on same line
+  {text:'clearer.', cls:'word gc', id:'wc'}   // gradient word
+];
+var SUB = 'From the airport to your front door.';
+var hl  = document.getElementById('hl');
+var sub = document.getElementById('sub');
+
+// Build headline words with per-char spans (except gc which uses whole-word clip)
+WORDS.forEach(function(w, wi){
+  if(wi === 1) return; // built inline below
+  var el = document.createElement('span');
+  el.className = w.cls; el.id = w.id;
+  if(!w.cls.includes('gc')){
+    w.text.split('').forEach(function(ch, ci){
+      var s = document.createElement('span');
+      s.textContent = ch === ' ' ? ' ' : ch;
+      s.style.setProperty('--i', ci);
+      el.appendChild(s);
+    });
+  } else {
+    el.textContent = w.text; // whole word, revealed via clip-path steps
+  }
+  hl.appendChild(el);
+  if(wi === 0){
+    // add "made" inline
+    var sp = document.createElement('span');
+    sp.className = 'word'; sp.id = 'wm';
+    ' made'.split('').forEach(function(ch, ci){
+      var s = document.createElement('span');
+      s.textContent = ch; s.style.setProperty('--i', ci);
+      sp.appendChild(s);
+    });
+    hl.appendChild(sp);
+    hl.appendChild(document.createElement('br'));
+  }
+});
+
+// Build subline per-char
+SUB.split('').forEach(function(ch){
+  var s = document.createElement('span');
+  s.textContent = ch === ' ' ? ' ' : ch;
+  sub.appendChild(s);
+});
+
+function run(){
+  ['wp','wm','wc'].forEach(function(id){ document.getElementById(id).classList.remove('go'); });
+  Array.from(sub.querySelectorAll('span')).forEach(function(s){ s.classList.remove('go'); });
+  sub.style.opacity='0'; sub.style.transition='';
+  void document.getElementById('wp').offsetWidth;
+
+  // Word stagger: each word triggers at word-level, letters cascade inside via CSS
+  var WORD_GAP = 260;
+  setTimeout(function(){ document.getElementById('wp').classList.add('go'); }, 100);
+  setTimeout(function(){ document.getElementById('wm').classList.add('go'); }, 100 + WORD_GAP);
+  setTimeout(function(){ document.getElementById('wc').classList.add('go'); }, 100 + WORD_GAP*2);
+
+  // Subline: each char gets .go with stagger (fast — 25ms apart)
+  var subT = 100 + WORD_GAP*2 + 640 + 280;
+  setTimeout(function(){
+    sub.style.opacity = '1';
+    var subSpans = Array.from(sub.querySelectorAll('span'));
+    subSpans.forEach(function(s, i){ setTimeout(function(){ s.classList.add('go'); }, i * 25); });
+    setTimeout(function(){
+      sub.style.transition = 'opacity 2.5s ease';
+      sub.style.opacity = '.55';
+      setTimeout(run, 3000);
+    }, subSpans.length * 25 + 800 + 900);
+  }, subT);
+}
+
+document.fonts.ready.then(function(){ setTimeout(run, 300); });
+</script>
+</body>
+</html>

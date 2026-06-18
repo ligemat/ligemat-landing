@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Draft E2 — Rise from Below</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Sora',sans-serif;background:#0A0F0D;color:#EDEFEC;-webkit-font-smoothing:antialiased;min-height:100vh;display:flex;flex-direction:column;justify-content:center;align-items:flex-start;overflow:hidden}
+.aurora{position:fixed;inset:0;z-index:0;overflow:hidden;pointer-events:none}
+.blob{position:absolute;border-radius:50%;filter:blur(80px);mix-blend-mode:screen;opacity:.68}
+.b1{width:46vw;height:46vw;background:radial-gradient(circle,#1da882,transparent 65%);top:-12vw;left:-8vw;animation:d1 20s ease-in-out infinite}
+.b2{width:40vw;height:40vw;background:radial-gradient(circle,#caa06d,transparent 65%);top:4vw;right:-10vw;animation:d2 24s ease-in-out infinite}
+.b3{width:36vw;height:36vw;background:radial-gradient(circle,#0f6e56,transparent 65%);bottom:-14vw;left:26vw;animation:d3 28s ease-in-out infinite}
+.b4{width:30vw;height:30vw;background:radial-gradient(circle,#d8b27e,transparent 65%);bottom:-8vw;right:8vw;animation:d2 26s ease-in-out infinite reverse}
+@keyframes d1{50%{transform:translate(15vw,9vw) scale(1.15)}}
+@keyframes d2{50%{transform:translate(-11vw,7vw) scale(1.1)}}
+@keyframes d3{50%{transform:translate(7vw,-9vw) scale(1.2)}}
+.stage{position:relative;z-index:2;padding:clamp(60px,10vw,120px) clamp(32px,8vw,120px)}
+.badge{display:inline-block;font-size:11px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:#0A0F0D;background:linear-gradient(110deg,#C9956A,#23C39A);border-radius:20px;padding:5px 14px;margin-bottom:28px;opacity:.9}
+h1{font-size:clamp(36px,5.5vw,72px);line-height:1.14;font-weight:800;letter-spacing:-.04em}
+.gc{background:linear-gradient(110deg,#E2B98C,#23C39A);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+
+/* Words rise up through a slot — clipped from above, revealed bottom-first */
+.word{
+  display:inline-block;
+  clip-path:inset(110% 0 -10% 0);   /* top 110%: fully hidden, -10% bottom: allow descenders */
+  will-change:clip-path,transform;
+}
+.word.go{
+  clip-path:inset(0% 0 -10% 0);
+  transition:clip-path .62s cubic-bezier(.22,1,.36,1);
+}
+
+/* Subline words */
+.sw{display:inline-block;clip-path:inset(110% 0 -10% 0);will-change:clip-path}
+.sw.go{clip-path:inset(0% 0 -10% 0);transition:clip-path .48s cubic-bezier(.22,1,.36,1)}
+
+.sub{font-size:clamp(14px,1.4vw,17px);font-weight:400;color:rgba(255,255,255,.55);margin-top:22px;line-height:1.6}
+.label{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);font-size:11px;color:rgba(255,255,255,.3);letter-spacing:.12em;text-transform:uppercase;z-index:10;text-align:center}
+</style>
+</head>
+<body>
+<div class="aurora"><div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div><div class="blob b4"></div></div>
+<div class="stage">
+  <div class="badge">E2 — Rise from Below</div>
+  <h1 id="hl">
+    <span class="word" id="wp">Properties,</span>&nbsp;<span class="word" id="wm">made</span><br>
+    <span class="word gc" id="wc">clearer.</span>
+  </h1>
+  <p class="sub" id="sub"></p>
+</div>
+<div class="label">loops automatically · words emerge upward through a hard clip — sharp &amp; crisp</div>
+<script>
+var SUB_WORDS=['From','the','airport','to','your','front','door.'];
+var sub=document.getElementById('sub');
+var wp=document.getElementById('wp'),wm=document.getElementById('wm'),wc=document.getElementById('wc');
+SUB_WORDS.forEach(function(w,i){var s=document.createElement('span');s.className='sw';s.textContent=w+(i<SUB_WORDS.length-1?' ':'');sub.appendChild(s);});
+function run(){
+  [wp,wm,wc].forEach(function(el){el.classList.remove('go');});
+  Array.from(sub.querySelectorAll('.sw')).forEach(function(el){el.classList.remove('go');});
+  sub.style.opacity='0';sub.style.transition='';
+  void wp.offsetWidth;
+  setTimeout(function(){wp.classList.add('go');},100);
+  setTimeout(function(){wm.classList.add('go');},400);
+  setTimeout(function(){wc.classList.add('go');},700);
+  setTimeout(function(){
+    sub.style.opacity='1';
+    Array.from(sub.querySelectorAll('.sw')).forEach(function(el,i){setTimeout(function(){el.classList.add('go');},i*75);});
+    setTimeout(function(){sub.style.transition='opacity 2.5s ease';sub.style.opacity='.55';setTimeout(run,3000);},SUB_WORDS.length*75+600+900);
+  },1350);
+}
+document.fonts.ready.then(function(){setTimeout(run,300);});
+</script>
+</body>
+</html>
