@@ -182,6 +182,16 @@
       <div class="imgbtn"><input type="file" id="portrait_file" accept="image/*" style="display:none"><button class="btn btn-gold btn-sm" id="portraitBtn">⬆ Photo</button></div>
       <div class="portrait-badge"><b contenteditable="true" data-ed="hero.name"></b><span contenteditable="true" data-ed="hero.role"></span></div>
     </div>
+    <div style="margin-top:10px;display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+      <span style="font-size:13px;color:var(--muted);white-space:nowrap">Photo position</span>
+      <select id="portraitPos" style="background:var(--panel);color:var(--txt);border:1px solid var(--line);border-radius:8px;padding:6px 10px;font-size:13px;font-family:inherit;cursor:pointer">
+        <option value="center top">Top</option>
+        <option value="center 20%">Upper</option>
+        <option value="center 40%">Center-upper</option>
+        <option value="center center">Center</option>
+        <option value="center 70%">Lower</option>
+      </select>
+    </div>
   </div></header>
 
   <div class="strip"><div class="wrap">
@@ -292,6 +302,9 @@
     if(!heroImageUrl&&c.hero)heroImageUrl=c.hero.hero_image||null;
     $('portraitImg').src=portraitUrl||'osama.jpg';
     if(heroImageUrl)$('heroImgPreview').src=heroImageUrl;
+    var pos=(c.hero&&c.hero.portrait_position)||'center top';
+    $('portraitPos').value=pos;
+    $('portraitImg').style.objectPosition=pos;
     renderStats((c.stats||[]).slice());
     renderAbout(((c.about&&c.about.cards)||[]).slice());
     renderLoc(((c.locations&&c.locations.items)||[]).slice());
@@ -345,6 +358,7 @@
   });});
   $('portraitBtn').addEventListener('click',function(){$('portrait_file').click();});
   $('portrait_file').addEventListener('change',function(e){var f=e.target.files[0];if(!f)return;uploadFile(f,'portrait',function(url){portraitUrl=url;$('portraitImg').src=url;flash('Portrait uploaded ✓');});});
+  $('portraitPos').addEventListener('change',function(){$('portraitImg').style.objectPosition=this.value;});
   $('heroImgBtn').addEventListener('click',function(){$('hero_file').click();});
   $('hero_file').addEventListener('change',function(e){var f=e.target.files[0];if(!f)return;uploadFile(f,'hero',function(url){heroImageUrl=url;$('heroImgPreview').src=url;flash('Hero photo uploaded ✓');});});
   function uploadFile(file,folder,cb){
@@ -385,7 +399,7 @@
     if(!sb){flash('Not configured',true);return;}
     var btn=$('saveBtn');btn.disabled=true;btn.textContent='Publishing…';
     var content=collect(), units=collectUnits(), tasks=[], keepIds=[];
-    content.hero=content.hero||{}; content.hero.hero_image=heroImageUrl;
+    content.hero=content.hero||{}; content.hero.hero_image=heroImageUrl; content.hero.portrait_position=$('portraitPos').value;
     tasks.push(sb.from('ligemat_settings').update({content:content,portrait_url:portraitUrl,updated_at:new Date().toISOString()}).eq('id',1));
     units.forEach(function(u){
       var row={name:u.name,developer:u.developer||null,tag:u.tag||null,price:u.price||null,price_per_m:u.price_per_m||null,area:u.area||null,beds:u.beds||null,delivery:u.delivery||null,image_url:u.image_url||null,visible:u.visible,is_offer:u.is_offer,offer_text:u.offer_text||null,sort_order:u.sort_order};
