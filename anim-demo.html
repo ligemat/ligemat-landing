@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Type-in demo — ligemat</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Sora',sans-serif;background:#0A0F0D;color:#EDEFEC;-webkit-font-smoothing:antialiased;min-height:100vh;display:flex;flex-direction:column;justify-content:center;align-items:flex-start}
+.aurora{position:fixed;inset:0;z-index:0;overflow:hidden;pointer-events:none}
+.blob{position:absolute;border-radius:50%;filter:blur(80px);mix-blend-mode:screen;opacity:.68}
+.b1{width:46vw;height:46vw;background:radial-gradient(circle,#1da882,transparent 65%);top:-12vw;left:-8vw;animation:d1 20s ease-in-out infinite}
+.b2{width:40vw;height:40vw;background:radial-gradient(circle,#caa06d,transparent 65%);top:4vw;right:-10vw;animation:d2 24s ease-in-out infinite}
+.b3{width:36vw;height:36vw;background:radial-gradient(circle,#0f6e56,transparent 65%);bottom:-14vw;left:26vw;animation:d3 28s ease-in-out infinite}
+.b4{width:30vw;height:30vw;background:radial-gradient(circle,#d8b27e,transparent 65%);bottom:-8vw;right:8vw;animation:d2 26s ease-in-out infinite reverse}
+@keyframes d1{50%{transform:translate(15vw,9vw) scale(1.15)}}
+@keyframes d2{50%{transform:translate(-11vw,7vw) scale(1.1)}}
+@keyframes d3{50%{transform:translate(7vw,-9vw) scale(1.2)}}
+
+.stage{position:relative;z-index:2;padding:clamp(60px,10vw,120px) clamp(32px,8vw,120px)}
+.eyebrow{font-size:11px;font-weight:600;letter-spacing:.2em;text-transform:uppercase;color:#C9956A;margin-bottom:28px;opacity:.8}
+h1{font-size:clamp(38px,5.5vw,72px);line-height:1.05;font-weight:800;letter-spacing:-.04em;min-height:2.3em;color:#fff}
+
+/* gradient word — single span so gradient flows across all chars */
+.gc{background:linear-gradient(110deg,#E2B98C,#23C39A);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;display:inline}
+
+/* cursor */
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+.cur{display:inline-block;width:3px;height:.78em;background:rgba(255,255,255,.75);border-radius:2px;margin-left:1px;vertical-align:-.08em;animation:blink .55s step-end infinite}
+
+.sub{font-size:clamp(14px,1.5vw,18px);font-weight:400;color:rgba(255,255,255,.55);margin-top:20px;line-height:1.6;opacity:0;transition:opacity .8s ease}
+.sub.show{opacity:1}
+.hint{position:fixed;bottom:28px;left:50%;transform:translateX(-50%);font-size:11px;color:rgba(255,255,255,.22);letter-spacing:.1em;text-transform:uppercase;z-index:10}
+</style>
+</head>
+<body>
+<div class="aurora"><div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div><div class="blob b4"></div></div>
+
+<div class="stage">
+  <div class="eyebrow">Ligemat · Animation preview</div>
+  <h1 id="hl"></h1>
+  <p class="sub" id="sub">From the airport to your front door.</p>
+</div>
+<div class="hint">loops automatically</div>
+
+<script>
+var WHITE = "Properties, made ";
+var GRAD  = "clearer.";
+var SPEED = 72;
+var HOLD  = 2200;
+var COMMA_PAUSE = 420;
+
+var hl  = document.getElementById('hl');
+var sub = document.getElementById('sub');
+
+/* interpolate gold → teal per character so gradient flows across the word */
+function gradColor(i, total) {
+  var t = total > 1 ? i / (total - 1) : 0;
+  var r = Math.round(0xE2 + (0x23 - 0xE2) * t);
+  var g = Math.round(0xB9 + (0xC3 - 0xB9) * t);
+  var b = Math.round(0x8C + (0x9A - 0x8C) * t);
+  return 'rgb('+r+','+g+','+b+')';
+}
+
+function run() {
+  sub.classList.remove('show');
+  hl.innerHTML = '';
+
+  var spans = [];
+
+  /* white chars */
+  WHITE.split('').forEach(function(ch) {
+    var s = document.createElement('span');
+    s.style.opacity = '0';
+    s.textContent = ch;
+    hl.appendChild(s);
+    spans.push(s);
+  });
+
+  /* grad chars — per-character interpolated colour, cursor tracks normally */
+  GRAD.split('').forEach(function(ch, idx) {
+    var s = document.createElement('span');
+    s.style.opacity = '0';
+    s.style.color = gradColor(idx, GRAD.length);
+    s.textContent = ch;
+    hl.appendChild(s);
+    spans.push(s);
+  });
+
+  /* cursor */
+  var cur = document.createElement('span');
+  cur.className = 'cur';
+  hl.insertBefore(cur, spans[0]);
+
+  var i = 0;
+
+  (function tick() {
+    spans[i].style.opacity = '1';
+    spans[i].after(cur);
+    var justTyped = spans[i].textContent;
+    i++;
+    if (i < spans.length) {
+      setTimeout(tick, SPEED + (justTyped === ',' ? COMMA_PAUSE : 0));
+    } else {
+      setTimeout(function() {
+        cur.remove();
+        sub.classList.add('show');
+        setTimeout(run, HOLD);
+      }, 500);
+    }
+  })();
+}
+
+window.addEventListener('load', function(){ setTimeout(run, 400); });
+</script>
+</body>
+</html>
