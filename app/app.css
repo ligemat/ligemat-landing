@@ -1,0 +1,14 @@
+:root{--bg:#0A0F0D;--panel:#121C18;--line:rgba(201,149,106,.16);--teal:#0F6E56;--teal-lt:#23C39A;--gold:#C9956A;--gold-lt:#E2B98C;--txt:#EDEFEC;--muted:#9BA8A2;}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Sora',system-ui,sans-serif;background:linear-gradient(160deg,#0A0F0D,#0D1613 45%,#0A1110) fixed;color:var(--txt);line-height:1.6;min-height:100vh}
+#app-root{max-width:960px;margin:0 auto;padding:24px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:20px}
+.btn{display:inline-flex;align-items:center;gap:8px;font:600 14px/1 'Sora',sans-serif;padding:12px 20px;border-radius:12px;border:none;cursor:pointer;background:linear-gradient(135deg,var(--gold),#b9844f);color:#1a1206}
+.btn-line{background:transparent;border:1px solid var(--line);color:var(--txt)}
+input,select{width:100%;padding:11px 13px;border-radius:10px;border:1px solid var(--line);background:#0E1714;color:var(--txt);font:400 15px 'Sora',sans-serif}
+label{display:block;font-size:13px;color:var(--muted);margin:12px 0 5px}
+[hidden]{display:none!important}
+.err{color:#ff9b8a;font-size:13px;margin-top:8px;min-height:16px}
+.pin-dots{display:flex;gap:12px;justify-content:center;margin:18px 0}
+.pin-dot{width:14px;height:14px;border-radius:50%;border:2px solid var(--gold);opacity:.35}
+.pin-dot.on{opacity:1;background:var(--gold)}
