@@ -12,6 +12,9 @@ window.LIGEMAT_CONFIG = {
   // Supabase publishable key (safe to be public; database is protected by RLS)
   SUPABASE_ANON_KEY: "sb_publishable_cgKDImKevrJct2z-WcAh4w_uh084cDk",
 
+  // finance /app owner — only this Supabase user may use the dashboard
+  OWNER_UID: "",
+
   // Your contact details (used across the site)
   WHATSAPP: "201507785755",        // international format, no + or spaces
   PHONE_DISPLAY: "0150 778 5755",
