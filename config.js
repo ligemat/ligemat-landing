@@ -13,7 +13,7 @@ window.LIGEMAT_CONFIG = {
   SUPABASE_ANON_KEY: "sb_publishable_cgKDImKevrJct2z-WcAh4w_uh084cDk",
 
   // finance /app owner — only this Supabase user may use the dashboard
-  OWNER_UID: "",
+  OWNER_UID: "5e2b89b0-507c-467b-b092-90632d102e48",
 
   // Your contact details (used across the site)
   WHATSAPP: "201507785755",        // international format, no + or spaces
