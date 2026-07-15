@@ -77,7 +77,7 @@ export async function renderDashboard({ logout }){
       <label>Note</label><input id="a-note" type="text">
       <div class="err" id="a-err"></div>
       <button class="btn" id="a-go" style="width:100%;margin-top:14px">Add</button></div>`;
-    const fillCats=()=>{ const ty=$('#a-type').value; $('#a-cat').innerHTML=cats.filter(c=>c.type===ty).map(c=>`<option value="${c.id}">${c.name}</option>`).join(''); };
+    const fillCats=()=>{ const ty=$('#a-type').value; $('#a-cat').innerHTML=cats.filter(c=>c.type===ty).map(c=>`<option value="${c.id}">${esc(c.name)}</option>`).join(''); };
     $('#a-type').onchange=fillCats; fillCats();
     $('#a-go').onclick=async()=>{ $('#a-err').textContent='';
       const amt=parseFloat($('#a-amt').value); if(!(amt>=0)){$('#a-err').textContent='Enter an amount.';return;}
