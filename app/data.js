@@ -24,8 +24,14 @@ export async function deleteAccount(id){ const {error}=await sb().from('fin_acco
 
 export async function cashBalance(){
   const acc=await listAccounts(); let bal=acc.reduce((s,a)=>s+Number(a.opening_balance_egp),0);
-  const {data,error}=await sb().from('fin_transactions').select('amount_egp,type'); if(error)throw error;
-  for(const t of data) bal += (t.type==='income'?1:-1)*Number(t.amount_egp);
+  const PAGE=1000; let from=0;
+  for(;;){
+    const {data,error}=await sb().from('fin_transactions').select('amount_egp,type').range(from,from+PAGE-1);
+    if(error)throw error;
+    for(const t of data) bal += (t.type==='income'?1:-1)*Number(t.amount_egp);
+    if(data.length<PAGE) break;
+    from+=PAGE;
+  }
   return bal;
 }
 export async function monthSummary(monthISO){ const tx=await listTransactions(monthISO);

@@ -14,7 +14,7 @@ function isOwner(session){
 
 async function rejectNonOwner(){
   await logout();
-  renderLogin(async (e,p)=>{ await loginWithPassword(e,p); afterLogin(); }, NOT_OWNER_MSG);
+  renderLogin(async (e,p)=>{ await loginWithPassword(e,p); await afterLogin(); }, NOT_OWNER_MSG);
 }
 
 async function toDashboard(){ renderDashboard({ logout: async()=>{ await logout(); boot(); } }); }
@@ -39,10 +39,10 @@ export async function boot(){
         await unlockWithPin(pin);
         const s = await currentSession();
         if (!isOwner(s)) return rejectNonOwner();
-        afterLogin();
+        await afterLogin();
       },
-      ()=> renderLogin(async (e,p)=>{ await loginWithPassword(e,p); afterLogin(); }));
+      ()=> renderLogin(async (e,p)=>{ await loginWithPassword(e,p); await afterLogin(); }));
   }
-  renderLogin(async (e,p)=>{ await loginWithPassword(e,p); afterLogin(); });
+  renderLogin(async (e,p)=>{ await loginWithPassword(e,p); await afterLogin(); });
 }
 boot();

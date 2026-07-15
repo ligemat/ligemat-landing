@@ -23,3 +23,15 @@ test('needsFullLogin true when no lock', () => {
   clearLock();
   assert.strictEqual(needsFullLogin(), true);
 });
+
+test('needsFullLogin false right after saveEncrypted, true once the lock is 31+ days stale', async () => {
+  clearLock();
+  await saveEncrypted('tok-3', '1234');
+  assert.strictEqual(needsFullLogin(), false);
+
+  const raw = JSON.parse(localStorage.getItem('lig_fin_lock'));
+  raw.ts = Date.now() - 31 * 864e5;
+  localStorage.setItem('lig_fin_lock', JSON.stringify(raw));
+
+  assert.strictEqual(needsFullLogin(), true);
+});

@@ -4,6 +4,8 @@ const $ = (s,r=document)=>r.querySelector(s);
 const egp = (n)=> new Intl.NumberFormat('en-EG',{style:'currency',currency:'EGP',maximumFractionDigits:0}).format(n||0);
 const monthISO = (d)=> `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-01`;
 const monthLabel = (d)=> d.toLocaleDateString('en-US',{month:'long',year:'numeric'});
+const todayLocal = ()=>{ const d=new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; };
+const esc = (s)=> String(s??'').replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 
 export async function renderDashboard({ logout }){
   $('#boot').hidden=true; $('#login-view').hidden=true; const view=$('#dash-view'); view.hidden=false;
@@ -48,7 +50,7 @@ export async function renderDashboard({ logout }){
     const spendByCat = {}; tx.filter(t=>t.type==='expense').forEach(t=>{ spendByCat[t.category_id]=(spendByCat[t.category_id]||0)+Number(t.amount_egp); });
     const bars = Object.entries(spendByCat).map(([id,v])=>({label:catName(id),value:v,color:catColor(id)}));
     const budgetRows = budgets.map(b=>{ const spent=spendByCat[b.category_id]||0; const pct=Math.min(100,Math.round(spent/Number(b.amount_egp)*100||0));
-      return `<div style="margin:8px 0"><div style="display:flex;justify-content:between;font-size:13px"><span>${catName(b.category_id)}</span> <span style="margin-left:auto">${egp(spent)} / ${egp(b.amount_egp)}</span></div>
+      return `<div style="margin:8px 0"><div style="display:flex;justify-content:space-between;font-size:13px"><span>${esc(catName(b.category_id))}</span> <span style="margin-left:auto">${egp(spent)} / ${egp(b.amount_egp)}</span></div>
         <div style="background:#0E1714;border-radius:6px;overflow:hidden"><div style="width:${pct}%;height:10px;background:${pct>=100?'#ff9b8a':'var(--teal-lt)'}"></div></div></div>`;}).join('') || '<p style="color:var(--muted)">No budgets set.</p>';
     $('#panel').innerHTML = `
       <div class="card" style="display:flex;gap:20px;margin-bottom:12px">
@@ -61,7 +63,7 @@ export async function renderDashboard({ logout }){
   }
   const txLine = (t)=> `<div style="display:flex;gap:10px;padding:7px 0;border-bottom:1px solid var(--line)">
     <span style="width:74px;color:var(--muted);font-size:12px">${t.date}</span>
-    <span style="flex:1">${catName(t.category_id)}${t.note?` · <span style="color:var(--muted)">${t.note}</span>`:''}</span>
+    <span style="flex:1">${esc(catName(t.category_id))}${t.note?` · <span style="color:var(--muted)">${esc(t.note)}</span>`:''}</span>
     <span style="color:${t.type==='income'?'var(--teal-lt)':'var(--gold-lt)'}">${t.type==='income'?'+':'−'}${egp(t.amount_egp)}</span></div>`;
 
   function panelAdd(m){
@@ -70,8 +72,8 @@ export async function renderDashboard({ logout }){
       <label>Type</label><select id="a-type"><option value="expense">Expense</option><option value="income">Income</option></select>
       <label>Amount (EGP)</label><input id="a-amt" type="number" min="0" step="0.01" inputmode="decimal">
       <label>Category</label><select id="a-cat"></select>
-      <label>Account</label><select id="a-acc">${accts.map(a=>`<option value="${a.id}">${a.name}</option>`).join('')}</select>
-      <label>Date</label><input id="a-date" type="date" value="${new Date().toISOString().slice(0,10)}">
+      <label>Account</label><select id="a-acc">${accts.map(a=>`<option value="${a.id}">${esc(a.name)}</option>`).join('')}</select>
+      <label>Date</label><input id="a-date" type="date" value="${todayLocal()}">
       <label>Note</label><input id="a-note" type="text">
       <div class="err" id="a-err"></div>
       <button class="btn" id="a-go" style="width:100%;margin-top:14px">Add</button></div>`;
@@ -86,7 +88,7 @@ export async function renderDashboard({ logout }){
     $('#panel').innerHTML = `<div class="card"><h3>${monthLabel(cursor)} — transactions</h3>
       ${tx.map(t=>`<div style="display:flex;gap:10px;padding:8px 0;border-bottom:1px solid var(--line)">
         <span style="width:74px;color:var(--muted);font-size:12px">${t.date}</span>
-        <span style="flex:1">${catName(t.category_id)}${t.note?` · ${t.note}`:''}</span>
+        <span style="flex:1">${esc(catName(t.category_id))}${t.note?` · ${esc(t.note)}`:''}</span>
         <span style="color:${t.type==='income'?'var(--teal-lt)':'var(--gold-lt)'}">${t.type==='income'?'+':'−'}${egp(t.amount_egp)}</span>
         <button class="btn-line btn del" data-id="${t.id}" style="padding:4px 10px">✕</button></div>`).join('')||'<p style="color:var(--muted)">No transactions.</p>'}</div>`;
     $('#panel').querySelectorAll('.del').forEach(b=> b.onclick=async()=>{ if(confirm('Delete this transaction?')){ await D.deleteTransaction(b.dataset.id); await refresh(); } });
@@ -94,18 +96,18 @@ export async function renderDashboard({ logout }){
   async function panelBudgets(m){ const budgets=await D.listBudgets(m); const bmap={}; budgets.forEach(b=>bmap[b.category_id]=b.amount_egp);
     $('#panel').innerHTML = `<div class="card"><h3>Monthly budgets — ${monthLabel(cursor)}</h3>
       ${cats.filter(c=>c.type==='expense').map(c=>`<div style="display:flex;gap:10px;align-items:center;margin:8px 0">
-        <span style="flex:1">${c.name}</span>
+        <span style="flex:1">${esc(c.name)}</span>
         <input type="number" min="0" step="0.01" style="width:140px" value="${bmap[c.id]??''}" data-cat="${c.id}" placeholder="EGP"></div>`).join('')}
       <button class="btn" id="b-save" style="margin-top:12px">Save budgets</button></div>`;
     $('#b-save').onclick=async()=>{ for(const inp of $('#panel').querySelectorAll('input[data-cat]')){ const v=parseFloat(inp.value); if(v>=0) await D.upsertBudget(inp.dataset.cat,m,v); } tab=0; await refresh(); };
   }
   async function panelSettings(){ accts=await D.listAccounts(); cats=await D.listCategories();
     $('#panel').innerHTML = `<div class="card" style="margin-bottom:12px"><h3>Accounts</h3>
-      ${accts.map(a=>`<div style="display:flex;gap:10px;margin:6px 0"><span style="flex:1">${a.name}</span><span style="color:var(--muted)">opening ${egp(a.opening_balance_egp)}</span></div>`).join('')}
+      ${accts.map(a=>`<div style="display:flex;gap:10px;margin:6px 0"><span style="flex:1">${esc(a.name)}</span><span style="color:var(--muted)">opening ${egp(a.opening_balance_egp)}</span></div>`).join('')}
       <label>New account name</label><input id="s-acc"><label>Opening balance (EGP)</label><input id="s-accbal" type="number" step="0.01" value="0">
       <button class="btn" id="s-accgo" style="margin-top:10px">Add account</button></div>
       <div class="card" style="margin-bottom:12px"><h3>Categories</h3>
-      ${cats.map(c=>`<div style="display:flex;gap:10px;margin:6px 0"><span style="flex:1">${c.name}</span><span style="color:var(--muted)">${c.type}</span>
+      ${cats.map(c=>`<div style="display:flex;gap:10px;margin:6px 0"><span style="flex:1">${esc(c.name)}</span><span style="color:var(--muted)">${esc(c.type)}</span>
         <button class="btn-line btn cdel" data-id="${c.id}" style="padding:3px 9px">✕</button></div>`).join('')}
       <label>New category</label><input id="s-cat"><label>Type</label><select id="s-cattype"><option value="expense">expense</option><option value="income">income</option></select>
       <button class="btn" id="s-catgo" style="margin-top:10px">Add category</button></div>`;

@@ -3,8 +3,12 @@ let _client;
 export function getClient() {
   if (!_client) {
     const CFG = window.LIGEMAT_CONFIG;
+    // persistSession:false is load-bearing: supabase-js must NOT write the session
+    // (incl. the refresh JWT) to localStorage in plaintext. The only durable copy of
+    // the refresh token is the PIN-encrypted lig_fin_lock (see session.js). Without
+    // this, boot() would find a restored session on reload and skip the PIN prompt.
     _client = window.supabase.createClient(CFG.SUPABASE_URL, CFG.SUPABASE_ANON_KEY,
-      { auth: { persistSession: true, autoRefreshToken: true } });
+      { auth: { persistSession: false, autoRefreshToken: true } });
   }
   return _client;
 }
