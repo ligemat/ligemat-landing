@@ -37,3 +37,23 @@ export async function cashBalance(){
 export async function monthSummary(monthISO){ const tx=await listTransactions(monthISO);
   let income=0,expense=0; for(const t of tx){ if(t.type==='income')income+=Number(t.amount_egp); else expense+=Number(t.amount_egp); }
   return { income, expense, net: income-expense }; }
+
+// ---- Debts (both directions) + payment history ----
+export async function listDebts(){ const {data,error}=await sb().from('fin_debts').select('*').order('created_at',{ascending:false}); if(error)throw error; return data; }
+export async function addDebt(name,direction,original_amount_egp,note){ const {error}=await sb().from('fin_debts').insert({name,direction,original_amount_egp,note:note||null}); if(error)throw error; }
+export async function updateDebt(id,patch){ const {error}=await sb().from('fin_debts').update(patch).eq('id',id); if(error)throw error; }
+export async function deleteDebt(id){ const {error}=await sb().from('fin_debts').delete().eq('id',id); if(error)throw error; }
+export async function listDebtPayments(debtId){ const {data,error}=await sb().from('fin_debt_payments').select('*').eq('debt_id',debtId).order('date',{ascending:false}); if(error)throw error; return data; }
+export async function addDebtPayment(debt_id,amount_egp,date,note){ const {error}=await sb().from('fin_debt_payments').insert({debt_id,amount_egp,date,note:note||null}); if(error)throw error; }
+export async function deleteDebtPayment(id){ const {error}=await sb().from('fin_debt_payments').delete().eq('id',id); if(error)throw error; }
+// Returns debts enriched with paid + remaining, plus totals per direction.
+export async function debtsSummary(){
+  const debts=await listDebts();
+  const {data,error}=await sb().from('fin_debt_payments').select('debt_id,amount_egp'); if(error)throw error;
+  const paidBy={}; for(const p of data) paidBy[p.debt_id]=(paidBy[p.debt_id]||0)+Number(p.amount_egp);
+  let owe=0, owed=0;
+  const rows=debts.map(d=>{ const paid=paidBy[d.id]||0; const remaining=Math.max(0,Number(d.original_amount_egp)-paid);
+    if(!d.closed){ if(d.direction==='i_owe') owe+=remaining; else owed+=remaining; }
+    return {...d, paid, remaining}; });
+  return { rows, totals:{ owe, owed, net: owed-owe } };
+}
