@@ -38,9 +38,17 @@ export async function monthSummary(monthISO){ const tx=await listTransactions(mo
   let income=0,expense=0; for(const t of tx){ if(t.type==='income')income+=Number(t.amount_egp); else expense+=Number(t.amount_egp); }
   return { income, expense, net: income-expense }; }
 
+// Transactions across an arbitrary date range [fromISO, toISO] inclusive/exclusive of end. Paged.
+export async function listTransactionsRange(fromISO,toISO){
+  const page=1000; let from=0; const out=[];
+  for(;;){ const {data,error}=await sb().from('fin_transactions').select('*').gte('date',fromISO).lt('date',toISO).order('date',{ascending:false}).range(from,from+page-1);
+    if(error)throw error; out.push(...data); if(data.length<page)break; from+=page; }
+  return out;
+}
+
 // ---- Debts (both directions) + payment history ----
 export async function listDebts(){ const {data,error}=await sb().from('fin_debts').select('*').order('created_at',{ascending:false}); if(error)throw error; return data; }
-export async function addDebt(name,direction,original_amount_egp,note){ const {error}=await sb().from('fin_debts').insert({name,direction,original_amount_egp,note:note||null}); if(error)throw error; }
+export async function addDebt(name,direction,original_amount_egp,note,start_date,due_date){ const {error}=await sb().from('fin_debts').insert({name,direction,original_amount_egp,note:note||null,start_date:start_date||null,due_date:due_date||null}); if(error)throw error; }
 export async function updateDebt(id,patch){ const {error}=await sb().from('fin_debts').update(patch).eq('id',id); if(error)throw error; }
 export async function deleteDebt(id){ const {error}=await sb().from('fin_debts').delete().eq('id',id); if(error)throw error; }
 export async function listDebtPayments(debtId){ const {data,error}=await sb().from('fin_debt_payments').select('*').eq('debt_id',debtId).order('date',{ascending:false}); if(error)throw error; return data; }

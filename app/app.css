@@ -1,6 +1,5 @@
-/* Ligemat finance dashboard — dark, calm, data-first. Brand: teal/gold, Sora. */
-@import url('https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&display=swap');
-
+/* Ligemat finance dashboard — dark, calm, data-first. Brand: teal/gold, Sora.
+   (Sora font is loaded via <link> in app.html head, not @import.) */
 :root{
   --bg:#080D0B; --bg-2:#0B120F;
   --panel:#111A16; --panel-2:#16211C; --raised:#1A2721;
