@@ -22,6 +22,10 @@ Deno.serve(async (req) => {
   if (!CRON_TOKEN || req.headers.get("x-fin-cron") !== CRON_TOKEN) return new Response("forbidden", { status: 403 });
 
   const sb = createClient(SUPABASE_URL, SERVICE_KEY);
+  // Resend key: prefer env secret, else read from the RLS-locked fin_secrets table (service role only).
+  let resendKey = RESEND_API_KEY;
+  if (!resendKey) { const { data: s } = await sb.from("fin_secrets").select("value").eq("key", "RESEND_API_KEY").maybeSingle(); resendKey = s?.value ?? ""; }
+
   const { data: debts, error } = await sb.from("fin_debts").select("*").eq("closed", false).not("due_date", "is", null);
   if (error) return json({ error: error.message }, 500);
   const { data: pays } = await sb.from("fin_debt_payments").select("debt_id,amount_egp");
@@ -40,7 +44,7 @@ Deno.serve(async (req) => {
   }
   const total = soon.length + dueToday.length + overdue.length;
   if (!total) return json({ sent: false, reason: "nothing due today" });
-  if (!RESEND_API_KEY) return json({ sent: false, reason: "RESEND_API_KEY not set" }, 500);
+  if (!resendKey) return json({ sent: false, reason: "RESEND_API_KEY not set" }, 500);
 
   const section = (title: string, rows: any[]) => rows.length
     ? `<h3 style="margin:18px 0 6px;color:#0F6E56;font-size:15px">${title}</h3>` + rows.map((r) =>
@@ -57,7 +61,7 @@ Deno.serve(async (req) => {
 
   const res = await fetch("https://api.resend.com/emails", {
     method: "POST",
-    headers: { Authorization: `Bearer ${RESEND_API_KEY}`, "Content-Type": "application/json" },
+    headers: { Authorization: `Bearer ${resendKey}`, "Content-Type": "application/json" },
     body: JSON.stringify({ from: FROM, to: TO, reply_to: REPLY_TO, subject, html }),
   });
   const body = await res.text();
