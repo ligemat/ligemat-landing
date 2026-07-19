@@ -146,10 +146,10 @@ export async function renderDashboard({ logout }){
     const recent=tx.slice(0,8);
     $('#panel').innerHTML=`
       <div class="kpis">
-        <div class="kpi" data-jump="bal"><span class="k">${ic.wallet} Balance</span><span class="v">${egp(bal)}</span></div>
+        <div class="kpi" data-jump="bal" style="cursor:pointer"><span class="k">${ic.wallet} Balance</span><span class="v">${egp(bal)}</span></div>
         <div class="kpi" data-jump="income" style="cursor:pointer"><span class="k">${ic.up} Income</span><span class="v pos">${egp(s.income)}</span></div>
         <div class="kpi" data-jump="expense" style="cursor:pointer"><span class="k">${ic.down} Expenses</span><span class="v neg">${egp(s.expense)}</span></div>
-        <div class="kpi"><span class="k">Net</span><span class="v ${s.net>=0?'pos':'neg'}">${egp(s.net)}</span></div>
+        <div class="kpi" data-jump="net" style="cursor:pointer"><span class="k">Net</span><span class="v ${s.net>=0?'pos':'neg'}">${egp(s.net)}</span></div>
       </div>
       <div class="grid-2">
         <div class="card"><h3>Spending by category</h3><div id="catbars">${categoryBars(bars,{egp})}</div></div>
@@ -158,6 +158,8 @@ export async function renderDashboard({ logout }){
       <div class="card"><h3>Recent transactions</h3><div id="recent">${recent.length?recent.map(txRow).join(''):`<div class="empty">${ic.empty}<div>Nothing yet this month. Tap + to add.</div></div>`}</div></div>`;
     $('#panel').querySelector('[data-jump="income"]').onclick=()=>{ txFilter='income'; tab='tx'; refresh(); };
     $('#panel').querySelector('[data-jump="expense"]').onclick=()=>{ txFilter='expense'; tab='tx'; refresh(); };
+    $('#panel').querySelector('[data-jump="net"]').onclick=()=>{ txFilter='all'; tab='tx'; refresh(); };
+    $('#panel').querySelector('[data-jump="bal"]').onclick=openBalance;
     $('#panel').querySelectorAll('#catbars .bar-row').forEach((el,i)=>{ const b=bars.filter(x=>x.value>0).sort((a,c)=>c.value-a.value)[i]; if(b){ el.style.cursor='pointer'; el.onclick=()=>openCategory(b.id,m); } });
     bindTxRows('#recent', tx);
   }
@@ -168,6 +170,14 @@ export async function renderDashboard({ logout }){
     <span class="row-chev" style="color:var(--faint);width:18px">${ic.chevron}</span></div>`;
   function bindTxRows(sel, list){ $('#panel').querySelectorAll(sel+' [data-tx]').forEach(el=>{ const t=list.find(x=>x.id===el.dataset.tx); if(t) el.onclick=()=>openEditTx(t); }); }
 
+  async function openBalance(){
+    const { rows, unassigned, total }=await D.accountBalances();
+    let body=`<div class="kpi" style="margin-bottom:12px"><span class="k">${ic.wallet} Total cash balance</span><span class="v">${egp(total)}</span></div>`;
+    body+= rows.length? rows.map(r=>`<div class="row"><div class="avatar">${ic.wallet}</div><div class="mid"><div class="t">${esc(r.name)}</div><div class="s">Opening ${egp(r.opening)}</div></div><div class="val ${r.balance>=0?'pos':'neg'}">${egp(r.balance)}</div></div>`).join('') : `<div class="empty">No accounts yet. Add one in Settings.</div>`;
+    if(Math.abs(unassigned)>=1) body+=`<div class="row"><div class="avatar">${ic.wallet}</div><div class="mid"><div class="t">Unassigned</div><div class="s">transactions with no account</div></div><div class="val ${unassigned>=0?'pos':'neg'}">${egp(unassigned)}</div></div>`;
+    body+=`<p class="s" style="color:var(--faint);font-size:12px;margin-top:12px">Each balance = opening + income − expenses for that account. Manage accounts in Settings.</p>`;
+    openSheet('Balance breakdown', body);
+  }
   async function openCategory(catId,m){ const tx=(await D.listTransactions(m)).filter(t=>t.category_id===catId);
     const total=tx.reduce((s,t)=>s+Number(t.amount_egp),0);
     openSheet(catName(catId)+' — '+monthLabel(cursor), `<div class="kpi" style="margin-bottom:10px"><span class="k">Total</span><span class="v">${egp(total)}</span></div>`+

@@ -34,6 +34,18 @@ export async function cashBalance(){
   }
   return bal;
 }
+// Per-account current balance = opening + income - expense for that account. Paged.
+export async function accountBalances(){
+  const accts=await listAccounts();
+  const page=1000; let from=0; const tx=[];
+  for(;;){ const {data,error}=await sb().from('fin_transactions').select('amount_egp,type,account_id').range(from,from+page-1); if(error)throw error; tx.push(...data); if(data.length<page)break; from+=page; }
+  const map={}; accts.forEach(a=>map[a.id]={ id:a.id, name:a.name, opening:Number(a.opening_balance_egp), balance:Number(a.opening_balance_egp) });
+  let unassigned=0;
+  for(const t of tx){ const d=(t.type==='income'?1:-1)*Number(t.amount_egp); if(t.account_id&&map[t.account_id]) map[t.account_id].balance+=d; else unassigned+=d; }
+  const rows=accts.map(a=>map[a.id]);
+  const total=rows.reduce((s,r)=>s+r.balance,0)+unassigned;
+  return { rows, unassigned, total };
+}
 export async function monthSummary(monthISO){ const tx=await listTransactions(monthISO);
   let income=0,expense=0; for(const t of tx){ if(t.type==='income')income+=Number(t.amount_egp); else expense+=Number(t.amount_egp); }
   return { income, expense, net: income-expense }; }
