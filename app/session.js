@@ -26,7 +26,10 @@ export async function tryUnlock(pin) {
   }
 }
 
-export function needsFullLogin(maxDays = 30) {
-  const o = read(); if (!o) return true;
-  return (Date.now() - o.ts) > maxDays * 864e5;
+// A device that has a saved PIN lock stays PIN-only — no periodic forced re-login.
+// Full email+password is required only when there is no lock (new/cleared device),
+// or when the PIN is wiped after 5 wrong attempts, or if the refresh token itself
+// becomes invalid (unlockWithPin falls back to full login in that case).
+export function needsFullLogin() {
+  return !read();
 }

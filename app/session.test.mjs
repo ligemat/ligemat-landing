@@ -24,14 +24,15 @@ test('needsFullLogin true when no lock', () => {
   assert.strictEqual(needsFullLogin(), true);
 });
 
-test('needsFullLogin false right after saveEncrypted, true once the lock is 31+ days stale', async () => {
+test('needsFullLogin stays false on a trusted device regardless of age (no periodic re-login)', async () => {
   clearLock();
   await saveEncrypted('tok-3', '1234');
   assert.strictEqual(needsFullLogin(), false);
 
+  // Even a very old lock must NOT force a full re-login — trusted device stays PIN-only.
   const raw = JSON.parse(localStorage.getItem('lig_fin_lock'));
-  raw.ts = Date.now() - 31 * 864e5;
+  raw.ts = Date.now() - 400 * 864e5;
   localStorage.setItem('lig_fin_lock', JSON.stringify(raw));
 
-  assert.strictEqual(needsFullLogin(), true);
+  assert.strictEqual(needsFullLogin(), false);
 });

@@ -146,9 +146,11 @@ select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='ht
 .nav{position:fixed;left:0;right:0;bottom:0;z-index:40;display:flex;justify-content:space-around;
   padding:8px 6px calc(8px + env(safe-area-inset-bottom,0px));gap:2px;
   background:linear-gradient(0deg,rgba(8,13,11,.97),rgba(8,13,11,.86));backdrop-filter:blur(16px);border-top:1px solid var(--line-2)}
-.nav a{flex:1;max-width:96px;display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 2px;
-  color:var(--faint);font-size:10.5px;font-weight:500;border-radius:12px;cursor:pointer;transition:color .2s;min-height:48px;justify-content:center}
-.nav a svg{width:22px;height:22px}
+.nav a{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 1px;
+  color:var(--faint);font-size:10px;font-weight:500;border-radius:12px;cursor:pointer;transition:color .2s;min-height:48px;justify-content:center}
+.nav a span{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.nav a svg{width:21px;height:21px;flex:none}
+@media(max-width:380px){ .nav a{font-size:9px} .nav a svg{width:19px;height:19px} }
 .nav a.on{color:var(--gold-lt)}
 .nav a.on svg{filter:drop-shadow(0 0 8px rgba(226,185,140,.4))}
 

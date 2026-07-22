@@ -52,7 +52,7 @@ export async function renderDashboard({ logout }){
   const catName=(id)=>{ const c=cats.find(x=>x.id===id); return c?c.name:'—'; };
   const catColor=(id)=>{ const c=cats.find(x=>x.id===id); return c?c.color:'#93A29B'; };
 
-  const NAV=[['overview','Overview',ic.overview],['tx','Transactions',ic.tx],['calendar','Calendar',ic.calendar],['debts','Debts',ic.debts],['summary','Summary',ic.summary]];
+  const NAV=[['overview','Overview',ic.overview],['balance','Balance',ic.wallet],['tx','Transactions',ic.tx],['calendar','Calendar',ic.calendar],['debts','Debts',ic.debts],['summary','Summary',ic.summary]];
   view.innerHTML=`<div class="shell">
     <div class="topbar">
       <div class="brand"><span class="mono">L</span><span>Finance</span></div>
@@ -86,10 +86,11 @@ export async function renderDashboard({ logout }){
   async function refresh(){
     $('#mlabel').textContent=monthLabel(cursor);
     view.querySelectorAll('#nav a').forEach(a=>a.classList.toggle('on',a.dataset.t===tab));
-    $('#fab').hidden = (tab==='settings'||tab==='summary');
+    $('#fab').hidden = (tab==='settings'||tab==='summary'||tab==='balance');
     D.cashBalance().then(b=>{ $('#bal').textContent=egp(b); }).catch(()=>{});
     const m=monthISO(cursor);
     if(tab==='overview') await panelOverview(m);
+    else if(tab==='balance') await panelBalance();
     else if(tab==='tx') await panelTx(m);
     else if(tab==='calendar') await panelCalendar();
     else if(tab==='debts') await panelDebts();
@@ -159,7 +160,7 @@ export async function renderDashboard({ logout }){
     $('#panel').querySelector('[data-jump="income"]').onclick=()=>{ txFilter='income'; tab='tx'; refresh(); };
     $('#panel').querySelector('[data-jump="expense"]').onclick=()=>{ txFilter='expense'; tab='tx'; refresh(); };
     $('#panel').querySelector('[data-jump="net"]').onclick=()=>{ txFilter='all'; tab='tx'; refresh(); };
-    $('#panel').querySelector('[data-jump="bal"]').onclick=openBalance;
+    $('#panel').querySelector('[data-jump="bal"]').onclick=()=>{ tab='balance'; refresh(); };
     $('#panel').querySelectorAll('#catbars .bar-row').forEach((el,i)=>{ const b=bars.filter(x=>x.value>0).sort((a,c)=>c.value-a.value)[i]; if(b){ el.style.cursor='pointer'; el.onclick=()=>openCategory(b.id,m); } });
     bindTxRows('#recent', tx);
   }
@@ -170,13 +171,42 @@ export async function renderDashboard({ logout }){
     <span class="row-chev" style="color:var(--faint);width:18px">${ic.chevron}</span></div>`;
   function bindTxRows(sel, list){ $('#panel').querySelectorAll(sel+' [data-tx]').forEach(el=>{ const t=list.find(x=>x.id===el.dataset.tx); if(t) el.onclick=()=>openEditTx(t); }); }
 
-  async function openBalance(){
+  async function panelBalance(){
     const { rows, unassigned, total }=await D.accountBalances();
-    let body=`<div class="kpi" style="margin-bottom:12px"><span class="k">${ic.wallet} Total cash balance</span><span class="v">${egp(total)}</span></div>`;
-    body+= rows.length? rows.map(r=>`<div class="row"><div class="avatar">${ic.wallet}</div><div class="mid"><div class="t">${esc(r.name)}</div><div class="s">Opening ${egp(r.opening)}</div></div><div class="val ${r.balance>=0?'pos':'neg'}">${egp(r.balance)}</div></div>`).join('') : `<div class="empty">No accounts yet. Add one in Settings.</div>`;
-    if(Math.abs(unassigned)>=1) body+=`<div class="row"><div class="avatar">${ic.wallet}</div><div class="mid"><div class="t">Unassigned</div><div class="s">transactions with no account</div></div><div class="val ${unassigned>=0?'pos':'neg'}">${egp(unassigned)}</div></div>`;
-    body+=`<p class="s" style="color:var(--faint);font-size:12px;margin-top:12px">Each balance = opening + income − expenses for that account. Manage accounts in Settings.</p>`;
-    openSheet('Balance breakdown', body);
+    $('#panel').innerHTML=`
+      <div class="kpi"><span class="k">${ic.wallet} Total cash balance</span><span class="v" style="font-size:26px">${egp(total)}</span></div>
+      <div class="card"><h3>Accounts</h3>
+        ${rows.length?rows.map(a=>`<div class="row" data-acc="${a.id}" style="cursor:pointer">
+          <div class="avatar">${ic.wallet}</div>
+          <div class="mid"><div class="t">${esc(a.name)}</div><div class="s">Opening ${egp(a.opening)}</div></div>
+          <div class="val ${a.balance>=0?'pos':'neg'}">${egp(a.balance)}</div>
+          <span class="row-chev" style="color:var(--faint);width:18px">${ic.chevron}</span></div>`).join('')
+          :`<div class="empty">${ic.wallet}<div>No accounts yet. Add one below.</div></div>`}
+        ${Math.abs(unassigned)>=1?`<div class="row"><div class="avatar">${ic.wallet}</div><div class="mid"><div class="t">Unassigned</div><div class="s">transactions with no account</div></div><div class="val ${unassigned>=0?'pos':'neg'}">${egp(unassigned)}</div></div>`:''}
+        <button class="btn btn-gold btn-block" id="addacc" style="margin-top:12px">${ic.plus} Add account</button></div>
+      <p class="s" style="color:var(--faint);font-size:12px;margin:0 2px">Tap an account to rename it, change its opening balance, or delete it. Each balance = opening + income − expenses.</p>`;
+    $('#addacc').onclick=openAddAccount;
+    $('#panel').querySelectorAll('[data-acc]').forEach(el=>{ const a=rows.find(x=>x.id===el.dataset.acc); if(a) el.onclick=()=>openEditAccount(a); });
+  }
+  function openAddAccount(){
+    const { el, close }=openSheet('Add account',`
+      <label>Account name</label><input id="nm" type="text" placeholder="e.g. Bank, Cash, Wallet">
+      <label>Opening balance (EGP)</label><input id="ob" type="number" inputmode="decimal" step="0.01" value="0">
+      <div class="err" id="e"></div>
+      <button class="btn btn-gold btn-block" id="save" style="margin-top:16px">Add account</button>`);
+    el.querySelector('#save').onclick=async()=>{ const nm=el.querySelector('#nm').value.trim(); if(!nm){ el.querySelector('#e').textContent='Enter a name.'; return; }
+      try{ await D.addAccount(nm, parseFloat(el.querySelector('#ob').value)||0); close(); refresh(); }catch(err){ el.querySelector('#e').textContent='Could not save.'; } };
+  }
+  function openEditAccount(a){
+    const { el, close }=openSheet('Edit account',`
+      <label>Account name</label><input id="nm" type="text" value="${esc(a.name)}">
+      <label>Opening balance (EGP)</label><input id="ob" type="number" inputmode="decimal" step="0.01" value="${a.opening}">
+      <div class="s" style="color:var(--faint);font-size:12px;margin-top:6px">Current balance ${egp(a.balance)} = opening + this account's transactions.</div>
+      <div class="err" id="e"></div>
+      <div class="field-row" style="margin-top:16px"><button class="btn btn-line btn-danger" id="del">${ic.trash} Delete</button><button class="btn btn-gold" id="save">Save changes</button></div>`);
+    el.querySelector('#del').onclick=async()=>{ if(confirm('Delete this account? Its transactions stay but become unassigned.')){ await D.deleteAccount(a.id); close(); refresh(); } };
+    el.querySelector('#save').onclick=async()=>{ const nm=el.querySelector('#nm').value.trim(); if(!nm){ el.querySelector('#e').textContent='Enter a name.'; return; }
+      try{ await D.updateAccount(a.id,{ name:nm, opening_balance_egp: parseFloat(el.querySelector('#ob').value)||0 }); close(); refresh(); }catch(err){ el.querySelector('#e').textContent='Could not save.'; } };
   }
   async function openCategory(catId,m){ const tx=(await D.listTransactions(m)).filter(t=>t.category_id===catId);
     const total=tx.reduce((s,t)=>s+Number(t.amount_egp),0);
@@ -430,10 +460,6 @@ export async function renderDashboard({ logout }){
   async function panelSettings(){
     accts=await D.listAccounts(); cats=await D.listCategories();
     $('#panel').innerHTML=`
-      <div class="card"><h3>Accounts</h3>
-        ${accts.map(a=>`<div class="row"><div class="mid"><div class="t">${esc(a.name)}</div><div class="s">Opening ${egp(a.opening_balance_egp)}</div></div></div>`).join('')}
-        <div class="field-row" style="margin-top:8px"><input id="an" placeholder="New account name"><input id="ab" type="number" inputmode="decimal" placeholder="Opening bal" style="max-width:130px"></div>
-        <button class="btn btn-line btn-sm" id="aadd" style="margin-top:10px">${ic.plus} Add account</button></div>
       <div class="card"><h3>Categories</h3>
         ${cats.map(c=>`<div class="row"><div class="avatar" style="background:${c.color}22;color:${c.color}">${ic.tag}</div><div class="mid"><div class="t">${esc(c.name)}</div><div class="s">${c.type}</div></div><button class="del" data-cid="${c.id}" aria-label="Delete">${ic.trash}</button></div>`).join('')}
         <div class="field-row" style="margin-top:8px"><input id="cn" placeholder="New category"><select id="ct" style="max-width:130px"><option value="expense">Expense</option><option value="income">Income</option></select></div>
@@ -442,7 +468,6 @@ export async function renderDashboard({ logout }){
         <label>Change device PIN</label><input id="pin" type="password" inputmode="numeric" maxlength="4" pattern="[0-9]*" placeholder="New 4-digit PIN" style="max-width:180px">
         <button class="btn btn-line btn-sm" id="psave" style="margin-top:10px;display:block">Update PIN</button>
         <div class="err" id="pe"></div></div>`;
-    $('#aadd').onclick=async()=>{ const n=$('#an').value.trim(); if(n){ await D.addAccount(n,parseFloat($('#ab').value)||0); refresh(); } };
     $('#cadd').onclick=async()=>{ const n=$('#cn').value.trim(); if(n){ await D.addCategory(n,$('#ct').value,'#C9956A'); refresh(); } };
     $('#panel').querySelectorAll('[data-cid]').forEach(b=> b.onclick=async()=>{ if(confirm('Delete category?')){ await D.deleteCategory(b.dataset.cid); refresh(); } });
     $('#psave').onclick=async()=>{ const p=$('#pin').value; $('#pe').textContent=''; if(!/^\d{4}$/.test(p)){ $('#pe').textContent='PIN must be 4 digits.'; return; }
