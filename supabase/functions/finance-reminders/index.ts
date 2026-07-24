@@ -44,7 +44,11 @@ Deno.serve(async (req) => {
   }
   const total = soon.length + dueToday.length + overdue.length;
   if (!total) return json({ sent: false, reason: "nothing due today" });
-  if (!resendKey) return json({ sent: false, reason: "RESEND_API_KEY not set" }, 500);
+  // Deliver to whatever is configured: email (Resend) AND Telegram.
+  const { data: tgTokRow } = await sb.from("fin_secrets").select("value").eq("key", "TELEGRAM_BOT_TOKEN").maybeSingle();
+  const { data: tgChatRow } = await sb.from("fin_secrets").select("value").eq("key", "TELEGRAM_OWNER_CHAT").maybeSingle();
+  const tgToken = tgTokRow?.value ?? "", tgChat = tgChatRow?.value ?? "";
+  const out: any = { count: total };
 
   const section = (title: string, rows: any[]) => rows.length
     ? `<h3 style="margin:18px 0 6px;color:#0F6E56;font-size:15px">${title}</h3>` + rows.map((r) =>
@@ -59,13 +63,29 @@ Deno.serve(async (req) => {
   const subject = overdue.length ? `Ligemat: ${overdue.length} debt${overdue.length > 1 ? "s" : ""} overdue`
     : dueToday.length ? "Ligemat: a debt is due today" : "Ligemat: a debt is due in 3 days";
 
-  const res = await fetch("https://api.resend.com/emails", {
-    method: "POST",
-    headers: { Authorization: `Bearer ${resendKey}`, "Content-Type": "application/json" },
-    body: JSON.stringify({ from: FROM, to: TO, reply_to: REPLY_TO, subject, html }),
-  });
-  const body = await res.text();
-  return json({ sent: res.ok, status: res.status, count: total, resend: body.slice(0, 300) }, res.ok ? 200 : 502);
+  if (resendKey) {
+    const res = await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: { Authorization: `Bearer ${resendKey}`, "Content-Type": "application/json" },
+      body: JSON.stringify({ from: FROM, to: TO, reply_to: REPLY_TO, subject, html }),
+    });
+    out.email = { sent: res.ok, status: res.status };
+  } else out.email = { sent: false, reason: "no RESEND_API_KEY" };
+
+  if (tgToken && tgChat) {
+    const escTg = (s: string) => String(s).replace(/[<>&]/g, (c) => ({ "<": "&lt;", ">": "&gt;", "&": "&amp;" }[c]!));
+    const tgSec = (t: string, rows: any[]) => rows.length
+      ? `\n<b>${t}</b>\n` + rows.map((r) => `• ${escTg(r.name)} — ${money(r.remaining)} (${r.dir === "i_owe" ? "you owe" : "owed to you"}, due ${r.due})`).join("\n")
+      : "";
+    const tgText = `🔔 <b>Ligemat debt reminders</b>\n` + tgSec("Overdue", overdue) + tgSec("Due today", dueToday) + tgSec("Due in 3 days", soon) + `\n\nOpen: https://ligemat.com/app`;
+    const r = await fetch(`https://api.telegram.org/bot${tgToken}/sendMessage`, {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ chat_id: tgChat, text: tgText, parse_mode: "HTML", disable_web_page_preview: true }),
+    });
+    out.telegram = { sent: r.ok, status: r.status };
+  } else out.telegram = { sent: false, reason: "telegram not configured" };
+
+  return json(out, (out.email?.sent || out.telegram?.sent) ? 200 : 502);
 });
 
 function json(obj: unknown, status = 200) {

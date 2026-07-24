@@ -13,6 +13,23 @@ const fmtDate = (s)=>{ try{ return new Date(s+'T00:00').toLocaleDateString('en-U
 const fmtFull = (s)=>{ try{ return new Date(s+'T00:00').toLocaleDateString('en-US',{weekday:'short',day:'numeric',month:'short',year:'numeric'}); }catch{ return s; } };
 const daysBetween=(a,b)=> Math.round((new Date(b+'T00:00')-new Date(a+'T00:00'))/864e5);
 
+// Wrap every number input under `root` with − / + buttons that bump its value.
+function upgradeSteppers(root){
+  root.querySelectorAll('input[type="number"]:not([data-stepped])').forEach(inp=>{
+    inp.setAttribute('data-stepped','1');
+    const step=parseFloat(inp.getAttribute('data-step')||'50');
+    const minAttr=inp.getAttribute('min');
+    const min=(minAttr!==null&&minAttr!=='')?parseFloat(minAttr):-Infinity;
+    const wrap=document.createElement('div'); wrap.className='stepper';
+    inp.parentNode.insertBefore(wrap,inp);
+    const mk=(t)=>{ const b=document.createElement('button'); b.type='button'; b.className='sb'; b.setAttribute('aria-label',t==='+'?'increase':'decrease'); b.textContent=t; return b; };
+    const minus=mk('−'), plus=mk('+');
+    wrap.appendChild(minus); wrap.appendChild(inp); wrap.appendChild(plus);
+    const bump=(d)=>{ let v=parseFloat(inp.value); if(isNaN(v))v=0; v=Math.max(min,Math.round((v+d)*100)/100); inp.value=v; inp.dispatchEvent(new Event('input',{bubbles:true})); };
+    minus.onclick=()=>bump(-step); plus.onclick=()=>bump(step);
+  });
+}
+
 const I = (p)=>`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${p}</svg>`;
 const ic = {
   overview:I('<rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/>'),
@@ -132,8 +149,9 @@ export async function renderDashboard({ logout }){
     document.addEventListener('keydown',onEsc);
     wrap.addEventListener('click',e=>{ if(e.target===wrap) close(); });
     wrap.querySelector('[data-close]').onclick=close;
-    wrap.querySelector('.sheet-body').innerHTML=body;
-    return { el:wrap.querySelector('.sheet-body'), close };
+    const bodyEl=wrap.querySelector('.sheet-body');
+    bodyEl.innerHTML=body; upgradeSteppers(bodyEl);
+    return { el:bodyEl, close };
   }
 
   // ---------- overview ----------
@@ -154,7 +172,7 @@ export async function renderDashboard({ logout }){
       </div>
       <div class="grid-2">
         <div class="card"><h3>Spending by category</h3><div id="catbars">${categoryBars(bars,{egp})}</div></div>
-        <div class="card"><h3>Budgets</h3>${budgetRows}</div>
+        <div class="card"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px"><h3 style="margin:0">Budgets</h3><button class="btn btn-line btn-sm" id="editbudgets" style="min-height:32px;padding:6px 12px">${ic.edit} Edit</button></div>${budgetRows}</div>
       </div>
       <div class="card"><h3>Recent transactions</h3><div id="recent">${recent.length?recent.map(txRow).join(''):`<div class="empty">${ic.empty}<div>Nothing yet this month. Tap + to add.</div></div>`}</div></div>`;
     $('#panel').querySelector('[data-jump="income"]').onclick=()=>{ txFilter='income'; tab='tx'; refresh(); };
@@ -162,6 +180,7 @@ export async function renderDashboard({ logout }){
     $('#panel').querySelector('[data-jump="net"]').onclick=()=>{ txFilter='all'; tab='tx'; refresh(); };
     $('#panel').querySelector('[data-jump="bal"]').onclick=()=>{ tab='balance'; refresh(); };
     $('#panel').querySelectorAll('#catbars .bar-row').forEach((el,i)=>{ const b=bars.filter(x=>x.value>0).sort((a,c)=>c.value-a.value)[i]; if(b){ el.style.cursor='pointer'; el.onclick=()=>openCategory(b.id,m); } });
+    { const eb=$('#panel').querySelector('#editbudgets'); if(eb) eb.onclick=openBudgets; }
     bindTxRows('#recent', tx);
   }
   const txRow=(t)=>`<div class="row" data-tx="${t.id}" style="cursor:pointer">
@@ -207,6 +226,16 @@ export async function renderDashboard({ logout }){
     el.querySelector('#del').onclick=async()=>{ if(confirm('Delete this account? Its transactions stay but become unassigned.')){ await D.deleteAccount(a.id); close(); refresh(); } };
     el.querySelector('#save').onclick=async()=>{ const nm=el.querySelector('#nm').value.trim(); if(!nm){ el.querySelector('#e').textContent='Enter a name.'; return; }
       try{ await D.updateAccount(a.id,{ name:nm, opening_balance_egp: parseFloat(el.querySelector('#ob').value)||0 }); close(); refresh(); }catch(err){ el.querySelector('#e').textContent='Could not save.'; } };
+  }
+  async function openBudgets(){
+    const m=monthISO(cursor);
+    const budgets=await D.listBudgets(m); const bmap={}; budgets.forEach(b=>bmap[b.category_id]=b.amount_egp);
+    const exp=cats.filter(c=>c.type==='expense');
+    const { el, close }=openSheet('Monthly budgets — '+monthLabel(cursor),
+      (exp.length?exp.map(c=>`<label>${esc(c.name)}</label><input type="number" inputmode="decimal" min="0" step="0.01" data-cat="${c.id}" data-step="100" value="${bmap[c.id]!=null?bmap[c.id]:''}" placeholder="No budget">`).join('')
+        :`<div class="empty">Add expense categories first (Settings).</div>`)
+      + `<div class="err" id="e"></div><button class="btn btn-gold btn-block" id="save" style="margin-top:16px">Save budgets</button>`);
+    el.querySelector('#save').onclick=async()=>{ for(const inp of el.querySelectorAll('input[data-cat]')){ const v=parseFloat(inp.value); if(v>=0) await D.upsertBudget(inp.dataset.cat,m,v); } close(); tab='overview'; refresh(); };
   }
   async function openCategory(catId,m){ const tx=(await D.listTransactions(m)).filter(t=>t.category_id===catId);
     const total=tx.reduce((s,t)=>s+Number(t.amount_egp),0);
