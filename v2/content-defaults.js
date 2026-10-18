@@ -1,42 +1,42 @@
 // Default page content + demo units. The live site overrides these from Supabase.
 window.LIGEMAT_DEFAULTS = {
   hero: {
-    eyebrow: "Real estate advisory · Cairo & New Capital",
-    headline_pre: "Property, made",
-    headline_accent: "clear",
-    subline: "From the airport to your front door.",
-    lead: "I'm Mohamed A. Osama. I help expats and investors buy and rent in Egypt with total clarity — every pro, every con, zero pressure.",
+    eyebrow: "Curator & guide · Real estate · Cairo",
+    headline_pre: "I don't sell",
+    headline_accent: "directions",
+    subline: "I help you find yours.",
+    lead: "I'm Mohamed A. Osama. Not a broker. A curator and a guide. I filter the market first, then show you only what fits — and when the answer is no, I'll tell you.",
     name: "Mohamed A. Osama",
-    role: "Founder · Ligemat",
-    cta_whatsapp: "Message on WhatsApp",
-    cta_bor: "Visit Bank of Real Estate",
-    hero_image: "https://images.unsplash.com/photo-1613490493576-7fde63acd811?auto=format&fit=crop&w=1800&q=80"
+    role: "Founder · MORE Real Estate",
+    cta_whatsapp: "Talk to me",
+    cta_bor: "Visit MORE",
+    hero_image: "https://images.unsplash.com/photo-1613490493576-7fde63acd811?auto=format&fit=crop&w=2400&q=90"
   },
   stats: [
-    { value: "40+", label: "Developers covered" },
-    { value: "7", label: "Nationalities served" },
-    { value: "11", label: "Madinaty zones mapped" },
-    { value: "100%", label: "Decree-verified" }
+    { value: "60+", label: "Families guided" },
+    { value: "5", label: "Areas I know" },
+    { value: "2021", label: "In real estate since" },
+    { value: "CIM", label: "Certified marketer" }
   ],
   about: {
-    kicker: "How I work",
-    title: "A guide, not a salesman.",
-    subtitle: "Nationality, lifestyle, budget, exit plan — then the developer. Never the other way around.",
+    kicker: "The compass · How I work",
+    title: "Three questions before any option.",
+    subtitle: "No more than three options. Each with a clear reason. My job is to help you find your True North.",
     cards: [
-      { icon: "◷", title: "Clarity first", text: "Every option comes with its pros and its cons, written plainly. The decision always stays yours." },
-      { icon: "✓", title: "Verified only", text: "I work with decree-secured projects from real developers — no off-plan hype, no unverifiable claims." },
-      { icon: "◎", title: "No pressure", text: "No urgency tactics, no commission-first recommendations. Just honest advice on what fits your plan." }
+      { icon: "◎", title: "Who are you?", text: "Family, investor, resident, or first-time buyer. Each needs something different." },
+      { icon: "◷", title: "How do you live?", text: "Kids, car, quiet or social, 3 years or 10+. Lifestyle comes before price." },
+      { icon: "✓", title: "Is it truly solid?", text: "Developer, location, value, resale. If it's weak, you never see it." }
     ]
   },
   locations: {
-    kicker: "Where I work",
-    title: "The communities I know best.",
-    subtitle: "From the New Capital to the coast — mapped, verified, and walked in person.",
+    kicker: "Areas I know",
+    title: "Where I guide families.",
+    subtitle: "Nasr City · Madinaty · Rehab · New Cairo · New Capital · TMG Ambassador",
     items: [
-      { title: "New Capital", sub: "R8 · Diplomatic District", image: "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=600&q=70" },
-      { title: "Madinaty", sub: "11 micro-zones", image: "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=600&q=70" },
-      { title: "Sheikh Zayed", sub: "West Cairo", image: "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=600&q=70" },
-      { title: "North Coast", sub: "Seasonal & resort", image: "https://images.unsplash.com/photo-1505993597083-3bd19fb75e57?auto=format&fit=crop&w=600&q=70" }
+      { title: "New Capital", sub: "Administrative Capital", image: "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=600&q=70" },
+      { title: "Madinaty", sub: "TMG Ambassador", image: "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=600&q=70" },
+      { title: "New Cairo & Rehab", sub: "East Cairo", image: "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=600&q=70" },
+      { title: "Nasr City", sub: "Our first office", image: "https://images.unsplash.com/photo-1505993597083-3bd19fb75e57?auto=format&fit=crop&w=600&q=70" }
     ]
   },
   developers: {
@@ -57,15 +57,15 @@ window.LIGEMAT_DEFAULTS = {
     subtitle: "Live from my catalogue — updated whenever I add or feature a new unit."
   },
   contact: {
-    title: "Tell me what you're looking for.",
-    subtitle: "I'll tell you the truth about it — what fits your budget, your timeline, and your plan.",
+    title: "Talk to me.",
+    subtitle: "Some things are good, just not good for you. I'll tell you which. A good word is a passport.",
     cta_whatsapp: "WhatsApp me",
     cta_phone: "Call directly",
-    phone: "0150 778 5755",
-    email: "hello@ligemat.com",
+    phone: "+20 150 850 0099",
+    email: "osama@more-re.com",
     based: "Nasr City, Cairo",
-    whatsapp: "201507785755",
-    bor_url: "https://bank-re.com",
+    whatsapp: "201508500099",
+    bor_url: "https://more-re.com",
     instagram: "@ligemat"
   },
   units_demo: [

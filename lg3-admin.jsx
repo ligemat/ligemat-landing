@@ -125,7 +125,7 @@ function LgFooter3({ t, go, openAdmin }) {
     <footer className="lg-footer">
       <div className="lg-wrap lg-footer-in">
         <a className="lg-brand" onClick={tap} title="Ligemat"><LgMark size={34} /><span className="lg-brand-txt"><b>Ligemat</b><small>Real Estate · Marketing</small></span></a>
-        <div className="lg-footer-links">{["about", "book", "contact"].map(k => <a key={k} onClick={() => go(k)}>{t.nav[k]}</a>)}</div>
+        <div className="lg-footer-links">{["about", "book", "contact"].map(k => <a key={k} onClick={() => go(k)}>{t.nav[k]}</a>)}<a href="/v2/" className="lg-v-switch" title="Switch to the classic design">{t.dir === "rtl" ? "التصميم الكلاسيكي ↗" : "Classic design ↗"}</a></div>
         <div className="lg-footer-meta"><span className="lg-slogan">{t.slogan}</span><span className="lg-mono" dir="ltr">{LG_CONTACT.phone}</span><a href="https://more-re.com" target="_blank" rel="noopener" dir="ltr">{t.visitMore} · more-re.com ↗</a><span>© 2026 Ligemat · {t.footer}</span></div>
       </div>
     </footer>
