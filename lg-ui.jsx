@@ -51,7 +51,7 @@ function LgHeroPortrait({ t, go }) {
     <section className="lg-hero-portrait" data-screen-label="Hero">
       <div className="lg-hp-photo" onClick={lgOpenMeet}><LgPortrait ratio="auto" style={{ height: "100%", borderRadius: 0 }} /></div>
       <div className="lg-hp-shade"></div>
-      <button className="lg-meet-tag" onClick={lgOpenMeet}>{t.tapMeet} ↗</button>
+      <button className="lg-meet-tag" onClick={lgOpenMeet}>{t.tapMeet} ↗︎</button>
       <div className="lg-wrap lg-hp-in">
         <div className="lg-stack" style={{ gap: 26, maxWidth: 620 }}>
           <div className="lg-kicker on-dark">{t.kicker}</div>
@@ -93,7 +93,7 @@ function LgMeetModal({ t, go, close }) {
         </figure>
         <div className="lg-channels">
           {lgChannelRows(t).map(([l, v, h, mono]) => {
-            const inner = <><span>{l}</span><strong className={mono ? "lg-mono" : ""} dir={mono ? "ltr" : undefined}>{v}</strong>{h ? <i>↗</i> : <i></i>}</>;
+            const inner = <><span>{l}</span><strong className={mono ? "lg-mono" : ""} dir={mono ? "ltr" : undefined}>{v}</strong>{h ? <i>↗︎</i> : <i></i>}</>;
             return h ? <a key={l} href={h} target="_blank" className="lg-ch">{inner}</a> : <div key={l} className="lg-ch">{inner}</div>;
           })}
         </div>
@@ -134,7 +134,7 @@ function LgFooter({ t, go }) {
         <div className="lg-footer-links">
           {["about", "book", "contact"].map(k => <a key={k} onClick={() => go(k)}>{t.nav[k]}</a>)}
         </div>
-        <div className="lg-footer-meta"><span className="lg-slogan">{t.slogan}</span><span className="lg-mono" dir="ltr">{LG_CONTACT.phone}</span><a href="https://more-re.com" target="_blank" rel="noopener" dir="ltr">{t.visitMore} · more-re.com ↗</a><span>© 2026 Ligemat · {t.footer}</span></div>
+        <div className="lg-footer-meta"><span className="lg-slogan">{t.slogan}</span><span className="lg-mono" dir="ltr">{LG_CONTACT.phone}</span><a href="https://more-re.com" target="_blank" rel="noopener" dir="ltr">{t.visitMore} · more-re.com ↗︎</a><span>© 2026 Ligemat · {t.footer}</span></div>
       </div>
     </footer>
   );

@@ -176,7 +176,7 @@ function LgContact({ t, go }) {
           </div>
           <div className="lg-channels">
             {rows.map(([l, v, h, mono]) => {
-              const inner = <><span>{l}</span><strong className={mono ? "lg-mono" : ""} dir={mono ? "ltr" : undefined}>{v}</strong>{h && <i>↗</i>}</>;
+              const inner = <><span>{l}</span><strong className={mono ? "lg-mono" : ""} dir={mono ? "ltr" : undefined}>{v}</strong>{h && <i>↗︎</i>}</>;
               return h ? <a key={l} href={h} target="_blank" className="lg-ch">{inner}</a> : <div key={l} className="lg-ch">{inner}</div>;
             })}
           </div>

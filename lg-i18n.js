@@ -25,7 +25,7 @@ en: {
   aboutBody: [
     "For five years I have helped families who are new to Cairo find a home they can trust. Most of them start the search from abroad, with little time and no one on the ground.",
     "I work as your advisor, not the seller's. That means telling you when a price is too high, when an area won't suit your family, and when it is better to wait.",
-    "Ligemat is my advisory practice, and part of the Bank of Real Estate group."
+    "Ligemat is my personal brand. MORE Real Estate is my company."
   ],
   valuesKicker: "What you can expect",
   values: [["Straight answers", "If a unit isn't right, I'll say so."], ["Written terms", "Rent, deposit and commission agreed in writing before you sign."], ["Arabic or English", "Whichever you are more comfortable in."], ["One point of contact", "You deal with me, start to finish."]],
@@ -39,7 +39,7 @@ en: {
   bookedTitle: "You're booked.", bookedSub: "I'll message you on WhatsApp before the call.", addCal: "Download .ics", addGcal: "Add to Google Calendar", meet: "Meet Osama", tapMeet: "Tap to meet me", call: "Call", emailBtn: "Email", waConfirm: "Send me a WhatsApp", another: "Book another time",
   contactKicker: "Contact", contactTitle: "The quickest way is WhatsApp.", contactSub: "I usually reply within the hour, Saturday to Thursday, 10:00 to 19:00.",
   ch: { wa: "WhatsApp / Phone", email: "Email", ig: "Instagram", more: "Visit MORE", based: "Based in" },
-  slogan: "Made for more.", visitMore: "Visit MORE", footer: "A Bank of Real Estate brand", tz: "Cairo time"
+  slogan: "Made for more.", visitMore: "Visit MORE", footer: "Founder of MORE Real Estate", tz: "Cairo time"
 },
 ar: {
   dir: "rtl", langSwitch: "English",
@@ -66,7 +66,7 @@ ar: {
   aboutBody: [
     "منذ خمس سنوات أساعد الأسر الجديدة على القاهرة في إيجاد بيت يثقون به. معظمهم يبدأ البحث من الخارج، بوقت قليل ودون أحد على الأرض.",
     "أعمل مستشاراً لك أنت، لا للبائع. أي أن أخبرك حين يكون السعر مرتفعاً، وحين لا تناسب المنطقة أسرتك، وحين يكون الانتظار أفضل.",
-    "ليجيمات هي ممارستي الاستشارية، وجزء من مجموعة بنك العقارات."
+    "ليجيمات علامتي الشخصية، وMORE العقارية شركتي."
   ],
   valuesKicker: "ما يمكنك توقّعه",
   values: [["إجابات مباشرة", "إن لم تكن الوحدة مناسبة، سأقول ذلك."], ["شروط مكتوبة", "الإيجار والتأمين والعمولة متفق عليها كتابةً قبل التوقيع."], ["بالعربية أو الإنجليزية", "باللغة التي تفضّلها."], ["جهة تواصل واحدة", "تتعامل معي من البداية إلى النهاية."]],
@@ -80,5 +80,5 @@ ar: {
   bookedTitle: "تم الحجز.", bookedSub: "سأراسلك على واتساب قبل المكالمة.", addCal: "تنزيل ملف التقويم", addGcal: "أضف إلى تقويم Google", meet: "تعرّف على أسامة", tapMeet: "اضغط للتعرّف عليّ", call: "اتصال", emailBtn: "بريد", waConfirm: "أرسل لي على واتساب", another: "احجز وقتاً آخر",
   contactKicker: "تواصل", contactTitle: "الطريقة الأسرع هي واتساب.", contactSub: "أرد عادةً خلال ساعة، من السبت إلى الخميس.",
   ch: { wa: "واتساب / هاتف", email: "البريد الإلكتروني", ig: "إنستغرام", more: "زيارة MORE", based: "المقر" },
-  slogan: "صُنع للمزيد.", visitMore: "زيارة MORE", footer: "إحدى علامات بنك العقارات", tz: "بتوقيت القاهرة"
+  slogan: "صُنع للمزيد.", visitMore: "زيارة MORE", footer: "مؤسس MORE العقارية", tz: "بتوقيت القاهرة"
 }};

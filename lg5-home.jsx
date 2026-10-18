@@ -139,14 +139,14 @@ function LgHome5({ t, go, lang }) {
             <p className="lg-body">{x.kSub}</p>
             <div className="lg-row" style={{ marginTop: 8 }}>
               <a className="lg-btn lg clay" href={lgWaLink()} target="_blank"><LgWaIcon />{t.ctaWa}</a>
-              <a className="lg-btn lg ghost" href="https://more-re.com" target="_blank" rel="noopener">{x.visitMore} ↗</a>
+              <a className="lg-btn lg ghost" href="https://more-re.com" target="_blank" rel="noopener">{x.visitMore} ↗︎</a>
             </div>
           </div>
           <ul className="lg5-ch">
             <li><span>{t.ch.wa}</span><a className="lg-mono" dir="ltr" href={lgWaLink()} target="_blank">{LG_CONTACT.phone}</a></li>
             <li><span>{t.ch.email}</span><a dir="ltr" href={"mailto:" + LG_CONTACT.email}>{LG_CONTACT.email}</a></li>
             <li><span>{t.ch.ig}</span><a dir="ltr" href={"https://instagram.com/" + LG_CONTACT.ig.replace("@", "")} target="_blank">{LG_CONTACT.ig}</a></li>
-            <li><span>MORE</span><a className="lg-mono" dir="ltr" href="https://more-re.com" target="_blank" rel="noopener">more-re.com ↗</a></li>
+            <li><span>MORE</span><a className="lg-mono" dir="ltr" href="https://more-re.com" target="_blank" rel="noopener">more-re.com ↗︎</a></li>
           </ul>
         </div>
       </section>

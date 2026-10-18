@@ -80,7 +80,7 @@ function Lg3More({ c, lang }) {
             <div className="lg3-more-tag" dir={lang === "ar" ? "rtl" : "ltr"}>{x.moreTag}</div>
             <p>{x.moreLine}</p>
           </div>
-          <a className="lg3-more-link" href="https://more-re.com" target="_blank" rel="noopener" dir="ltr">more-re.com ↗</a>
+          <a className="lg3-more-link" href="https://more-re.com" target="_blank" rel="noopener" dir="ltr">more-re.com ↗︎</a>
         </div>
       </div>
     </section>
@@ -125,8 +125,8 @@ function LgFooter3({ t, go, openAdmin }) {
     <footer className="lg-footer">
       <div className="lg-wrap lg-footer-in">
         <a className="lg-brand" onClick={tap} title="Ligemat"><LgMark size={34} /><span className="lg-brand-txt"><b>Ligemat</b><small>Real Estate · Marketing</small></span></a>
-        <div className="lg-footer-links">{["about", "book", "contact"].map(k => <a key={k} onClick={() => go(k)}>{t.nav[k]}</a>)}<a href="/v2/" className="lg-v-switch" title="Switch to the classic design">{t.dir === "rtl" ? "التصميم الكلاسيكي ↗" : "Classic design ↗"}</a></div>
-        <div className="lg-footer-meta"><span className="lg-slogan">{t.slogan}</span><span className="lg-mono" dir="ltr">{LG_CONTACT.phone}</span><a href="https://more-re.com" target="_blank" rel="noopener" dir="ltr">{t.visitMore} · more-re.com ↗</a><span>© 2026 Ligemat · {t.footer}</span></div>
+        <div className="lg-footer-links">{["about", "book", "contact"].map(k => <a key={k} onClick={() => go(k)}>{t.nav[k]}</a>)}<a href="/v2/" className="lg-v-switch" title="Switch to the classic design">{t.dir === "rtl" ? "التصميم الكلاسيكي ↗︎" : "Classic design ↗︎"}</a></div>
+        <div className="lg-footer-meta"><span className="lg-slogan">{t.slogan}</span><span className="lg-mono" dir="ltr">{LG_CONTACT.phone}</span><a href="https://more-re.com" target="_blank" rel="noopener" dir="ltr">{t.visitMore} · more-re.com ↗︎</a><span>© 2026 Ligemat · {t.footer}</span></div>
       </div>
     </footer>
   );
@@ -179,7 +179,7 @@ function Lg3Admin({ c, save, reset, close }) {
         <button className="lg-btn sm ghost on-dark" onClick={close}>Exit</button>
       </header>
       <div className="lg3-ad-body">{tab === "site" ? <Lg3SiteEditor c={c} save={save} reset={reset} /> :
-        <section className="lg3-card"><h3>Finance</h3><p className="lg3-hint">Your finance dashboard is synced across your devices.</p><a className="lg-btn clay" href="/app" target="_blank" rel="noopener">Open finance dashboard ↗</a></section>}</div>
+        <section className="lg3-card"><h3>Finance</h3><p className="lg3-hint">Your finance dashboard is synced across your devices.</p><a className="lg-btn clay" href="/app" target="_blank" rel="noopener">Open finance dashboard ↗︎</a></section>}</div>
     </div>
   );
 }
@@ -228,7 +228,7 @@ function Lg3AboutModal({ t, lang, go, close }) {
         </div>
         <p className="lg3-about-p">{t.aboutBody[0]}</p>
         <blockquote className="lg3-about-q">{t.quote}</blockquote>
-        <a className="lg3-about-more" href="https://more-re.com" target="_blank" rel="noopener"><span>{x.moreKicker}</span><b dir="ltr">more-re.com ↗</b></a>
+        <a className="lg3-about-more" href="https://more-re.com" target="_blank" rel="noopener"><span>{x.moreKicker}</span><b dir="ltr">more-re.com ↗︎</b></a>
         <div className="lg3-about-acts">
           <a className="lg-btn clay" onClick={() => go("book")}>{t.ctaBook}</a>
           <a className="lg-btn ghost on-dark" href={lgWaLink()} target="_blank"><LgWaIcon />{t.ctaWa}</a>
