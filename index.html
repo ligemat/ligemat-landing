@@ -74,12 +74,12 @@ a{color:inherit;text-decoration:none}a:hover{color:#A85D35}
 body.homes{background:#FBF7F1;color:#08304A}
 .homes .nav{background:rgba(251,247,241,.88);backdrop-filter:blur(10px)}
 .homes .talk{background:#08304A;color:#FBF7F1}.homes .talk:hover{background:#A85D35;color:#FBF7F1}
-.h-hero{position:relative;min-height:calc(100vh - 80px);display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr);align-items:end;gap:40px;overflow:hidden}
+.h-hero{position:relative;min-height:calc(100vh - 80px);display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr);align-items:center;gap:40px;overflow:hidden}
 .h-hero::before{content:"";position:absolute;inset:0;background:linear-gradient(90deg,#FBF7F1 30%,rgba(251,247,241,.6) 70%,rgba(251,247,241,.4)),linear-gradient(0deg,#FBF7F1,transparent 30%),url(https://images.unsplash.com/photo-1613490493576-7fde63acd811?auto=format&fit=crop&w=2400&q=80) center 60%/cover;z-index:-1}
-.h-txt{display:flex;flex-direction:column;gap:26px;padding:60px 0 120px}
+.h-txt{display:flex;flex-direction:column;gap:26px;padding:40px 0 60px}
 .h-h1{margin:0;font-size:clamp(46px,6.2vw,86px);font-weight:600;letter-spacing:-.035em;line-height:1.02}.h-h1 em{font-style:normal;color:#A85D35}
 .h-sub{margin:0;font-size:clamp(17px,1.5vw,20px);font-weight:300;line-height:1.65;color:rgba(8,48,74,.78);max-width:30em}
-.h-arch{justify-self:center;width:min(100%,430px);aspect-ratio:43/62;border-radius:999px 999px 0 0;overflow:hidden;-webkit-mask-image:linear-gradient(0deg,transparent,#000 22%);mask-image:linear-gradient(0deg,transparent,#000 22%)}
+.h-arch{justify-self:center;width:min(100%,400px,calc((100vh - 140px)*.69));aspect-ratio:43/62;margin-block:30px;border-radius:999px 999px 0 0;overflow:hidden;-webkit-mask-image:linear-gradient(0deg,transparent,#000 22%);mask-image:linear-gradient(0deg,transparent,#000 22%)}
 .h-arch img{width:100%;height:100%;object-fit:cover;object-position:center 12%;display:block}
 .h-north{padding-block:140px 120px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:56px}
 .h-north h2{margin:0;font-size:clamp(34px,4.6vw,60px);font-weight:300;letter-spacing:-.03em;line-height:1.1;max-width:14ch}.h-north h2 em{font-style:normal;font-weight:600}
@@ -396,7 +396,7 @@ html[dir=rtl] .b-time::before{left:auto;right:178px}html[dir=rtl] .b-time>div::a
 <main id="top">
 <div id="homes" data-screen-label="Homes mode">
 <section class="h-hero"><div class="wrap" style="display:contents"></div>
-<div class="wrap" style="grid-column:1/-1;display:grid;grid-template-columns:inherit;gap:inherit;align-items:end;width:100%">
+<div class="wrap" style="grid-column:1/-1;display:grid;grid-template-columns:inherit;gap:inherit;align-items:center;width:100%">
 <div class="h-txt rv">
 <h1 class="h-h1"><span data-t="t13">I don't sell directions. <em>I help you find yours.</em></span></h1>
 <p class="h-sub"><span data-t="t14">Not a broker. A curator and a guide for families, investors and expats choosing a home in Cairo.</span></p>
@@ -553,7 +553,7 @@ document.querySelectorAll(".phT button").forEach(b=>b.onclick=()=>{const v=b.dat
 const saved=localStorage.getItem(KEY);
 if(qp.has("gate")){apply("homes",false)}
 else if(qm==="homes"||qm==="brands"){apply(qm,false);$("#gate").classList.add("out")}
-else if(saved){apply(saved);$("#gate").classList.add("out")}else{apply("homes",false)}
+else{apply(saved||"homes",false)}
 setLang(LANG);
 renderPub();
 </script>
