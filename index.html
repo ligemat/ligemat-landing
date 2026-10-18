@@ -522,6 +522,7 @@ function go(m){
 }
 $$("[data-go]").forEach(b=>b.addEventListener("click",()=>go(b.dataset.go)));
 $("#gNext").onclick=()=>{$("#gIntro").hidden=true;$("#gAsk").hidden=false;$("#gate").scrollTo(0,0)};
+$(".nav .brand").onclick=e=>{e.preventDefault();$("#again").click()};
 $("#again").onclick=()=>{$("#gate").classList.add("go","arr");$("#gIntro").hidden=false;$("#gAsk").hidden=true;$("#gate").classList.remove("out");localStorage.removeItem(KEY)};
 $$(".b-cert").forEach(b=>b.onclick=()=>{const f=b.dataset.pdf;$("#certT").textContent=b.querySelector("b").textContent;$("#certO").href=f;$("#certF").src=f+"#view=FitH";$("#cert").classList.add("on")});
 const closeCert=()=>{$("#cert").classList.remove("on");$("#certF").src="about:blank"};
