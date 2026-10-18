@@ -82,13 +82,39 @@ function LgBook({ t, lang }) {
   const days = React.useMemo(() => lgDays(14), []);
   const [day, setDay] = React.useState(null);
   const [slot, setSlot] = React.useState(null);
-  const [f, setF] = React.useState({ name: "", phone: "", email: "", topic: 0, note: "" });
+  const LGB_KEY = "lg-book-draft";
+  const [f, setF] = React.useState(() => { try { return { name: "", phone: "", email: "", topic: 0, note: "", ...(JSON.parse(localStorage.getItem(LGB_KEY)) || {}) }; } catch (e) { return { name: "", phone: "", email: "", topic: 0, note: "" }; } });
+  React.useEffect(() => { try { localStorage.setItem(LGB_KEY, JSON.stringify(f)); } catch (e) {} }, [f]);
   const [done, setDone] = React.useState(false);
   const [tried, setTried] = React.useState(false);
-  const set = (k) => (e) => setF({ ...f, [k]: e.target.value });
+  const [touched, setTouched] = React.useState({});
+  const [busy, setBusy] = React.useState(false), [err, setErr] = React.useState("");
+  const set = (k) => (e) => { setF({ ...f, [k]: e.target.value }); setErr(""); };
+  const blur = (k) => () => setTouched({ ...touched, [k]: true });
+  const bad = (k) => (tried || touched[k]) && !String(f[k]).trim();
   const dayLabel = (d, o) => d.toLocaleDateString(loc, o);
   const ready = day && slot && f.name.trim() && f.phone.trim();
-  const submit = () => { setTried(true); if (ready) setDone(true); };
+  const cairoISO = (d, hm, addMin) => {
+    const [h, m] = hm.split(":").map(Number);
+    const base = Date.UTC(d.getFullYear(), d.getMonth(), d.getDate(), h, m + (addMin || 0));
+    const off = (dt) => { const p = new Intl.DateTimeFormat("en-US", { timeZone: "Africa/Cairo", hour12: false, year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", second: "2-digit" }).formatToParts(dt).reduce((a, x) => (a[x.type] = x.value, a), {}); return Date.UTC(+p.year, +p.month - 1, +p.day, +p.hour % 24, +p.minute, +p.second) - dt.getTime(); };
+    let o = off(new Date(base)); o = off(new Date(base - o)); return new Date(base - o).toISOString();
+  };
+  const submit = async () => {
+    setTried(true);
+    if (!ready) { const el = document.querySelector(".lg-form label.err input"); if (el) el.focus(); return; }
+    const C = window.LIGEMAT_CONFIG || {}, FN = C.BOOKING_FN_URL;
+    setBusy(true); setErr("");
+    try {
+      if (FN) {
+        const r = await fetch(FN, { method: "POST", headers: { "Content-Type": "application/json", apikey: C.SUPABASE_ANON_KEY || "", Authorization: "Bearer " + (C.SUPABASE_ANON_KEY || "") }, body: JSON.stringify({ action: "book", start: cairoISO(day, slot), end: cairoISO(day, slot, 30), name: f.name.trim(), email: f.email.trim() || null, phone: f.phone.trim(), note: [t.topics[f.topic], f.note].filter(Boolean).join(" · "), tz: "Africa/Cairo" }) });
+        const j = await r.json().catch(() => ({}));
+        if (!r.ok || j.error) { setErr(lang === "ar" ? "يبدو أن هذا الموعد حُجز للتو. اختر وقتاً آخر، أو راسلني على واتساب." : "That time may have just been taken. Pick another time, or message me on WhatsApp."); setBusy(false); return; }
+      }
+      try { localStorage.removeItem(LGB_KEY); } catch (e) {}
+      setBusy(false); setDone(true);
+    } catch (e) { setErr(lang === "ar" ? "لم يصل الحجز بسبب مشكلة في الاتصال. حاول مرة أخرى أو راسلني على واتساب." : "Your booking didn’t go through because of a connection problem. Try again, or message me on WhatsApp."); setBusy(false); }
+  };
   if (done) return (
     <section className="lg-sec first" data-screen-label="Booked">
       <div className="lg-wrap lg-stack" style={{ alignItems: "center", textAlign: "center", gap: 22, maxWidth: 640 }}>
@@ -138,16 +164,17 @@ function LgBook({ t, lang }) {
           </div>
           <div className="lg-step-l"><span className="lg-fig sm">03</span>{t.stepDetails}</div>
           <div className="lg-form">
-            <label className={tried && !f.name.trim() ? "err" : ""}>{t.fName}<input value={f.name} onChange={set("name")} placeholder={t.pName} /></label>
-            <label className={tried && !f.phone.trim() ? "err" : ""}>{t.fPhone}<input dir="ltr" value={f.phone} onChange={set("phone")} placeholder={t.pPhone} /></label>
-            <label className="wide">{t.fEmail}<input dir="ltr" type="email" value={f.email} onChange={set("email")} placeholder={t.pEmail} /></label>
+            <label className={bad("name") ? "err" : ""}>{t.fName}<input value={f.name} onChange={set("name")} onBlur={blur("name")} autoComplete="name" aria-invalid={bad("name")} />{bad("name") && <span className="lg-err-msg">{lang === "ar" ? "اكتب اسمك حتى أعرف بمن أتصل." : "Add your name so I know who I’m calling."}</span>}</label>
+            <label className={bad("phone") ? "err" : ""}>{t.fPhone}<input dir="ltr" type="tel" value={f.phone} onChange={set("phone")} onBlur={blur("phone")} autoComplete="tel" placeholder={t.pPhone} aria-invalid={bad("phone")} />{bad("phone") && <span className="lg-err-msg">{lang === "ar" ? "أضف رقم واتساب حتى أؤكد لك الموعد." : "Add a WhatsApp number so I can confirm your call."}</span>}</label>
+            <label className="wide">{t.fEmail}<input dir="ltr" type="email" value={f.email} onChange={set("email")} autoComplete="email" placeholder={t.pEmail} /></label>
             <div className="wide lg-field-l">{t.fTopic}
               <div className="lg-row" style={{ gap: 8 }}>{t.topics.map((x, i) => <button key={x} className={"lg-chip" + (f.topic === i ? " on" : "")} onClick={() => setF({ ...f, topic: i })}>{x}</button>)}</div>
             </div>
             <label className="wide">{t.fNote}<textarea rows="3" value={f.note} onChange={set("note")} placeholder={t.pNote}></textarea></label>
           </div>
-          <button className="lg-btn lg block" onClick={submit}>{t.confirm}{day && slot ? " · " + dayLabel(day, { day: "numeric", month: "short" }) + ", " + slot : ""}</button>
+          <button className="lg-btn lg block" onClick={busy ? undefined : submit} aria-busy={busy}>{busy ? (lang === "ar" ? "جارٍ الحجز…" : "Booking…") : t.confirm}{day && slot ? " · " + dayLabel(day, { day: "numeric", month: "short" }) + ", " + slot : ""}</button>
           {tried && !(day && slot) && <div className="lg-hint">{t.needDate}</div>}
+          {err && <div className="lg-err-msg" role="alert">{err}</div>}
         </div>
       </div>
     </section>

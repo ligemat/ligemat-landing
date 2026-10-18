@@ -79,6 +79,33 @@ function Lg5Hero({ t, c, lang, x }) {
   );
 }
 
+
+function Lg5Compass() {
+  const ref = React.useRef(null);
+  const [on, setOn] = React.useState(false);
+  React.useEffect(() => {
+    const el = ref.current; if (!el || !("IntersectionObserver" in window)) { setOn(true); return; }
+    const io = new IntersectionObserver(([e]) => { if (e.isIntersecting) { setOn(true); io.disconnect(); } }, { threshold: .5 });
+    io.observe(el); return () => io.disconnect();
+  }, []);
+  const ticks = [...Array(36)].map((_, i) => { const a = i * 10 * Math.PI / 180, r1 = i % 9 === 0 ? 78 : 84, r2 = 90; return <line key={i} x1={100 + r1 * Math.sin(a)} y1={100 - r1 * Math.cos(a)} x2={100 + r2 * Math.sin(a)} y2={100 - r2 * Math.cos(a)} stroke="currentColor" strokeOpacity={i % 9 === 0 ? .7 : .28} strokeWidth={i % 9 === 0 ? 2 : 1} />; });
+  return (
+    <svg ref={ref} className={"lg5-compass" + (on ? " on" : "")} viewBox="0 0 200 200" role="img" aria-label="Compass pointing to True North">
+      <circle cx="100" cy="100" r="96" fill="none" stroke="currentColor" strokeOpacity=".22" />
+      {ticks}
+      <text x="100" y="58" textAnchor="middle" className="lg5-cn">N</text>
+      <text x="146" y="105" textAnchor="middle" className="lg5-cd">E</text>
+      <text x="100" y="152" textAnchor="middle" className="lg5-cd">S</text>
+      <text x="54" y="105" textAnchor="middle" className="lg5-cd">W</text>
+      <g className="lg5-needle">
+        <path d="M100 30 L110 100 L90 100 Z" fill="#EB9A6A" />
+        <path d="M100 170 L110 100 L90 100 Z" fill="currentColor" fillOpacity=".35" />
+        <circle cx="100" cy="100" r="6" fill="currentColor" />
+      </g>
+    </svg>
+  );
+}
+
 function LgHome5({ t, go, lang }) {
   const c = window.__lg3c, x = LG5[lang];
   return (
@@ -95,7 +122,7 @@ function LgHome5({ t, go, lang }) {
 
       <section className="lg-sec alt" id="lg5-compass" data-screen-label="The compass">
         <div className="lg-wrap">
-          <div className="lg-sec-head"><div className="lg-kicker">{x.cKicker}</div><h2 className="lg-h2">{x.cTitle}</h2></div>
+          <div className="lg5-chead"><div className="lg-sec-head"><div className="lg-kicker">{x.cKicker}</div><h2 className="lg-h2">{x.cTitle}</h2></div><Lg5Compass /></div>
           <div className="lg5-qs">{x.qs.map(([q, a], i) => <article key={q} className="lg5-q"><span className="lg-fig sm">{"0" + (i + 1)}</span><h3>{q}</h3><p>{a}</p></article>)}</div>
           <div className="lg5-result"><strong>{x.cResult}</strong><span>{x.cLine}</span></div>
         </div>

@@ -31,7 +31,7 @@ function Lg3SiteEditor({ c, save, reset }) {
         <span style={err ? { color: "#F2A27A" } : null}>{err || busy || (saved ? "Saved. The website is live for everyone." : dirty ? "Unsaved changes" : "All changes saved")}</span>
         <div className="lg-row">
           <button className="lg-btn sm ghost on-dark" disabled={!!busy} onClick={doReset}>Reset</button>
-          <button className="lg-btn sm clay" disabled={!dirty || !!busy} onClick={doSave}>Save &amp; Publish</button>
+          <button className="lg-btn sm clay" disabled={!!busy} onClick={() => dirty ? doSave() : setErr("")||setBusy("No changes yet. Edit a field, then publish.")||setTimeout(() => setBusy(""), 2200)}>Save &amp; Publish</button>
         </div>
       </div>
 

@@ -29,10 +29,10 @@ function LgNav({ t, page, go, toggleLang, dark, mode, toggleMode }) {
         <nav className={"lg-nav-links" + (open ? " open" : "")}>
           {items.map(k => <a key={k} className={page === k ? "on" : ""} onClick={() => { go(k); setOpen(false); }}>{t.nav[k]}</a>)}
           <button className="lg-lang" onClick={toggleLang}>{t.langSwitch}</button>
-          {toggleMode && <button className="lg-mode" onClick={toggleMode} aria-label={mode === "day" ? "Night mode" : "Day mode"} title={mode === "day" ? "Night mode" : "Day mode"}>{mode === "day" ? <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M20.5 14.2A8.5 8.5 0 1 1 9.8 3.5a6.8 6.8 0 0 0 10.7 10.7z" /></svg> : <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"><circle cx="12" cy="12" r="4.2" /><path d="M12 2.5v2.2M12 19.3v2.2M2.5 12h2.2M19.3 12h2.2M5.3 5.3l1.6 1.6M17.1 17.1l1.6 1.6M5.3 18.7l1.6-1.6M17.1 6.9l1.6-1.6" /></svg>}</button>}
+          {toggleMode && <button className="lg-mode lg-tip" onClick={toggleMode} aria-label={mode === "day" ? "Night mode" : "Day mode"}>{mode === "day" ? <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M20.5 14.2A8.5 8.5 0 1 1 9.8 3.5a6.8 6.8 0 0 0 10.7 10.7z" /></svg> : <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"><circle cx="12" cy="12" r="4.2" /><path d="M12 2.5v2.2M12 19.3v2.2M2.5 12h2.2M19.3 12h2.2M5.3 5.3l1.6 1.6M17.1 17.1l1.6 1.6M5.3 18.7l1.6-1.6M17.1 6.9l1.6-1.6" /></svg>}</button>}
         </nav>
         <a className="lg-btn sm" onClick={() => go("book")}>{t.nav.book}</a>
-        <button className="lg-burger" onClick={() => setOpen(!open)} aria-label="Menu">{open ? "×" : "≡"}</button>
+        <button className="lg-burger lg-tip" onClick={() => setOpen(!open)} aria-label={open ? "Close menu" : "Open menu"}>{open ? "×" : "≡"}</button>
       </div>
     </header>
   );
@@ -86,7 +86,7 @@ function LgMeetModal({ t, go, close }) {
   return (
     <div className="lg-modal-bg" onClick={close}>
       <div className="lg-modal" onClick={(e) => e.stopPropagation()} role="dialog" aria-label={t.meet}>
-        <button className="lg-modal-x" onClick={close} aria-label="Close">✕</button>
+        <button className="lg-modal-x lg-tip" onClick={close} aria-label="Close">✕</button>
         <figure className="lg-modal-photo" style={{ margin: 0 }}>
           <LgPortrait ratio="4/4.2" />
           <figcaption><strong>{t.name}</strong><span>{t.role}</span></figcaption>
@@ -144,7 +144,7 @@ function LgFab({ t }) {
   return (
     <div className="lg-fabs">
       <button className="lg-meet-pill" onClick={lgOpenMeet}><LgPortrait ratio="1/1" />{t.meet}</button>
-      <a className="lg-fab" href={lgWaLink()} target="_blank" aria-label="WhatsApp"><LgWaIcon s={22} /></a>
+      <a className="lg-fab lg-tip" href={lgWaLink()} target="_blank" aria-label="WhatsApp"><LgWaIcon s={22} /></a>
     </div>
   );
 }

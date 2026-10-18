@@ -9,14 +9,24 @@ function App() {
   const [lang, setLang] = React.useState(() => localStorage.getItem("lg-lang") || "en");
   const [meet, setMeet] = React.useState(false);
   React.useEffect(() => { const f = () => document.documentElement.classList.toggle("lg-scrolled", window.scrollY > 40); f(); window.addEventListener("scroll", f, { passive: true }); return () => window.removeEventListener("scroll", f); }, []);
-  const [mode, setMode] = React.useState(() => localStorage.getItem("lg3-mode") || "day");
-  React.useEffect(() => { document.documentElement.dataset.mode = mode; localStorage.setItem("lg3-mode", mode); }, [mode]);
+  const [mode, setMode] = React.useState(() => localStorage.getItem("lg5-mode") || "night");
+  React.useEffect(() => { document.documentElement.dataset.mode = mode; localStorage.setItem("lg5-mode", mode); }, [mode]);
   React.useEffect(() => { const f = () => setPage(read()); window.addEventListener("hashchange", f); return () => window.removeEventListener("hashchange", f); }, []);
   React.useEffect(() => { const f = () => setMeet(true); window.addEventListener("lg-meet", f); return () => window.removeEventListener("lg-meet", f); }, []);
   const [leaving, setLeaving] = React.useState(false);
   const go = (p) => { setMeet(false); if (p === page) { window.scrollTo({ top: 0, behavior: "smooth" }); return; } setLeaving(true); setTimeout(() => { history.replaceState(null, "", "#" + p); setPage(p); window.scrollTo(0, 0); setLeaving(false); }, 220); };
   const t = LG_T[lang];
   React.useEffect(() => { document.documentElement.dir = t.dir; document.documentElement.lang = lang; localStorage.setItem("lg-lang", lang); }, [lang]);
+  // a11y: trap focus inside open overlays and restore it on close
+  React.useEffect(() => {
+    let opener = null;
+    const box = () => document.querySelector(".lg3-admin") || document.querySelector(".lg-modal-bg");
+    const obs = new MutationObserver(() => { const b = box(); if (b && !opener) { opener = document.activeElement; const first = b.querySelector("input,button,a[href],[tabindex='0']"); if (first && !b.contains(document.activeElement)) first.focus(); } else if (!b && opener) { try { opener.focus(); } catch (e) {} opener = null; } });
+    obs.observe(document.body, { childList: true, subtree: true });
+    const k = (e) => { if (e.key !== "Tab") return; const b = box(); if (!b) return; const f = [...b.querySelectorAll("input,select,textarea,button,a[href],[tabindex='0']")].filter(x => !x.disabled && x.offsetParent !== null); if (!f.length) return; const a = f[0], z = f[f.length - 1]; if (e.shiftKey && document.activeElement === a) { e.preventDefault(); z.focus(); } else if (!e.shiftKey && document.activeElement === z) { e.preventDefault(); a.focus(); } };
+    document.addEventListener("keydown", k);
+    return () => { obs.disconnect(); document.removeEventListener("keydown", k); };
+  }, []);
   // a11y: links used as buttons (no href) become keyboard-reachable buttons
   React.useEffect(() => {
     document.querySelectorAll("a:not([href])").forEach(a => { if (!a.hasAttribute("tabindex")) { a.setAttribute("tabindex", "0"); a.setAttribute("role", "button"); } });

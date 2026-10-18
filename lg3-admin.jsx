@@ -209,7 +209,7 @@ function LgFab3({ t, lang }) {
   return (
     <div className="lg-fabs">
       <button className="lg-meet-pill lg3-about-pill" onClick={lgOpenMeet}><LgPortrait ratio="1/1" />{lang === "ar" ? "عني" : "About me"}</button>
-      <a className="lg-fab" href={lgWaLink()} target="_blank" aria-label="WhatsApp"><LgWaIcon s={22} /></a>
+      <a className="lg-fab lg-tip" href={lgWaLink()} target="_blank" aria-label="WhatsApp"><LgWaIcon s={22} /></a>
     </div>
   );
 }
@@ -219,7 +219,7 @@ function Lg3AboutModal({ t, lang, go, close }) {
   return (
     <div className="lg-modal-bg lg3-about-bg" onClick={close}>
       <div className="lg3-about" onClick={(e) => e.stopPropagation()} role="dialog" aria-label={lang === "ar" ? "عني" : "About me"}>
-        <button className="lg-modal-x" onClick={close} aria-label="Close">✕</button>
+        <button className="lg-modal-x lg-tip" onClick={close} aria-label="Close">✕</button>
         <div className="lg3-about-top">
           <div className="lg3-about-ph"><img src={LG_CONTACT.photo} alt={t.name} /></div>
           <div className="lg3-about-id">
