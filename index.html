@@ -470,7 +470,6 @@ html[data-mode=day] .lg-footer-meta a{color:#EB9A6A}
 .lg-wrap{padding:0 20px}
 .lg-nav-in{padding:10px 16px;gap:10px}
 .lg-nav .lg-btn{padding:8px 14px;font-size:14px;min-height:0}
-.lg-nav .lg-brand-txt small{display:none}
 .lg3-hero{min-height:auto}
 .lg3-hero-in{padding-top:92px;padding-bottom:44px;gap:0}
 .lg3-arch-wrap{order:-1;justify-self:start;width:88px;height:88px;aspect-ratio:auto;margin:0 0 22px;flex:none}
@@ -547,6 +546,22 @@ html[data-mode=day] .lg-nav{background:#FBF7F1!important;border-bottom:1px solid
 @media(max-width:600px){.lg5-chead{grid-template-columns:1fr;gap:16px}.lg5-compass{width:128px;height:128px;order:-1}}
 @media(prefers-reduced-motion:reduce){.lg5-needle{transform:none;transition:none}}
 .lg5-ch li{align-items:center}
+
+/* ---- Hero B: side by side on phones, no stock photo ---- */
+.lg5-hero{background:#08304A}
+html[data-mode=day] .lg5-hero{background:#FBF7F1}
+@media(max-width:600px){
+.lg5-hero .lg3-hero-in{display:grid;grid-template-columns:minmax(0,1fr) 112px;grid-template-areas:"h p" "l l" "b b";column-gap:16px;row-gap:0;align-items:center;padding-top:88px}
+.lg5-hero .lg3-hero-txt{display:contents}
+.lg5-hero .lg3-h1{grid-area:h;font-size:clamp(28px,8.4vw,34px);line-height:1.1}
+.lg5-hero .lg3-arch-wrap{grid-area:p;order:0;justify-self:end;width:112px;height:148px;margin:0}
+.lg5-hero .lg3-arch{border-radius:56px 56px 14px 14px;box-shadow:0 0 0 2px #EB9A6A}
+.lg5-hero .lg3-lead{grid-area:l;margin:18px 0 20px}
+.lg5-hero .lg-row{grid-area:b}
+.lg-nav .lg-brand-txt small{display:block;font-size:12px!important;white-space:nowrap;letter-spacing:.02em!important}
+.lg-nav .lg-btn{padding:8px 12px}
+}
+@media(max-width:430px){.lg-nav .lg-btn{display:none}.lg-burger{margin-inline-start:auto}}
 </style>
 </head>
 <body>

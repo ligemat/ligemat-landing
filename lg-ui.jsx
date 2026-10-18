@@ -21,7 +21,7 @@ function LgPortrait({ ratio = "4/5", style }) {
 
 function LgNav({ t, page, go, toggleLang, dark, mode, toggleMode }) {
   const [open, setOpen] = React.useState(false);
-  const items = ["home", "about", "contact"];
+  const items = ["home", "about", "contact"].concat(typeof window !== "undefined" && window.innerWidth <= 430 ? ["book"] : []);
   return (
     <header className={"lg-nav" + (dark ? " dark" : "")}>
       <div className="lg-nav-in">
