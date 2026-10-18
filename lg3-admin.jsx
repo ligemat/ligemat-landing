@@ -141,13 +141,13 @@ function Lg3Login({ onOk, onClose }) {
     lgDb.user().then(u => { if (lgDb.isOwner(u)) onOk(); else setBusy(false); }).catch(() => setBusy(false));
   }, []);
   const submit = async () => {
-    if (!email || !pw) return setErr("Enter your email and password");
+    if (!email || !pw) return setErr("Add your email and password to sign in.");
     setBusy(true); setErr("");
     try {
       const u = await lgDb.signIn(email.trim(), pw);
       if (!lgDb.isOwner(u)) { await lgDb.signOut(); setErr("This account can't edit the site."); setBusy(false); return; }
       onOk();
-    } catch (e) { setErr("Wrong email or password"); setBusy(false); }
+    } catch (e) { setErr("That email and password didn't match. Try again."); setBusy(false); }
   };
   const key = (e) => e.key === "Enter" && submit();
   return (
@@ -156,8 +156,10 @@ function Lg3Login({ onOk, onClose }) {
         <LgMark size={44} />
         <h2>Admin sign in</h2>
         <p>Website editor · changes go live for everyone</p>
-        <input autoFocus type="email" placeholder="Email" autoComplete="username" value={email} onChange={e => { setEmail(e.target.value); setErr(""); }} onKeyDown={key} className="lg3-pin-in" style={{ letterSpacing: 0, fontSize: 16 }} />
-        <input type="password" placeholder="Password" autoComplete="current-password" value={pw} onChange={e => { setPw(e.target.value); setErr(""); }} onKeyDown={key} className="lg3-pin-in" style={{ letterSpacing: 0, fontSize: 16 }} />
+        <label className="lg3-login-l" htmlFor="lg-ad-email">Email</label>
+        <input id="lg-ad-email" autoFocus type="email" placeholder="you@example.com" autoComplete="username" value={email} onChange={e => { setEmail(e.target.value); setErr(""); }} onKeyDown={key} className="lg3-pin-in" style={{ letterSpacing: 0, fontSize: 16 }} />
+        <label className="lg3-login-l" htmlFor="lg-ad-pw">Password</label>
+        <input id="lg-ad-pw" type="password" autoComplete="current-password" value={pw} onChange={e => { setPw(e.target.value); setErr(""); }} onKeyDown={key} className="lg3-pin-in" style={{ letterSpacing: 0, fontSize: 16 }} />
         {err && <span className="lg3-err">{err}</span>}
         <div className="lg-row" style={{ justifyContent: "center" }}><a className="lg-btn ghost on-dark" onClick={onClose}>Cancel</a><a className="lg-btn clay" onClick={busy ? undefined : submit}>{busy ? "…" : "Sign in"}</a></div>
       </div>

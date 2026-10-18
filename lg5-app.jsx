@@ -17,6 +17,11 @@ function App() {
   const go = (p) => { setMeet(false); if (p === page) { window.scrollTo({ top: 0, behavior: "smooth" }); return; } setLeaving(true); setTimeout(() => { history.replaceState(null, "", "#" + p); setPage(p); window.scrollTo(0, 0); setLeaving(false); }, 220); };
   const t = LG_T[lang];
   React.useEffect(() => { document.documentElement.dir = t.dir; document.documentElement.lang = lang; localStorage.setItem("lg-lang", lang); }, [lang]);
+  // a11y: links used as buttons (no href) become keyboard-reachable buttons
+  React.useEffect(() => {
+    document.querySelectorAll("a:not([href])").forEach(a => { if (!a.hasAttribute("tabindex")) { a.setAttribute("tabindex", "0"); a.setAttribute("role", "button"); } });
+  });
+  React.useEffect(() => { const k = (e) => { const a = e.target; if ((e.key === "Enter" || e.key === " ") && a && a.matches && a.matches('a[role="button"]:not([href])')) { e.preventDefault(); a.click(); } }; document.addEventListener("keydown", k); return () => document.removeEventListener("keydown", k); }, []);
   const toggleLang = () => setLang(lang === "en" ? "ar" : "en");
   const P = { home: LgHome5, about: LgAbout, book: LgBook, contact: LgContact }[page];
   return (
