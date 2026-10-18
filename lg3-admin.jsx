@@ -1,5 +1,5 @@
 // Ligemat v3 — editable content, hidden admin (footer logo ×3 + PIN), personal finance.
-const LG3_KEY = "lg3-content", LG3_FIN = "lg3-finance", LG3_PIN = "lg3-pin";
+const LG3_KEY = window.LG_CONTENT_KEY || "lg3-content", LG3_FIN = "lg3-finance";
 const LG3_DEFAULT = {
   heroBg: "assets/more/cairo-nile-dusk.jpg",
   portrait: "",
@@ -25,11 +25,17 @@ function lg3Apply(c) {
   window.LG_DAYS_OFF = c.hours.daysOff;
 }
 function lg3Diff(v, d) { if (Array.isArray(v) || typeof v !== "object" || v === null) return JSON.stringify(v) === JSON.stringify(d) ? undefined : v; const o = {}; Object.keys(v).forEach(k => { const x = lg3Diff(v[k], d ? d[k] : undefined); if (x !== undefined && !(typeof x === "object" && !Array.isArray(x) && !Object.keys(x).length)) o[k] = x; }); return o; }
+// Content: Supabase is the source of truth; localStorage is only a fast cache for returning visitors.
+const lg3Cache = (v) => { try { localStorage.setItem(LG3_KEY, JSON.stringify(v)); } catch (e) {} };
 function useLg3Content() {
-  const [c, setC] = React.useState(() => { const s = lg3Read(LG3_KEY, {}); if (s.ar && s.ar.moreTag === "more than real estate") delete s.ar.moreTag; return lg3Merge(s); });
+  const [c, setC] = React.useState(() => lg3Merge(lg3Read(LG3_KEY, {})));
   lg3Apply(c);
-  const save = (n) => { const m = lg3Merge(n); localStorage.setItem(LG3_KEY, JSON.stringify(lg3Diff(m, LG3_DEFAULT))); setC(m); };
-  const reset = () => { localStorage.removeItem(LG3_KEY); setC(lg3Merge({})); };
+  React.useEffect(() => {
+    if (!window.lgDb || !lgDb.ready) return;
+    lgDb.load().then(v => { const s = v || {}; lg3Cache(s); setC(lg3Merge(s)); }).catch(() => {});
+  }, []);
+  const save = async (n) => { const m = lg3Merge(n); const d = lg3Diff(m, LG3_DEFAULT) || {}; await lgDb.save(d); lg3Cache(d); setC(m); };
+  const reset = async () => { await lgDb.save({}); lg3Cache({}); setC(lg3Merge({})); };
   return [c, save, reset];
 }
 
@@ -126,28 +132,34 @@ function LgFooter3({ t, go, openAdmin }) {
   );
 }
 
-// ---------- PIN gate
-function Lg3Pin({ onOk, onClose, change }) {
-  const saved = localStorage.getItem(LG3_PIN);
-  const [step, setStep] = React.useState(saved ? "enter" : "set");
-  const [verified, setVerified] = React.useState(false);
-  const [pin, setPin] = React.useState(""), [first, setFirst] = React.useState(""), [err, setErr] = React.useState("");
-  const submit = () => {
-    if (!/^\d{4,6}$/.test(pin)) return setErr("4 to 6 digits");
-    if (step === "enter") { if (pin === saved) { if (change) { setVerified(true); setPin(""); setStep("set"); } else onOk(); } else { setErr("Wrong PIN"); setPin(""); } }
-    else if (step === "set") { setFirst(pin); setPin(""); setErr(""); setStep("confirm"); }
-    else { if (pin === first) { localStorage.setItem(LG3_PIN, pin); onOk(); } else { setErr("PINs don't match"); setPin(""); setStep("set"); } }
+// ---------- Admin login (Supabase email + password, owner account only)
+function Lg3Login({ onOk, onClose }) {
+  const [email, setEmail] = React.useState(""), [pw, setPw] = React.useState("");
+  const [err, setErr] = React.useState(""), [busy, setBusy] = React.useState(true);
+  React.useEffect(() => {
+    if (!window.lgDb || !lgDb.ready) { setErr("Can't reach the database right now."); setBusy(false); return; }
+    lgDb.user().then(u => { if (lgDb.isOwner(u)) onOk(); else setBusy(false); }).catch(() => setBusy(false));
+  }, []);
+  const submit = async () => {
+    if (!email || !pw) return setErr("Enter your email and password");
+    setBusy(true); setErr("");
+    try {
+      const u = await lgDb.signIn(email.trim(), pw);
+      if (!lgDb.isOwner(u)) { await lgDb.signOut(); setErr("This account can't edit the site."); setBusy(false); return; }
+      onOk();
+    } catch (e) { setErr("Wrong email or password"); setBusy(false); }
   };
-  const title = { enter: change ? "Enter your current PIN" : "Enter your PIN", set: change ? "Choose a new PIN" : "Set a PIN", confirm: "Confirm your PIN" }[step];
+  const key = (e) => e.key === "Enter" && submit();
   return (
     <div className="lg-modal-bg" onClick={onClose}>
       <div className="lg3-pin" onClick={e => e.stopPropagation()} dir="ltr">
         <LgMark size={44} />
-        <h2>{title}</h2>
-        <p>{step === "set" ? (verified ? "4 to 6 digits." : "First time here. Choose 4 to 6 digits.") : "Admin · website and finance"}</p>
-        <input autoFocus inputMode="numeric" type="password" maxLength={6} value={pin} onChange={e => { setPin(e.target.value.replace(/\D/g, "")); setErr(""); }} onKeyDown={e => e.key === "Enter" && submit()} className="lg3-pin-in lg-mono" />
+        <h2>Admin sign in</h2>
+        <p>Website editor · changes go live for everyone</p>
+        <input autoFocus type="email" placeholder="Email" autoComplete="username" value={email} onChange={e => { setEmail(e.target.value); setErr(""); }} onKeyDown={key} className="lg3-pin-in" style={{ letterSpacing: 0, fontSize: 16 }} />
+        <input type="password" placeholder="Password" autoComplete="current-password" value={pw} onChange={e => { setPw(e.target.value); setErr(""); }} onKeyDown={key} className="lg3-pin-in" style={{ letterSpacing: 0, fontSize: 16 }} />
         {err && <span className="lg3-err">{err}</span>}
-        <div className="lg-row" style={{ justifyContent: "center" }}><a className="lg-btn ghost on-dark" onClick={onClose}>Cancel</a><a className="lg-btn clay" onClick={submit}>{step === "enter" ? "Unlock" : "Continue"}</a></div>
+        <div className="lg-row" style={{ justifyContent: "center" }}><a className="lg-btn ghost on-dark" onClick={onClose}>Cancel</a><a className="lg-btn clay" onClick={busy ? undefined : submit}>{busy ? "…" : "Sign in"}</a></div>
       </div>
     </div>
   );
@@ -156,20 +168,18 @@ function Lg3Pin({ onOk, onClose, change }) {
 // ---------- Admin shell
 function Lg3Admin({ c, save, reset, close }) {
   const [tab, setTab] = React.useState("site");
-  const [pinChange, setPinChange] = React.useState(false);
-  const [pinMsg, setPinMsg] = React.useState("");
   React.useEffect(() => { const k = (e) => e.key === "Escape" && close(); window.addEventListener("keydown", k); document.body.style.overflow = "hidden"; return () => { window.removeEventListener("keydown", k); document.body.style.overflow = ""; }; }, []);
+  const signOut = async () => { await lgDb.signOut(); close(); };
   return (
     <div className="lg3-admin" dir="ltr" data-screen-label="Admin">
       <header className="lg3-ad-top">
         <div className="lg-brand"><LgMark size={30} /><span className="lg-brand-txt"><b>Ligemat</b><small>Admin</small></span></div>
         <nav className="lg3-tabs">{[["site", "Website"], ["fin", "Finance"]].map(([k, l]) => <button key={k} className={tab === k ? "on" : ""} onClick={() => setTab(k)}>{l}</button>)}</nav>
-        <button className="lg-btn sm ghost on-dark" onClick={() => setPinChange(true)}>Change PIN</button>
+        <button className="lg-btn sm ghost on-dark" onClick={signOut}>Sign out</button>
         <button className="lg-btn sm ghost on-dark" onClick={close}>Exit</button>
       </header>
-      {pinChange && <Lg3Pin change onOk={() => { setPinChange(false); setPinMsg("PIN changed."); setTimeout(() => setPinMsg(""), 2200); }} onClose={() => setPinChange(false)} />}
-      {pinMsg && <div className="lg3-toast">{pinMsg}</div>}
-      <div className="lg3-ad-body">{tab === "site" ? <Lg3SiteEditor c={c} save={save} reset={reset} /> : <Lg3Finance />}</div>
+      <div className="lg3-ad-body">{tab === "site" ? <Lg3SiteEditor c={c} save={save} reset={reset} /> :
+        <section className="lg3-card"><h3>Finance</h3><p className="lg3-hint">Your finance dashboard is synced across your devices.</p><a className="lg-btn clay" href="/app" target="_blank" rel="noopener">Open finance dashboard ↗</a></section>}</div>
     </div>
   );
 }
@@ -228,4 +238,4 @@ function Lg3AboutModal({ t, lang, go, close }) {
     </div>
   );
 }
-Object.assign(window, { Lg3Glow, LgFab3, Lg3AboutModal, LG3_BASE_PHOTO, LG3_FIN, LG3_DEFAULT, useLg3Content, LgHome3, LgFooter3, Lg3Pin, Lg3Admin, lg3Read });
+Object.assign(window, { Lg3Glow, LgFab3, Lg3AboutModal, LG3_BASE_PHOTO, LG3_FIN, LG3_DEFAULT, useLg3Content, LgHome3, LgFooter3, Lg3Login, Lg3Admin, lg3Read });

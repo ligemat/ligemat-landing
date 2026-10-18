@@ -1,8 +1,9 @@
 // Ligemat v3 — website editor + personal finance.
-function lg3Resize(file, max = 1800) {
-  return new Promise((res) => {
+function lg3Resize(file, max = 2400) {
+  return new Promise((res, rej) => {
     const r = new FileReader();
-    r.onload = () => { const img = new Image(); img.onload = () => { const k = Math.min(1, max / Math.max(img.width, img.height)); const cv = document.createElement("canvas"); cv.width = img.width * k; cv.height = img.height * k; cv.getContext("2d").drawImage(img, 0, 0, cv.width, cv.height); res(cv.toDataURL("image/jpeg", 0.85)); }; img.src = r.result; };
+    r.onerror = rej;
+    r.onload = () => { const img = new Image(); img.onerror = rej; img.onload = () => { const k = Math.min(1, max / Math.max(img.width, img.height)); const cv = document.createElement("canvas"); cv.width = Math.round(img.width * k); cv.height = Math.round(img.height * k); cv.getContext("2d").drawImage(img, 0, 0, cv.width, cv.height); cv.toBlob(b => b ? res(b) : rej(new Error("Image failed")), "image/jpeg", 0.85); }; img.src = r.result; };
     r.readAsDataURL(file);
   });
 }
@@ -17,18 +18,20 @@ const LG3_DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 function Lg3SiteEditor({ c, save, reset }) {
   const [d, setD] = React.useState(c);
   const [saved, setSaved] = React.useState(false);
+  const [busy, setBusy] = React.useState(""), [err, setErr] = React.useState("");
   const set = (path, v) => setD(prev => { const n = JSON.parse(JSON.stringify(prev)); const ks = path.split("."); let o = n; ks.slice(0, -1).forEach(k => o = o[k]); o[ks[ks.length - 1]] = v; return n; });
   const dirty = JSON.stringify(d) !== JSON.stringify(c);
-  const doSave = () => { save(d); setSaved(true); setTimeout(() => setSaved(false), 1800); };
-  const upload = async (e, key) => { const f = e.target.files[0]; if (!f) return; set(key, await lg3Resize(f)); };
-  const txt = [["roles", "Roles line (separate with ·)"], ["h1a", "Headline, line 1"], ["h1b", "Headline, line 2 (peach)"], ["sub", "Intro", 1], ["howTitle", "How I work, title"], ["bandTitle", "Call-to-action band", 1], ["moreKicker", "MORE label"], ["moreLine", "MORE description", 1]];
+  const doSave = async () => { setBusy("Saving…"); setErr(""); try { await save(d); setSaved(true); setTimeout(() => setSaved(false), 2200); } catch (e) { setErr("Not saved: " + (e.message || "error")); } setBusy(""); };
+  const doReset = async () => { if (!confirm("Reset all website content to the original?")) return; setBusy("Resetting…"); setErr(""); try { await reset(); setD(LG3_DEFAULT); } catch (e) { setErr("Not reset: " + (e.message || "error")); } setBusy(""); };
+  const upload = async (e, key) => { const f = e.target.files[0]; e.target.value = ""; if (!f) return; setBusy("Uploading photo…"); setErr(""); try { const url = await lgDb.upload(await lg3Resize(f), key === "portrait" ? "portrait" : "hero"); set(key, url); } catch (x) { setErr("Upload failed: " + (x.message || "error")); } setBusy(""); };
+  const txt = [["roles", "Roles line (separate with ·)"], ["h1a", "Headline, line 1"], ["h1b", "Headline, line 2 (peach)"], ["sub", "Intro", 1], ["howTitle", "Section title (What I do / How I work)"], ["bandTitle", "Call-to-action band", 1], ["moreKicker", "MORE label"], ["moreLine", "MORE description", 1]];
   return (
     <div className="lg3-ed">
       <div className="lg3-savebar">
-        <span>{saved ? "Saved. The website is updated." : dirty ? "Unsaved changes" : "All changes saved"}</span>
+        <span style={err ? { color: "#F2A27A" } : null}>{err || busy || (saved ? "Saved. The website is live for everyone." : dirty ? "Unsaved changes" : "All changes saved")}</span>
         <div className="lg-row">
-          <button className="lg-btn sm ghost on-dark" onClick={() => { if (confirm("Reset all website content to the original?")) { reset(); setD(LG3_DEFAULT); } }}>Reset</button>
-          <button className="lg-btn sm clay" disabled={!dirty} onClick={doSave}>Save</button>
+          <button className="lg-btn sm ghost on-dark" disabled={!!busy} onClick={doReset}>Reset</button>
+          <button className="lg-btn sm clay" disabled={!dirty || !!busy} onClick={doSave}>Save &amp; Publish</button>
         </div>
       </div>
 
@@ -77,7 +80,7 @@ function Lg3SiteEditor({ c, save, reset }) {
       </section>
 
       <section className="lg3-card"><h3>Homepage sections</h3>
-        {[["more", "MORE band"], ["how", "How I work"], ["who", "Who I work with"], ["band", "Call-to-action band"]].map(([k, l]) =>
+        {[["how", "What I do"], ["who", "Selected work"], ["more", "MORE band"], ["band", "Call-to-action band"]].map(([k, l]) =>
           <label key={k} className="lg3-tog"><span>{l}</span><input type="checkbox" checked={d.sections[k]} onChange={e => set("sections." + k, e.target.checked)} /><i></i></label>)}
       </section>
     </div>
