@@ -273,7 +273,7 @@ button:active,.talk:active,.door:active{transform:scale(.98)}
 .aq{display:flex;flex-direction:column;gap:8px;padding:14px;border-radius:14px;background:#fff;border:1px solid rgba(8,48,74,.1)}.aq b{font-size:15px}.aq small{font-size:12px;opacity:.6}.aq div{display:flex;gap:8px;flex-wrap:wrap}
 .aq .pub{background:#08304A;color:#FBF7F1;border-color:#08304A}
 html[dir=rtl] .fq .h-a p{padding:0 0 14px 40px}html[dir=rtl] .b-long{margin-inline-start:0}
-@media(max-width:860px){.b-rb{grid-template-columns:minmax(0,1fr) 22px;gap:8px 16px}.b-rb>span{grid-column:1}.b-rb .pl{grid-row:1;grid-column:2}.b-long{margin-inline-start:0}.ask-r{flex-direction:column}.faq{padding-block:80px 60px}}
+@media(max-width:860px){.b-rb{grid-template-columns:minmax(0,1fr) 22px;gap:8px 16px}.b-rb>span{grid-column:1}.b-rb .pl{grid-row:1;grid-column:3}.b-long{margin-inline-start:0}.ask-r{flex-direction:column}.faq{padding-block:80px 60px}}
 .b-work2{margin-top:28px}.b-site{grid-template-columns:1fr;gap:22px}.b-site .b-card-t{border:0;padding:0}.b-card-t b{overflow-wrap:anywhere}.b-lock{display:flex;align-items:center;gap:12px;color:#08304A}.b-lock div{display:flex;flex-direction:column;gap:4px}.b-lock b{font-size:28px;font-weight:700;letter-spacing:-.055em;line-height:1}.b-lock small{font-size:9.5px;font-weight:500;letter-spacing:1.5px;text-transform:uppercase;opacity:.8}.b-sm{font-size:14px;color:rgba(8,48,74,.7)}
 .fdes{opacity:.7}
 .b-prods{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:28px}
@@ -346,6 +346,37 @@ html[dir=rtl] .b-time::before{left:auto;right:178px}html[dir=rtl] .b-time>div::a
 .door b{font-size:28px}.door>span{font-size:13px}.door small{font-size:10.5px}
 .door.b .tl{width:64px;height:64px;top:18px;inset-inline-end:18px}
 }
+
+/* ---- mobile: no sideways drift ---- */
+html,body{overflow-x:clip;max-width:100%}
+@media(max-width:860px){.b-rb b{font-size:clamp(26px,8vw,40px)!important;overflow-wrap:anywhere}.b-pt{width:100%!important}.b-name{max-width:calc(100% - 24px)}.b-name b{font-size:12px}}
+/* ---- theme toggle ---- */
+.thm{all:unset;cursor:pointer;display:inline-grid;place-items:center;width:40px;height:40px;border-radius:10px;border:1px solid currentColor;opacity:.75}.thm:hover{opacity:1}.thm svg{width:18px;height:18px}.thm .sun{display:none}html.night .thm .sun{display:block}html.night .thm .moon{display:none}
+@media(max-width:440px){.thm{width:36px;height:36px}}
+/* ---- night mode ---- */
+html.night{color-scheme:dark}
+html.night body,html.night body.brands,html.night body.homes{background:#071E2E;color:#F3ECE1}
+html.night .nav,html.night .brands .nav,html.night .homes .nav{background:rgba(7,30,46,.88);border-color:rgba(243,236,225,.1)}
+html.night #gate,html.night #splash{background:#071E2E;color:#F3ECE1}html.night #splash.out{background-color:rgba(7,30,46,0)}
+html.night .sp-w b,html.night .sp-flip i{color:#F3ECE1}
+html.night #gate p,html.night .g-facts,html.night .g-me,html.night #gate .skip,html.night .h-sub,html.night .h-a span,html.night .h-three,html.night .h-facts,html.night .b-sub,html.night .b-by>span,html.night .b-long,html.night .b-head>span,html.night .faq-h p,html.night .fq .h-a p,html.night .mfm span,html.night .reply,html.night .b-sm,html.night .b-prod-t>span,html.night .b-cert>span,html.night .ask p,html.night .b-tag{color:rgba(243,236,225,.75)!important}
+html.night .h-facts b,html.night .mfm p,html.night .b-short,html.night .b-lock,html.night .b-name b{color:#F3ECE1}
+html.night em,html.night .h-h1 em,html.night .b-h1 em,html.night .b-by p em,html.night .b-end h2 em,html.night .mfm p em,html.night .door.h small,html.night .b-card-t small,html.night .b-prod-t small,html.night .b-prod-t em,html.night .b-cert small,html.night .b-time div b,html.night .b-rb::before,html.night .h-facts a,html.night .fq .lk a,html.night .foot b,html.night .g-own,html.night .b-card-t a{color:#EB9A6A!important}
+html.night .talk,html.night .g-next{background:#EB9A6A!important;color:#071E2E!important}html.night .talk:hover,html.night .g-next:hover{background:#F3ECE1!important}
+html.night .b-card,html.night .b-prod,html.night .ask,html.night .b-row.acc,html.night .b-name,html.night .b-cert,html.night .adm-m,html.night .aq,html.night #cert .m{background:#0D2B40!important;color:#F3ECE1;border-color:rgba(243,236,225,.12)!important}
+html.night .b-row.acc.open,html.night .b-row.acc:hover{background:#113350!important}
+html.night .b-prod-t b,html.night .b-card-t b{color:#F3ECE1}html.night .pv-l{background:#0A2436;color:#F3ECE1}html.night .b-marks div{background:#F3ECE1}
+html.night .h-place{background:#0A2436}
+html.night .h-hero::before{background:linear-gradient(90deg,#071E2E 30%,rgba(7,30,46,.7) 70%,rgba(7,30,46,.5)),linear-gradient(0deg,#071E2E,transparent 30%),url(https://images.unsplash.com/photo-1613490493576-7fde63acd811?auto=format&fit=crop&w=2400&q=80) center 60%/cover}
+html.night .b-bg{background:linear-gradient(90deg,#071E2E 35%,rgba(7,30,46,.7) 70%,rgba(7,30,46,.55)),linear-gradient(0deg,#071E2E,transparent 30%),url(assets/more/cairo-modern.jpg) center 55%/cover}
+html.night .door.h{background:linear-gradient(0deg,rgba(7,30,46,.97) 38%,rgba(7,30,46,.25)),url(https://images.unsplash.com/photo-1613490493576-7fde63acd811?auto=format&fit=crop&w=1000&q=70) center/cover;color:#F3ECE1;border-color:rgba(243,236,225,.15)}
+html.night .door.b{background:#0D2B40;border:1px solid rgba(243,236,225,.12)}
+html.night .ask textarea,html.night .ask input,html.night #admPinI,html.night #admBody textarea{background:#071E2E;color:#F3ECE1;border-color:rgba(243,236,225,.2)}
+html.night .h-q,html.night .h-q:last-child,html.night .fq,html.night .faq-l .fq:last-child,html.night .b-hero,html.night .b-sec,html.night .mfm,html.night .homes .foot,html.night .b-time div{border-color:rgba(243,236,225,.12)!important}
+html.night .b-time>div::after{background:#071E2E}html.night .b-row.acc.open .pl{background:#EB9A6A;border-color:#EB9A6A;color:#071E2E}
+html.night .b-rb .pl{border-color:rgba(243,236,225,.3)}
+html.night #glow{mix-blend-mode:screen!important}
+html.night #spSkip{background:rgba(7,30,46,.85);color:#F3ECE1;border-color:rgba(243,236,225,.25)}
 /* cert modal */
 #cert{position:fixed;inset:0;z-index:70;background:rgba(3,26,39,.72);display:none;place-items:center;padding:24px}
 #cert.on{display:grid}
@@ -404,7 +435,7 @@ html[dir=rtl] .b-time::before{left:auto;right:178px}html[dir=rtl] .b-time>div::a
 <header class="nav"><div class="nav-in">
 <a class="brand" href="#top"><svg class="sym" width="34" height="34"><use id="navSym" href="#Ld"></use></svg><span class="bt"><b>Ligemat</b><small>Real Estate · Marketing</small></span></a>
 <div class="sw"><button data-go="homes"><span data-t="t10">Homes</span></button><button data-go="brands"><span data-t="t11">Brands</span></button></div>
-<button class="lng" id="lng">العربية</button>
+<button class="thm" id="thm" aria-label="Night mode"><svg class="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></svg><svg class="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg></button><button class="lng" id="lng">العربية</button>
 <a class="talk" id="talk" target="_blank"><svg class="wa-i"><use href="#W"></use></svg><span class="lbl"><span data-t="t12">Talk to me</span></span></a>
 </div></header>
 
@@ -570,6 +601,7 @@ const saved=localStorage.getItem(KEY);
 if(qp.has("gate")){apply("homes",false)}
 else if(qm==="homes"||qm==="brands"){apply(qm,false);$("#gate").classList.add("out")}
 else{apply(saved||"homes",false)}
+(function(){const t=document.getElementById("thm");function setT(n){document.documentElement.classList.toggle("night",n);document.querySelectorAll('use').forEach(u=>{const h=u.getAttribute("href");if(h==="#Ld"&&n){u.setAttribute("href","#Ln");u.dataset.sw=1}else if(u.dataset.sw&&!n){u.setAttribute("href","#Ld");delete u.dataset.sw}});document.querySelectorAll(".sp-sym .s3").forEach(x=>x.setAttribute("fill",n?"#FBF7F1":"#08304A"));t.setAttribute("aria-label",n?"Day mode":"Night mode");try{localStorage.setItem("lg6-theme",n?"night":"day")}catch(e){}}let v="day";try{v=localStorage.getItem("lg6-theme")||"day"}catch(e){}setT(v==="night");t.onclick=()=>setT(!document.documentElement.classList.contains("night"))})();
 setLang(LANG);
 renderPub();
 </script>
